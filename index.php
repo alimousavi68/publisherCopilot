@@ -131,4 +131,6 @@ require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
 
 include_once(plugin_dir_path(__FILE__) . 'menu.php');
 include_once(plugin_dir_path(__FILE__) . 'scraper.php');
+//Include jalali-date external library 
+require_once(plugin_dir_path(__FILE__) . 'jdatetime.class.php');
 // error_log(plugin_dir_path(__FILE__). 'admin/menu.php');

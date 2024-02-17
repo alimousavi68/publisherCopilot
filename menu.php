@@ -43,7 +43,7 @@ function custom_rss_parser_display_items()
             <tr>
                 <th class="" style="width: 30px;" >ردیف</th>
                 <th>عنوان</th>
-                <th>تاریخ انتشار</th>
+                <th style="text-align:left;">تاریخ انتشار</th>
                 <th>عملیات</th>
             </tr>
            </thead>';
@@ -52,7 +52,9 @@ function custom_rss_parser_display_items()
         echo '<tr>';
         echo '<td>' . esc_html($item->id) . '</td>';
         echo '<td><a href="' . esc_html($item->guid) . '" target="_blank">' . esc_html($item->title) . '</a></td>';
-        echo '<td>' . esc_html($item->pub_date) . '</td>';
+        echo '<td class="ltr">' .
+        \jDateTime::convertFormatToFormat('Y-m-d / H:i', 'Y-m-d H:i:s', $item->pub_date , 'Asia/Tehran')         
+         . '</td>';
         echo '<td><a href="#" class="scrape-link" data-guid="' . esc_attr($item->guid) . '">واکشی و انتشار</a></td>';
         echo '</tr>';
     }
