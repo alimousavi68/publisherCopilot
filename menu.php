@@ -35,7 +35,7 @@ function custom_rss_parser_display_items()
     $table_name = $wpdb->prefix . 'custom_rss_items';
 
     // Fetch items from the database
-    $items = $wpdb->get_results("SELECT * FROM $table_name");
+    $items = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id DESC");
 
     // Display the items in a table
     echo '<table class="widefat">';
