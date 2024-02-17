@@ -19,7 +19,7 @@ function custom_rss_parser_page_callback()
 {
     // Your code to display the page content goes here
     echo '<div class="wrap">';
-    echo '<h1>Custom RSS Items</h1>';
+    echo '<h1 class="wp-heading-inline">آخرین فیدهای منابع</h1>';
     // Add additional HTML and PHP code for displaying the list of items
     custom_rss_parser_display_items();
     echo '</div>';
@@ -38,15 +38,22 @@ function custom_rss_parser_display_items()
     $items = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id DESC");
 
     // Display the items in a table
-    echo '<table class="widefat">';
-    echo '<thead><tr><th>ID</th><th>Title</th><th>Pub Date</th><th>action</th></tr></thead>';
+    echo '<table class="widefat wp-list-table fixed striped table-view-list">';
+    echo '<thead>
+            <tr>
+                <th class="" style="width: 30px;" >ردیف</th>
+                <th>عنوان</th>
+                <th>تاریخ انتشار</th>
+                <th>عملیات</th>
+            </tr>
+           </thead>';
     echo '<tbody>';
     foreach ($items as $item) {
         echo '<tr>';
         echo '<td>' . esc_html($item->id) . '</td>';
         echo '<td><a href="' . esc_html($item->guid) . '" target="_blank">' . esc_html($item->title) . '</a></td>';
         echo '<td>' . esc_html($item->pub_date) . '</td>';
-        echo '<td><a href="#" class="scrape-link" data-guid="' . esc_attr($item->guid) . '">Scrape and Publish</a></td>';
+        echo '<td><a href="#" class="scrape-link" data-guid="' . esc_attr($item->guid) . '">واکشی و انتشار</a></td>';
         echo '</tr>';
     }
     echo '</tbody>';
