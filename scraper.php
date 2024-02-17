@@ -26,9 +26,23 @@ if (defined('DOING_AJAX') && DOING_AJAX) {
     }
 }
 
+add_action('admin_post_scrape_and_publish_post', 'scrape_and_publish_post');
 // Function to scrape data from a given URL and create a new WordPress post
-function scrape_and_publish_post($guid)
+function scrape_and_publish_post()
 {
+    // دریافت مقدار Nonce از فرم
+    $nonce = $_POST['my_nonce_field'];
+
+    // بررسی صحت Nonce
+    if (!wp_verify_nonce($nonce, 'scrape_and_publish_post_nonce')) {
+        // در صورتی که Nonce معتبر نباشد، عملیات را متوقف کنید و پیام خطا نمایش دهید
+        echo 'دسترسی غیر مجاز!';
+        exit;
+    }
+
+    // دریافت مقادیر از فرم
+    $guid = $_POST['post_guid'];
+
     $url = $guid;
     // $url = "https://www.farsnews.ir/news/14021011000961/%D8%A7%D9%86%D8%AA%D8%B4%D8%A7%D8%B1-%D9%86%D8%AE%D8%B3%D8%AA%DB%8C%D9%86%E2%80%8C%D8%A8%D8%A7%D8%B1%7C-%D8%AE%D8%A7%D8%B7%D8%B1%D9%87-%D8%B1%D9%87%D8%A8%D8%B1-%D8%A7%D9%86%D9%82%D9%84%D8%A7%D8%A8-%D8%A7%D8%B2-%D9%86%D9%82%D9%84-%D9%82%D9%88%D9%84-%D8%AD%D8%A7%D8%AC-%D9%82%D8%A7%D8%B3%D9%85-%D8%AF%D8%B1%D8%A8%D8%A7%D8%B1%D9%87";
 
@@ -114,9 +128,15 @@ function scrape_and_publish_post($guid)
             // Output success or failure message
             if ($post_id) {
                 echo '<script>console.log("Post created successfully with ID: " + ' . $post_id . ');</script>';
+                // ارسال پاسخ به مرورگر
+                wp_safe_redirect(add_query_arg('success', 'true', wp_get_referer()));
+                exit;
             } else {
                 echo '<script>console.log("Failed to create post. ");</script>';
                 error_log('Failed to create post.');
+                // ارسال پاسخ به مرورگر
+                wp_safe_redirect(add_query_arg('success', 'false', wp_get_referer()));
+                exit;
             }
         } else {
             echo '<script>console.log("Required elements not found on the page. ");</script>';
