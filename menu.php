@@ -55,27 +55,33 @@ function custom_rss_parser_display_items()
 
     // Add JavaScript to trigger the scrape_and_publish_post function via Ajax
     echo '<script>
-            document.addEventListener("DOMContentLoaded", function() {
-                var scrapeLinks = document.querySelectorAll(".scrape-link");
-                scrapeLinks.forEach(function(link) {
-                    link.addEventListener("click", function(e) {
-                        e.preventDefault();
-                        var postGuid = this.getAttribute("data-guid");
+    document.addEventListener("DOMContentLoaded", function() {
+        var scrapeLinks = document.querySelectorAll(".scrape-link");
+        scrapeLinks.forEach(function(link) {
+            link.addEventListener("click", function(e) {
+                e.preventDefault();
+                var postGuid = this.getAttribute("data-guid");
 
-                        // Use Ajax to call the scraper.php file and pass the postGuid
-                        var xhr = new XMLHttpRequest();
-                        xhr.open("POST", "' . admin_url('admin-ajax.php') . '", true);
-                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                        xhr.onreadystatechange = function() {
-                            if (xhr.readyState == 4 && xhr.status == 200) {
-                                // Handle the response if needed
-                            }
-                        };
-                        xhr.send("guid=" + postGuid);
-                    });
-                });
+                // Use Ajax to call the scraper.php file and pass the postGuid
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "' . admin_url('admin-ajax.php') . '", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status == 200) {
+                            // Handle the response if needed
+                            console.log(xhr.responseText);
+                        } else {
+                            // Handle error
+                            console.error("Ajax request failed. Status: " + xhr.status);
+                        }
+                    }
+                };
+
+                xhr.send("action=scrape_and_publish_post&guid=" + postGuid);
             });
-         </script>';
+        });
+    });
+</script>';
+
 }
-
-

@@ -6,6 +6,9 @@ Version: 1.0
 Author: Your Name
 */
 
+
+
+
 // Hook into WordPress actions
 add_action('admin_init', 'custom_rss_parser_schedule_event');
 
@@ -125,6 +128,7 @@ function custom_rss_parser_insert_item($title, $pub_date, $guid)
 }
 
 require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
+
 include_once(plugin_dir_path(__FILE__) . 'menu.php');
 include_once(plugin_dir_path(__FILE__) . 'scraper.php');
 // error_log(plugin_dir_path(__FILE__). 'admin/menu.php');
