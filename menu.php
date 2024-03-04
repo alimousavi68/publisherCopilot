@@ -56,6 +56,7 @@ function custom_rss_parser_display_items()
             <tr>
                 <th class="" style="width: 30px;" >ردیف</th>
                 <th>عنوان</th>
+                <th>منبع</th>
                 <th style="text-align:left;">تاریخ انتشار</th>
                 <th>عملیات</th>
             </tr>
@@ -65,6 +66,7 @@ function custom_rss_parser_display_items()
         echo '<tr>';
         echo '<td>' . esc_html($item->id) . '</td>';
         echo '<td><a href="' . esc_html($item->guid) . '" target="_blank">' . esc_html($item->title) . '</a></td>';
+        echo '<td style="max-width:50px;">' . (($item->resource_name) ? ($item->resource_name) : '-') . '</td>';
         echo '<td class="ltr">' .
             \jDateTime::convertFormatToFormat('Y-m-d / H:i', 'Y-m-d H:i:s', $item->pub_date, 'Asia/Tehran')
             . '</td>';
@@ -74,6 +76,7 @@ function custom_rss_parser_display_items()
                     ' . wp_nonce_field('scrape_and_publish_post_nonce', 'my_nonce_field') . '
                     <input type="hidden" name="action" value="scrape_and_publish_post">
                     <input type="hidden" name="post_guid" value="' . esc_attr($item->guid) . '">
+                    <input type="hidden" name="resource_id" value="' . esc_attr($item->resource_id) . '">
                     <input type="submit" class="scrape-link" value="واکشی و انتشار">
                 </form>
 
@@ -99,7 +102,7 @@ function custom_rss_parser_display_items()
 
             // Use Ajax to call the scraper.php file and pass the postGuid
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "<?php // echo admin_url('admin-ajax.php')    ?>", true);
+            xhr.open("POST", "<?php // echo admin_url('admin-ajax.php')     ?>", true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4) {

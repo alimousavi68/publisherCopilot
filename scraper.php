@@ -4,7 +4,7 @@
 // require_once(ABSPATH . '/wp-load.php');
 
 $document_root = $_SERVER['DOCUMENT_ROOT'] . '/rasadi';
-error_log('root:' . $document_root);
+// error_log('root:' . $document_root);
 
 if (file_exists($document_root . '/wp-load.php')) {
     require_once($document_root . '/wp-load.php');
@@ -42,17 +42,24 @@ function scrape_and_publish_post()
 
     // دریافت مقادیر از فرم
     $guid = $_POST['post_guid'];
+    $resource_id = $_POST['resource_id'];
+
+    $title_selector = get_post_meta($resource_id, 'title_selector', true);
+    $img_selector = get_post_meta($resource_id, 'img_selector', true);
+    $lead_selector = get_post_meta($resource_id, 'lead_selector', true);
+    $body_selector = get_post_meta($resource_id, 'body_selector', true);
+    $bup_date_selector = get_post_meta($resource_id, 'bup_date_selector', true);
+    $category_selector = get_post_meta($resource_id, 'category_selector', true);
+    $tags_selector = get_post_meta($resource_id, 'tags_selector', true);
+    $escape_elements = get_post_meta($resource_id, 'escape_elements', true);
+    $source_root_link = get_post_meta($resource_id, 'source_root_link', true);
+    $source_feed_link = get_post_meta($resource_id, 'source_feed_link', true);
+
 
     $url = $guid;
-    // $url = "https://www.farsnews.ir/news/14021011000961/%D8%A7%D9%86%D8%AA%D8%B4%D8%A7%D8%B1-%D9%86%D8%AE%D8%B3%D8%AA%DB%8C%D9%86%E2%80%8C%D8%A8%D8%A7%D8%B1%7C-%D8%AE%D8%A7%D8%B7%D8%B1%D9%87-%D8%B1%D9%87%D8%A8%D8%B1-%D8%A7%D9%86%D9%82%D9%84%D8%A7%D8%A8-%D8%A7%D8%B2-%D9%86%D9%82%D9%84-%D9%82%D9%88%D9%84-%D8%AD%D8%A7%D8%AC-%D9%82%D8%A7%D8%B3%D9%85-%D8%AF%D8%B1%D8%A8%D8%A7%D8%B1%D9%87";
-
-    error_log('url in function: ' . $url);
 
     // Load the HTML from the provided URL
     $html = file_get_html($url);
-    // error_log('url-content: ' . $html);
-
-
 
 
     // Check if HTML is successfully loaded
@@ -60,26 +67,28 @@ function scrape_and_publish_post()
         // Find and extract the required elements
 
         // انتخاب المان h1 با کلاس "title" و مشخصه itemprop="headline"
-        $title_element = $html->find('h1.title', 0);
+        $title_element = $html->find($title_selector, 0);
 
         // بررسی وجود المان قبل از استفاده از تابع find()
         if ($title_element) {
             // دریافت متن موجود در المان
             $title = $title_element->plaintext;
+            error_log('title: '. $title);
         } else {
             // در صورت عدم وجود المان، مقدار پیشفرض یا اقدام مناسب دیگر
             $title = 'عنوان پیدا نشد';
         }
 
 
-        $excerpt = $html->find('p.lead', 0);
+        $excerpt = $html->find($lead_selector, 0);
         $excerpt = $excerpt->plaintext;
+        error_log('excerpt: '. $excerpt);
 
-
-        $content = $html->find('div#CK_editor', 0);
+        $content = $html->find($body_selector, 0);
         $content = $content->innertext;
+        error_log('content: '. $content);
 
-        $thumbnail_url = $html->find('.contain-img img', 0)->src;
+        $thumbnail_url = $html->find($img_selector, 0)->src;
 
 
 
@@ -99,11 +108,9 @@ function scrape_and_publish_post()
             // Insert the post into the WordPress database
             // درست کردن پست در وردپرس
             try {
-                error_log('dolly1 ');
                 $post_id = wp_insert_post($post_data);
                 ob_flush(); // تخلیه خروجی
             } catch (Exception $e) {
-                echo '<script>console.log("Failed to insert the post. Error: ' . $e->getMessage() . '");</script>';
                 error_log('Failed to insert the post. Error: ' . $e->getMessage());
                 ob_flush(); // تخلیه خروجی
             }

@@ -40,6 +40,8 @@ function custom_rss_parser_create_table()
         $sql = "CREATE TABLE $table_name (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             title text NOT NULL,
+            resource_name text NOT NULL,
+            resource_id mediumint(9) NOT NULL,
             pub_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
             guid text NOT NULL,
             PRIMARY KEY (id)
@@ -57,32 +59,54 @@ add_action('custom_rss_parser_event', 'custom_rss_parser_run');
 function custom_rss_parser_run()
 {
     // Replace 'YOUR_RSS_FEED_URL' with the actual RSS feed URL
-    $rss_feed_url = 'https://www.rokna.net/feeds/';
+    $args = array(
+        'post_type' => 'resource',
+        'post_status' => 'publish',
+    );
 
-    // Fetch the RSS feed
-    $rss_feed = fetch_rss_feed($rss_feed_url);
+    $feeds_list = new WP_Query($args);
 
-    if (!$rss_feed) {
-        return;
-    }
-
-    // Parse and store RSS feed data
-    foreach ($rss_feed->channel->item as $item) {
-        $title = $item->title;
-        $pub_date = date('Y-m-d H:i:s', strtotime($item->pubDate));
-        $guid = 'https://www.rokna.net' . $item->guid . '';
-
-        // Check if the item already exists in the database
-        if (!custom_rss_parser_item_exists($guid)) {
-            // Insert the new item into the custom table
-            custom_rss_parser_insert_item($title, $pub_date, $guid);
-        }
+    if ($feeds_list->have_posts()):
+        while ($feeds_list->have_posts()):
+            $feeds_list->the_post();
+            $rss_feed_url = get_post_meta(get_the_ID(), 'source_feed_link', true);
+            $source_root_link = get_post_meta(get_the_ID(), 'source_root_link', true);
+            $resource_id = get_the_ID();
+            $resource_name = get_the_title();
+            $need_to_merge_guid_link = get_post_meta(get_the_ID(), 'need_to_merge_guid_link', true);
 
 
-    }
+            // Fetch the RSS feed
+            $rss_feed = fetch_rss_feed($rss_feed_url);
+
+            if (!$rss_feed) {
+                return;
+            }
+
+            // Parse and store RSS feed data
+            foreach ($rss_feed->channel->item as $item) {
+                $title = $item->title;
+                $pub_date = date('Y-m-d H:i:s', strtotime($item->pubDate));
+
+                if ($need_to_merge_guid_link == 1) {
+                    $guid = $source_root_link . $item->guid . '';
+                } else {
+                    $guid = $item->guid . '';
+
+                }
+
+                // Check if the item already exists in the database
+                if (!custom_rss_parser_item_exists($guid)) {
+                    // Insert the new item into the custom table
+                    custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $resource_name);
+                }
 
 
+            }
 
+        endwhile;
+
+    endif;
 }
 
 // Function to fetch the RSS feed
@@ -111,7 +135,7 @@ function custom_rss_parser_item_exists($guid)
 }
 
 // Function to insert a new item into the custom table
-function custom_rss_parser_insert_item($title, $pub_date, $guid)
+function custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $resource_name)
 {
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_rss_items';
@@ -120,6 +144,8 @@ function custom_rss_parser_insert_item($title, $pub_date, $guid)
         $table_name,
         array(
             'title' => '' . $title,
+            'resource_name' => $resource_name,
+            'resource_id' => $resource_id,
             'pub_date' => $pub_date,
             'guid' => '' . $guid,
         )
@@ -128,6 +154,7 @@ function custom_rss_parser_insert_item($title, $pub_date, $guid)
 }
 
 require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
+require_once plugin_dir_path(__FILE__) . 'resources_post_type.php';
 
 include_once(plugin_dir_path(__FILE__) . 'menu.php');
 include_once(plugin_dir_path(__FILE__) . 'scraper.php');
