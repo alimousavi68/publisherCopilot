@@ -7,8 +7,6 @@ Author: Your Name
 */
 
 
-
-
 // Hook into WordPress actions
 add_action('admin_init', 'custom_rss_parser_schedule_event');
 
@@ -18,14 +16,44 @@ add_action('admin_init', 'custom_rss_parser_create_table');
 // Schedule event to run every 5 minutes
 function custom_rss_parser_schedule_event()
 {
-
     // Schedule the event to run every 5 minutes
-    // wp_schedule_event(time(), '5minutes', 'custom_rss_parser_event');
-
     if (!wp_next_scheduled('custom_rss_parser_event')) {
         wp_schedule_event(time(), '5minutes', 'custom_rss_parser_event');
     }
+
+    if(!wp_next_scheduled('i8_daily_cron')) {
+        wp_schedule_event(time(),'i8_daily_cron','remove_all_feed_on_feeds_table');
+    }
+       
+
 }
+
+add_filter('cron_schedules', 'i8_register_daily_cron_schedule');
+function i8_register_daily_cron_schedule($schedules){
+    $schedules['i8_daily_cron'] = array(
+        'interval' => 4* 60 *30 ,
+        'display' => __('این کرون هر ۲۴ ساعت اجرا میشود')
+    );
+    return $schedules;
+}
+
+function remove_all_feed_on_feeds_table(){
+    global $wpdb;
+        $table_name = $wpdb->prefix . 'custom_rss_items';
+        $delete_status = $wpdb->query("DELETE FROM $table_name");
+        if ($delete_status) {
+            wp_safe_redirect(add_query_arg('success', 'true', wp_get_referer()));
+            exit;
+        } else {
+            echo '<div class="notice notice-error is-dismissible">
+                <p>مشکلی پیش آمد!</p>
+            </div>';
+
+        }
+}
+
+
+
 
 // Function to check if custom table exists and create it if not
 function custom_rss_parser_create_table()

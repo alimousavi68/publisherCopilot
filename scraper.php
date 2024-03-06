@@ -15,9 +15,6 @@ if (file_exists($document_root . '/wp-load.php')) {
 
 // Check if the request is an Ajax request
 if (defined('DOING_AJAX') && DOING_AJAX) {
-
-    // error_log('me fired/ url: ' . $_POST['guid']);
-
     // Check if the required data is received
     if (isset($_POST['guid'])) {
         $guid = sanitize_text_field($_POST['guid']);
@@ -73,7 +70,6 @@ function scrape_and_publish_post()
         if ($title_element) {
             // دریافت متن موجود در المان
             $title = $title_element->plaintext;
-            error_log('title: '. $title);
         } else {
             // در صورت عدم وجود المان، مقدار پیشفرض یا اقدام مناسب دیگر
             $title = 'عنوان پیدا نشد';
@@ -82,11 +78,10 @@ function scrape_and_publish_post()
 
         $excerpt = $html->find($lead_selector, 0);
         $excerpt = $excerpt->plaintext;
-        error_log('excerpt: '. $excerpt);
 
         $content = $html->find($body_selector, 0);
         $content = $content->innertext;
-        error_log('content: '. $content);
+
 
         $thumbnail_url = $html->find($img_selector, 0)->src;
 
@@ -100,7 +95,7 @@ function scrape_and_publish_post()
                 'post_title' => $title,
                 'post_content' => $content,
                 'post_excerpt' => $excerpt,
-                'post_status' => 'publish',
+                'post_status' => 'draft',
                 'post_type' => 'post',
             );
 
@@ -117,18 +112,15 @@ function scrape_and_publish_post()
 
             // Upload and set the featured image
             if ($post_id && function_exists('media_sideload_image')) {
-                $attachment_id = media_sideload_image($thumbnail_url, $post_id, 'thumbnail');
+                $attachment_id = media_sideload_image($thumbnail_url, $post_id, 'thumbnail','id');
+                
                 if (!is_wp_error($attachment_id)) {
                     set_post_thumbnail($post_id, $attachment_id);
-                    echo '<script>console.log("ok. its set");</script>';
-                    error_log('ok. its set');
 
                 } elseif (is_wp_error($attachment_id)) {
-                    echo '<script>console.log("Failed to upload the featured image. Error: ' . $attachment_id->get_error_message() . '");</script>';
                     error_log('Failed to upload the featured image. Error: ' . $attachment_id->get_error_message());
                 }
             } elseif (!function_exists('media_sideload_image')) {
-                echo '<script>console.log("media_sideload_image() function is not available.");</script>';
                 error_log('media_sideload_image() function is not available.');
             }
 

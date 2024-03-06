@@ -30,12 +30,37 @@ function custom_rss_parser_page_callback()
 
         }
     }
-    // Your code to display the page content goes here
-    echo '<div class="wrap">';
-    echo '<h1 class="wp-heading-inline">آخرین فیدهای منابع</h1>';
-    // Add additional HTML and PHP code for displaying the list of items
-    custom_rss_parser_display_items();
-    echo '</div>';
+
+    $action = (isset($_GET['action'])) ? $_GET['action'] : '';
+    if ($action == 'delete_all') {
+        remove_all_feed_on_feeds_table();
+    }
+
+    if ($action == 'update_feeds') {
+        do_action('custom_rss_parser_event');
+        wp_safe_redirect(add_query_arg('success', 'true', wp_get_referer()));
+    }
+    ?>
+
+    <div class="wrap">
+        <h1 class="wp-heading-inline">آخرین فیدهای منابع</h1>
+        <hr>
+        <div class="wp-filter">
+            <div style="float:left ; padding:10px 10px;">
+
+                <a href="admin.php?page=custom_rss_parser_page&action=delete_all" class="button button-secondary">حذف
+                    همه</a>
+                <a href="admin.php?page=custom_rss_parser_page&action=delete_all" class="button button-secondary">حذف</a>
+                <a href="admin.php?page=custom_rss_parser_page&action=update_feeds"
+                    class="button button-secondary">بروزرسانی</a>
+
+            </div>
+        </div>
+
+        <!-- Add additional HTML and PHP code for displaying the list of items -->
+        <?php custom_rss_parser_display_items(); ?>
+    </div>
+    <?php
 }
 
 
@@ -51,7 +76,11 @@ function custom_rss_parser_display_items()
     $items = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id DESC");
 
     // Display the items in a table
-    echo '<table class="widefat wp-list-table fixed striped table-view-list">';
+    ?>
+
+
+    <?php
+    echo '<table class="widefat wp-list-table fixed striped table-view-list scraped-feeds-table">';
     echo '<thead>
             <tr>
                 <th class="" style="width: 30px;" >ردیف</th>
@@ -63,7 +92,7 @@ function custom_rss_parser_display_items()
            </thead>';
     echo '<tbody>';
     foreach ($items as $item) {
-        echo '<tr>';
+        echo '<tr id="item-'.esc_html($item->id).'">';
         echo '<td>' . esc_html($item->id) . '</td>';
         echo '<td><a href="' . esc_html($item->guid) . '" target="_blank">' . esc_html($item->title) . '</a></td>';
         echo '<td style="max-width:50px;">' . (($item->resource_name) ? ($item->resource_name) : '-') . '</td>';
@@ -71,17 +100,20 @@ function custom_rss_parser_display_items()
             \jDateTime::convertFormatToFormat('Y-m-d / H:i', 'Y-m-d H:i:s', $item->pub_date, 'Asia/Tehran')
             . '</td>';
         echo '<td>
-                
-                <form id="scrape-form" action="' . admin_url('admin-post.php') . '" method="post">
+            <div class="">
+                <form id="scrape-form" style="display:inline-block;"  action="' . admin_url('admin-post.php') . '" method="post">
                     ' . wp_nonce_field('scrape_and_publish_post_nonce', 'my_nonce_field') . '
                     <input type="hidden" name="action" value="scrape_and_publish_post">
                     <input type="hidden" name="post_guid" value="' . esc_attr($item->guid) . '">
                     <input type="hidden" name="resource_id" value="' . esc_attr($item->resource_id) . '">
-                    <input type="submit" class="scrape-link" value="واکشی و انتشار">
-                </form>
+                    <button type="submit" id="scraper-link-' . $item->id . '" data-guid="' . $item->id . '" class="scrape-link button button-secondary" style="position:none;">
+                    <img src="' . esc_url( get_admin_url() . 'images/wpspin_light-2x.gif' ) . '" style="display:none;position:absolute;left:50%;z-index:100;" />
+                        واکشی و انتشار          
+                    </button>
 
-                <span> / </span>
-                <a href="' . esc_html($item->guid) . '" target="_blank">' . "بازدید" . '</a>
+                </form>
+                <a href="' . esc_html($item->guid) . '" class="button button-secondary" target="_blank">' . "بازدید" . '</a>
+            </div>
         </td>';
 
         echo '</tr>';
@@ -92,41 +124,49 @@ function custom_rss_parser_display_items()
 
     // Add JavaScript to trigger the scrape_and_publish_post function via Ajax
     ?>
-    <!-- <script>
-    document.addEventListener("DOMContentLoaded", function() {
-    var scrapeLinks = document.querySelectorAll(".scrape-link");
-    scrapeLinks.forEach(function(link) {
-        link.addEventListener("click", function(e) {
-            e.preventDefault();
-            var postGuid = this.getAttribute("data-guid");
 
-            // Use Ajax to call the scraper.php file and pass the postGuid
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "<?php // echo admin_url('admin-ajax.php')     ?>", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4) {
-                    if (xhr.status == 200) {
-                        // Check for success response
-                        var response = JSON.parse(xhr.responseText);
-                        if (response.success) {
-                            alert("پست با موقیت در سایت منتشر شد");
-                        } else {
-                            alert("مشکلی پیش آمد: " + response.data);
-                        }
-                    } else {
-                        // Handle error
-                        console.error("Ajax request failed. Status: " + xhr.status);
-                        alert("مشکلی پیش آمد: خطا " + xhr.status);
-                    }
-                }
-            };
 
-            xhr.send("action=scrape_and_publish_post&guid=" + postGuid);
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var scrapeLinks = document.querySelectorAll(".scrape-link");
+            scrapeLinks.forEach(function (link) {
+                link.addEventListener("click", function (e) {
+
+                    var postGuid = this.getAttribute("data-guid");
+
+                    var scrapeImg = document.querySelectorAll("#scraper-link-" + postGuid + ">img");
+                    scrapeImg.forEach(function (link) {
+                        link.style.display = 'inline-block';
+                    });
+                    document.getElementById("item-"+postGuid).classList.add("blinking");
+                });
+            });
         });
-    });
-});
+    </script>
 
-</script> -->
+    <style>
+        @keyframes blink {
+            0% {
+                background-color: #f0f0f1;
+            }
+
+            50% {
+                background-color: gold;
+            }
+
+            100% {
+                background-color: #f0f0f1;
+            }
+        }
+
+        .blinking {
+            animation: blink 2s infinite;
+            filter:blur(1.2px);
+        }
+
+        .scraped-feeds-table tr:hover{
+            background-color: #eaf9ff;
+        }
+    </style>
     <?php
 }
