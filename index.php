@@ -183,7 +183,7 @@ function custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $
 
 }
 
-// require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
+require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
 require_once plugin_dir_path(__FILE__) . 'resources_post_type.php';
 
 // include_once(plugin_dir_path(__FILE__) . 'menu.php');
