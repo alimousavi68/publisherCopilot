@@ -96,9 +96,7 @@ function custom_rss_parser_display_items()
         echo '<td>' . esc_html($item->id) . '</td>';
         echo '<td><a href="' . esc_html($item->guid) . '" target="_blank">' . esc_html($item->title) . '</a></td>';
         echo '<td style="max-width:50px;">' . (($item->resource_name) ? ($item->resource_name) : '-') . '</td>';
-        echo '<td class="ltr">' .
-            \jDateTime::convertFormatToFormat('Y-m-d / H:i', 'Y-m-d H:i:s', $item->pub_date, 'Asia/Tehran')
-            . '</td>';
+        //echo '<td class="ltr">' . \jDateTime::convertFormatToFormat('Y-m-d / H:i', 'Y-m-d H:i:s', $item->pub_date, 'Asia/Tehran')            . '</td>';
         echo '<td>
             <div class="">
                 <form id="scrape-form" style="display:inline-block;"  action="' . admin_url('admin-post.php') . '" method="post">
