@@ -7,8 +7,6 @@ Author: Your Name
 */
 
 
-// exit;
-
 
 // Hook into WordPress actions
 add_action('admin_init', 'custom_rss_parser_schedule_event');
@@ -185,11 +183,12 @@ function custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $
 
 }
 
-require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
-require_once plugin_dir_path(__FILE__) . 'resources_post_type.php';
+// require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
+// require_once plugin_dir_path(__FILE__) . 'resources_post_type.php';
 
-include_once(plugin_dir_path(__FILE__) . 'menu.php');
-include_once(plugin_dir_path(__FILE__) . 'scraper.php');
-//Include jalali-date external library 
-//require_once(plugin_dir_path(__FILE__) . 'jdatetime.class.php');
+// include_once(plugin_dir_path(__FILE__) . 'menu.php');
+// include_once(plugin_dir_path(__FILE__) . 'scraper.php');
+
+// Include jalali-date external library 
+// require_once(plugin_dir_path(__FILE__) . 'jdatetime.class.php');
 // error_log(plugin_dir_path(__FILE__). 'admin/menu.php');
