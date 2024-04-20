@@ -8,11 +8,13 @@
 // Include necessary WordPress files
 // require_once(ABSPATH . '/wp-load.php');
 
-$document_root = $_SERVER['DOCUMENT_ROOT'] . '/rasadi';
-// error_log('root:' . $document_root);
+require_once ABSPATH . 'wp-admin/includes/file.php';
+// تعیین مسیر نسبی فایل wp-load.php
+$wp_load_path = get_home_path() . 'wp-load.php';
 
-if (file_exists($document_root . '/wp-load.php')) {
-    require_once($document_root . '/wp-load.php');
+// اگر فایل wp-load.php در مسیر محاسبه شده وجود داشته باشد، آن را لود کنید
+if (file_exists( $wp_load_path)) {
+    require_once($wp_load_path);
 } else {
     error_log('wp-load.php not found!');
     exit;
