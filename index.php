@@ -191,4 +191,4 @@ require_once plugin_dir_path(__FILE__) . 'resources_post_type.php';
 
 // Include jalali-date external library 
 require_once(plugin_dir_path(__FILE__) . 'jdatetime.class.php');
-// error_log(plugin_dir_path(__FILE__). 'admin/menu.php');
+error_log(plugin_dir_path(__FILE__). 'admin/menu.php');
