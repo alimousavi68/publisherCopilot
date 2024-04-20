@@ -187,7 +187,7 @@ function custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $
 // require_once plugin_dir_path(__FILE__) . 'resources_post_type.php';
 
 // include_once(plugin_dir_path(__FILE__) . 'menu.php');
-include_once(plugin_dir_path(__FILE__) . 'scraper.php');
+// include_once(plugin_dir_path(__FILE__) . 'scraper.php');
 
 // Include jalali-date external library 
 // require_once(plugin_dir_path(__FILE__) . 'jdatetime.class.php');
