@@ -7,6 +7,9 @@ Author: Your Name
 */
 
 
+exit;
+
+
 // Hook into WordPress actions
 add_action('admin_init', 'custom_rss_parser_schedule_event');
 
@@ -21,38 +24,40 @@ function custom_rss_parser_schedule_event()
         wp_schedule_event(time(), '5minutes', 'custom_rss_parser_event');
     }
 
-    if(!wp_next_scheduled('i8_daily_cron')) {
-        wp_schedule_event(time(),'i8_daily_cron','remove_all_feed_on_feeds_table');
+    if (!wp_next_scheduled('remove_all_feed_on_feeds_table')) {
+        wp_schedule_event(time(), 'i8_daily_cron', 'remove_all_feed_on_feeds_table');
     }
-       
-
 }
 
 add_filter('cron_schedules', 'i8_register_daily_cron_schedule');
-function i8_register_daily_cron_schedule($schedules){
+function i8_register_daily_cron_schedule($schedules)
+{
     $schedules['i8_daily_cron'] = array(
-        'interval' => 4* 60 *30 ,
+        'interval' => (60 * 60) * 24,
         'display' => __('این کرون هر ۲۴ ساعت اجرا میشود')
+    );
+    $schedules['5minutes'] = array(
+        'interval' => (5 * 60),
+        'display' => __('این کرون هر ۵دقیقه اجرا میشود')
     );
     return $schedules;
 }
+add_action('remove_all_feed_on_feeds_table', 'remove_all_feed_on_feeds_table');
 
-function remove_all_feed_on_feeds_table(){
+function remove_all_feed_on_feeds_table()
+{
     global $wpdb;
-        $table_name = $wpdb->prefix . 'custom_rss_items';
-        $delete_status = $wpdb->query("DELETE FROM $table_name");
-        if ($delete_status) {
-            wp_safe_redirect(add_query_arg('success', 'true', wp_get_referer()));
-            exit;
-        } else {
-            echo '<div class="notice notice-error is-dismissible">
+    $table_name = $wpdb->prefix . 'custom_rss_items';
+    $delete_status = $wpdb->query("DELETE FROM $table_name");
+    if ($delete_status) {
+        wp_safe_redirect(add_query_arg('success', 'true', wp_get_referer()));
+        exit;
+    } else {
+        echo '<div class="notice notice-error is-dismissible">
                 <p>مشکلی پیش آمد!</p>
             </div>';
-
-        }
+    }
 }
-
-
 
 
 // Function to check if custom table exists and create it if not
@@ -102,7 +107,6 @@ function custom_rss_parser_run()
             $resource_id = get_the_ID();
             $resource_name = get_the_title();
             $need_to_merge_guid_link = get_post_meta(get_the_ID(), 'need_to_merge_guid_link', true);
-
 
             // Fetch the RSS feed
             $rss_feed = fetch_rss_feed($rss_feed_url);

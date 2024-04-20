@@ -1,5 +1,10 @@
 <?php
 
+
+
+
+
+
 // Include necessary WordPress files
 // require_once(ABSPATH . '/wp-load.php');
 
@@ -52,7 +57,6 @@ function scrape_and_publish_post()
     $source_root_link = get_post_meta($resource_id, 'source_root_link', true);
     $source_feed_link = get_post_meta($resource_id, 'source_feed_link', true);
 
-
     $url = $guid;
 
     // Load the HTML from the provided URL
@@ -75,12 +79,11 @@ function scrape_and_publish_post()
             $title = 'عنوان پیدا نشد';
         }
 
-
         $excerpt = $html->find($lead_selector, 0);
         $excerpt = $excerpt->plaintext;
 
         $content = $html->find($body_selector, 0);
-        $content = $content->innertext;
+        $content = clear_not_allowed_tags($content->innertext);
 
 
         $thumbnail_url = $html->find($img_selector, 0)->src;
@@ -112,8 +115,8 @@ function scrape_and_publish_post()
 
             // Upload and set the featured image
             if ($post_id && function_exists('media_sideload_image')) {
-                $attachment_id = media_sideload_image($thumbnail_url, $post_id, 'thumbnail','id');
-                
+                $attachment_id = media_sideload_image($thumbnail_url, $post_id, 'thumbnail', 'id');
+
                 if (!is_wp_error($attachment_id)) {
                     set_post_thumbnail($post_id, $attachment_id);
 
@@ -148,8 +151,39 @@ function scrape_and_publish_post()
     }
 }
 
+function clear_not_allowed_tags($html)
+{
+     // ایجاد یک شیء DOMDocument
+     $dom = new DOMDocument();
 
-
-
-
-
+     // بارگیری HTML بدون عنوان
+     libxml_use_internal_errors(true); // غیرفعال کردن پیام‌های خطا
+     $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD); // اضافه کردن تگ xml و بارگیری HTML بدون عنوان
+     libxml_clear_errors(); // پاک کردن خطاها
+ 
+     // حذف تگ‌های <a> و <h1>
+     $tagsToRemove = array('a', 'h1');
+     foreach ($tagsToRemove as $tag) {
+         $elementsToRemove = $dom->getElementsByTagName($tag);
+         foreach ($elementsToRemove as $element) {
+             $element->parentNode->removeChild($element);
+         }
+     }
+ 
+     // حذف ویژگی‌های id، class و style از تمام تگ‌ها
+     $allElements = $dom->getElementsByTagName('*');
+     foreach ($allElements as $element) {
+         $element->removeAttribute('id');
+         $element->removeAttribute('class');
+         $element->removeAttribute('style');
+     }
+ 
+     // دریافت HTML نهایی
+     $filteredHtml = $dom->saveHTML();
+ 
+     // حذف <?xml encoding="UTF-8">
+     $filteredHtml = substr($filteredHtml, strlen('<?xml encoding="UTF-8">'));
+ 
+     // بازگرداندن HTML نهایی
+     return $filteredHtml;
+ }
