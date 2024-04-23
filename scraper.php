@@ -1,53 +1,65 @@
 <?php
 
-
-
-
-
-
 // Include necessary WordPress files
-// require_once(ABSPATH . '/wp-load.php');
 
-require_once ABSPATH . 'wp-admin/includes/file.php';
+
+// require_once ABSPATH . 'wp-admin/includes/file.php';
 // تعیین مسیر نسبی فایل wp-load.php
-$wp_load_path = get_home_path() . 'wp-load.php';
+// $wp_load_path = get_home_path() . 'wp-load.php';
 
-// اگر فایل wp-load.php در مسیر محاسبه شده وجود داشته باشد، آن را لود کنید
-if (file_exists( $wp_load_path)) {
-    require_once($wp_load_path);
-} else {
-    error_log('wp-load.php not found!');
-    exit;
-}
+// // اگر فایل wp-load.php در مسیر محاسبه شده وجود داشته باشد، آن را لود کنید
+// if (file_exists($wp_load_path)) {
+//     require_once ($wp_load_path);
+// } else {
+//     error_log('wp-load.php not found!');
+//     exit;
+// }
 
 // Check if the request is an Ajax request
-if (defined('DOING_AJAX') && DOING_AJAX) {
-    // Check if the required data is received
-    if (isset($_POST['guid'])) {
-        $guid = sanitize_text_field($_POST['guid']);
-        // Call the function
-        scrape_and_publish_post($guid);
+// if (defined('DOING_AJAX') && DOING_AJAX) {
+//     // Check if the required data is received
+//     if (isset($_POST['guid'])) {
+//         $guid = sanitize_text_field($_POST['guid']);
+//         // Call the function
+//         scrape_and_publish_post($guid);
+//     }
+// }
+// require_once ABSPATH . 'wp-admin/includes/file.php';
+// $wp_load_path = get_home_path() . 'wp-load.php';
+// // اگر فایل wp-load.php در مسیر محاسبه شده وجود داشته باشد، آن را لود کنید
+// if (file_exists($wp_load_path)) {
+//     require_once ($wp_load_path);
+// } else {
+//     error_log('wp-load.php not found!');
+//     exit;
+// }
+require_once (__DIR__ . '/../../../wp-load.php');
+
+
+if (isset($_POST['action']) && !empty($_POST['action'])) {
+    if ($_POST['action'] == 'publish_scraper') {
+        $guid = $_POST['post_Guid'];
+        $resource_id = $_POST['resource_id'];
+        $response = scrape_and_publish_post($guid, $resource_id);
+        echo json_encode($response);
     }
 }
 
-add_action('admin_post_scrape_and_publish_post', 'scrape_and_publish_post');
+// add_action('admin_post_scrape_and_publish_post', 'scrape_and_publish_post');
 // Function to scrape data from a given URL and create a new WordPress post
-function scrape_and_publish_post()
+function scrape_and_publish_post($guid, $resource_id)
 {
     // دریافت مقدار Nonce از فرم
-    $nonce = $_POST['my_nonce_field'];
+    // $nonce = $_POST['my_nonce_field'];
 
-    // بررسی صحت Nonce
-    if (!wp_verify_nonce($nonce, 'scrape_and_publish_post_nonce')) {
-        // در صورتی که Nonce معتبر نباشد، عملیات را متوقف کنید و پیام خطا نمایش دهید
-        echo 'دسترسی غیر مجاز!';
-        exit;
-    }
+    // // بررسی صحت Nonce
+    // if (!wp_verify_nonce($nonce, 'scrape_and_publish_post_nonce')) {
+    //     // در صورتی که Nonce معتبر نباشد، عملیات را متوقف کنید و پیام خطا نمایش دهید
+    //     echo 'دسترسی غیر مجاز!';
+    //     exit;
+    // }
 
     // دریافت مقادیر از فرم
-    $guid = $_POST['post_guid'];
-    $resource_id = $_POST['resource_id'];
-
     $title_selector = get_post_meta($resource_id, 'title_selector', true);
     $img_selector = get_post_meta($resource_id, 'img_selector', true);
     $lead_selector = get_post_meta($resource_id, 'lead_selector', true);
@@ -111,7 +123,7 @@ function scrape_and_publish_post()
                 $post_id = wp_insert_post($post_data);
                 ob_flush(); // تخلیه خروجی
             } catch (Exception $e) {
-                error_log('Failed to insert the post. Error: ' . $e->getMessage());
+                return (array('status' => false, 'message' => 'Failed to insert the post. Error: ' . $e->getMessage()));
                 ob_flush(); // تخلیه خروجی
             }
 
@@ -123,69 +135,74 @@ function scrape_and_publish_post()
                     set_post_thumbnail($post_id, $attachment_id);
 
                 } elseif (is_wp_error($attachment_id)) {
-                    error_log('Failed to upload the featured image. Error: ' . $attachment_id->get_error_message());
+                    return (array('status' => false, 'message' => 'Failed to upload the featured image. Error: ' . $attachment_id->get_error_message()));
                 }
             } elseif (!function_exists('media_sideload_image')) {
-                error_log('media_sideload_image() function is not available.');
+                // return (array('status' => false, 'message' => 'media_sideload_image() function is not available.'));
+
             }
 
             // Output success or failure message
             if ($post_id) {
-                echo '<script>console.log("Post created successfully with ID: " + ' . $post_id . ');</script>';
-                // ارسال پاسخ به مرورگر
-                wp_safe_redirect(add_query_arg('success', 'true', wp_get_referer()));
-                exit;
-            } else {
-                echo '<script>console.log("Failed to create post. ");</script>';
-                error_log('Failed to create post.');
-                // ارسال پاسخ به مرورگر
-                wp_safe_redirect(add_query_arg('success', 'false', wp_get_referer()));
-                exit;
-            }
-        } else {
-            echo '<script>console.log("Required elements not found on the page. ");</script>';
+                // echo '<script>window.open("' . admin_url('post.php?action=edit&post=' . $post_id) . '", "_blank", "noopener,noreferrer");</script>';
+                // wp_safe_redirect(add_query_arg('success', 'true', wp_get_referer()));
+                // exit;
 
-            error_log('Required elements not found on the page.');
+                return (array('status' => true, 'message' => 'پست منتشر شد'));
+            } else {
+                // error_log('Failed to create post.');
+                // wp_safe_redirect(add_query_arg('success', 'false', wp_get_referer()));
+                // exit;
+                return (array('status' => false, 'message' => 'پست منتشر نشد'));
+            }
+
+
+        } else {
+            return (array('status' => false, 'message' => 'Required elements not found on the page.'));
         }
     } else {
-        echo '<script>console.log("Failed to load HTML from the URL.");</script>';
-        error_log('Failed to load HTML from the URL.');
+        return (array('status' => false, 'message' => 'Failed to load HTML from the URL.'));
     }
 }
 
 function clear_not_allowed_tags($html)
 {
-     // ایجاد یک شیء DOMDocument
-     $dom = new DOMDocument();
+    // ایجاد یک شیء DOMDocument
+    $dom = new DOMDocument();
 
-     // بارگیری HTML بدون عنوان
-     libxml_use_internal_errors(true); // غیرفعال کردن پیام‌های خطا
-     $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD); // اضافه کردن تگ xml و بارگیری HTML بدون عنوان
-     libxml_clear_errors(); // پاک کردن خطاها
- 
-     // حذف تگ‌های <a> و <h1>
-     $tagsToRemove = array('a', 'h1');
-     foreach ($tagsToRemove as $tag) {
-         $elementsToRemove = $dom->getElementsByTagName($tag);
-         foreach ($elementsToRemove as $element) {
-             $element->parentNode->removeChild($element);
-         }
-     }
- 
-     // حذف ویژگی‌های id، class و style از تمام تگ‌ها
-     $allElements = $dom->getElementsByTagName('*');
-     foreach ($allElements as $element) {
-         $element->removeAttribute('id');
-         $element->removeAttribute('class');
-         $element->removeAttribute('style');
-     }
- 
-     // دریافت HTML نهایی
-     $filteredHtml = $dom->saveHTML();
- 
-     // حذف <?xml encoding="UTF-8">
-     $filteredHtml = substr($filteredHtml, strlen('<?xml encoding="UTF-8">'));
- 
-     // بازگرداندن HTML نهایی
-     return $filteredHtml;
- }
+    // بارگیری HTML بدون عنوان
+    libxml_use_internal_errors(true); // غیرفعال کردن پیام‌های خطا
+    $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD); // اضافه کردن تگ xml و بارگیری HTML بدون عنوان
+    libxml_clear_errors(); // پاک کردن خطاها
+
+    // حذف تگ‌های <a> و <h1>
+    $tagsToRemove = array('a', 'h1');
+    foreach ($tagsToRemove as $tag) {
+        $elementsToRemove = $dom->getElementsByTagName($tag);
+        foreach ($elementsToRemove as $element) {
+            $element->parentNode->removeChild($element);
+        }
+    }
+
+    // حذف ویژگی‌های id، class و style از تمام تگ‌ها
+    $allElements = $dom->getElementsByTagName('*');
+    foreach ($allElements as $element) {
+        $element->removeAttribute('id');
+        $element->removeAttribute('class');
+        $element->removeAttribute('style');
+    }
+
+    // دریافت HTML نهایی
+    $filteredHtml = $dom->saveHTML();
+
+    // حذف <?xml encoding="UTF-8">
+    $filteredHtml = substr($filteredHtml, strlen('<?xml encoding="UTF-8">'));
+
+    // بازگرداندن HTML نهایی
+    return $filteredHtml;
+}
+
+
+
+
+

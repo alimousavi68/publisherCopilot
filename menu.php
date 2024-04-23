@@ -92,24 +92,23 @@ function custom_rss_parser_display_items()
            </thead>';
     echo '<tbody>';
     foreach ($items as $item) {
-        echo '<tr id="item-'.esc_html($item->id).'">';
+        echo '<tr id="item-' . esc_html($item->id) . '">';
         echo '<td>' . esc_html($item->id) . '</td>';
         echo '<td><a href="' . esc_html($item->guid) . '" target="_blank">' . esc_html($item->title) . '</a></td>';
         echo '<td style="max-width:50px;">' . (($item->resource_name) ? ($item->resource_name) : '-') . '</td>';
-        echo '<td class="ltr">' . \jDateTime::convertFormatToFormat('Y-m-d / H:i', 'Y-m-d H:i:s', $item->pub_date, 'Asia/Tehran')            . '</td>';
+        echo '<td class="ltr">' . \jDateTime::convertFormatToFormat('Y-m-d / H:i', 'Y-m-d H:i:s', $item->pub_date, 'Asia/Tehran') . '</td>';
         echo '<td>
             <div class="">
-                <form id="scrape-form" style="display:inline-block;"  action="' . admin_url('admin-post.php') . '" method="post">
-                    ' . wp_nonce_field('scrape_and_publish_post_nonce', 'my_nonce_field') . '
-                    <input type="hidden" name="action" value="scrape_and_publish_post">
-                    <input type="hidden" name="post_guid" value="' . esc_attr($item->guid) . '">
-                    <input type="hidden" name="resource_id" value="' . esc_attr($item->resource_id) . '">
-                    <button type="submit" id="scraper-link-' . $item->id . '" data-guid="' . $item->id . '" class="scrape-link button button-secondary" style="position:none;">
-                    <img src="' . esc_url( get_admin_url() . 'images/wpspin_light-2x.gif' ) . '" style="display:none;position:absolute;left:50%;z-index:100;" />
-                        واکشی و انتشار          
-                    </button>
-
-                </form>
+                
+                <a  
+                 class="scrape-link button button-secondary"
+                 id="scraper-link-' . $item->id . '"
+                 data-id="' . $item->id . '"
+                 data-guid="' . $item->guid . '"
+                 data-resource-id="' . esc_attr($item->resource_id) . '"
+                 >
+                 <img src="' . esc_url(get_admin_url() . 'images/wpspin_light-2x.gif') . '" style="display:none;position:absolute;left:50%;z-index:100;" />
+                 واکشی</a>
                 <a href="' . esc_html($item->guid) . '" class="button button-secondary" target="_blank">' . "بازدید" . '</a>
             </div>
         </td>';
@@ -123,24 +122,65 @@ function custom_rss_parser_display_items()
     // Add JavaScript to trigger the scrape_and_publish_post function via Ajax
     ?>
 
-
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        jQuery(document).ready(function ($) {
+
+
             var scrapeLinks = document.querySelectorAll(".scrape-link");
             scrapeLinks.forEach(function (link) {
                 link.addEventListener("click", function (e) {
+                    var post_Guid = this.getAttribute("data-guid");
+                    var resource_id = this.getAttribute("data-resource-id");
+                    var post_id = this.getAttribute("data-id");
 
-                    var postGuid = this.getAttribute("data-guid");
 
-                    var scrapeImg = document.querySelectorAll("#scraper-link-" + postGuid + ">img");
+                    // style effect for this item
+                    var scrapeImg = document.querySelectorAll("#scraper-link-" + post_id + ">img");
                     scrapeImg.forEach(function (link) {
                         link.style.display = 'inline-block';
                     });
-                    document.getElementById("item-"+postGuid).classList.add("blinking");
+                    document.getElementById("item-" + post_id).classList.add("blinking");
+
+
+                    //send ajax request to scrape the post
+                    $.ajax({
+                        url: '<?php echo plugin_dir_url(__DIR__) . "rssnews/scraper.php"; ?>',
+                        type: 'POST',
+                        data: {
+                            action: 'publish_scraper',
+                            post_Guid: post_Guid,
+                            resource_id: resource_id,
+                        },
+                        success: function (response) {
+                            var response = JSON.parse(response);
+
+                            if (response.status === true) {
+                                Toast.fire({
+                                    icon: "success",
+                                    title: response.message
+                                });
+                            } else {
+                                Toast.fire({
+                                    icon: "error",
+                                    title: response.message
+                                });
+                            }
+
+                            var scrapeImg = document.querySelectorAll("#scraper-link-" + post_id + ">img");
+                            scrapeImg.forEach(function (link) {
+                                link.style.display = 'none';
+                            });
+                            document.getElementById("item-" + post_id).classList.remove("blinking");
+                        }
+                    });
+
+
                 });
             });
+
         });
     </script>
+
 
     <style>
         @keyframes blink {
@@ -159,12 +199,28 @@ function custom_rss_parser_display_items()
 
         .blinking {
             animation: blink 2s infinite;
-            filter:blur(1.2px);
+            filter: blur(1.2px);
         }
 
-        .scraped-feeds-table tr:hover{
+        .scraped-feeds-table tr:hover {
             background-color: #eaf9ff;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const Toast = Swal.mixin({
+            toast: true,
+            position: "bottom-start",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
+
+
+    </script>
     <?php
 }
