@@ -1,4 +1,16 @@
 <?php
+
+require_once ABSPATH . 'wp-admin/includes/file.php';
+$wp_load_path = get_home_path() . 'wp-load.php';
+// اگر فایل wp-load.php در مسیر محاسبه شده وجود داشته باشد، آن را لود کنید
+if (file_exists($wp_load_path)) {
+    require_once ($wp_load_path);
+} else {
+    error_log('wp-load.php not found!');
+    exit;
+}
+
+
 // Hook into the admin menu
 add_action('admin_menu', 'custom_rss_parser_menu');
 

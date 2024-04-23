@@ -24,6 +24,8 @@
 //         scrape_and_publish_post($guid);
 //     }
 // }
+
+// require_once (__DIR__ . '/../../../wp-load.php');
 // require_once ABSPATH . 'wp-admin/includes/file.php';
 // $wp_load_path = get_home_path() . 'wp-load.php';
 // // اگر فایل wp-load.php در مسیر محاسبه شده وجود داشته باشد، آن را لود کنید
@@ -34,6 +36,10 @@
 //     exit;
 // }
 require_once (__DIR__ . '/../../../wp-load.php');
+require_once ( __DIR__ . '/../../../wp-admin/includes/media.php');
+require_once ( __DIR__ . '/../../../wp-admin/includes/image.php');
+require_once ( __DIR__ . '/../../../wp-admin/includes/file.php');
+
 
 
 if (isset($_POST['action']) && !empty($_POST['action'])) {
@@ -45,7 +51,7 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
     }
 }
 
-// add_action('admin_post_scrape_and_publish_post', 'scrape_and_publish_post');
+add_action('admin_post_scrape_and_publish_post', 'scrape_and_publish_post');
 // Function to scrape data from a given URL and create a new WordPress post
 function scrape_and_publish_post($guid, $resource_id)
 {
@@ -139,7 +145,7 @@ function scrape_and_publish_post($guid, $resource_id)
                 }
             } elseif (!function_exists('media_sideload_image')) {
                 // return (array('status' => false, 'message' => 'media_sideload_image() function is not available.'));
-
+                error_log('media_sideload_image() function is not available.');
             }
 
             // Output success or failure message
