@@ -113,13 +113,16 @@ function scrape_and_publish_post($guid, $resource_id)
         // Check if all required elements are found
         if ($title && $excerpt && $content && $thumbnail_url) {
 
+            $random_publish_time = current_time('timestamp') + rand(0, 14400); // بین الان و دو ساعت بعد
+
             // Prepare data for creating a WordPress post
             $post_data = array(
                 'post_title' => $title,
                 'post_content' => $content,
                 'post_excerpt' => $excerpt,
-                'post_status' => 'draft',
+                'post_status' => 'publish',
                 'post_type' => 'post',
+                'post_date'     => date('Y-m-d H:i:s', $random_publish_time) // زمان انتشار رندوم
             );
 
 
