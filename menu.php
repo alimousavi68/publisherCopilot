@@ -344,7 +344,7 @@ function custom_rss_parser_display_items()
             background-color: #eaf9ff;
         }
     </style>
-    <script src="<?php echo plugin_dir_url(__FILE__); ?>/sweetalert2@11"></script>
+    <script src="<?php echo plugin_dir_url(__FILE__); ?>/sweetalert2@11.js"></script>
     <script>
         const Toast = Swal.mixin({
             toast: true,
