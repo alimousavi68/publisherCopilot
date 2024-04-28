@@ -6,8 +6,6 @@ Version: 1.0
 Author: Your Name
 */
 
-
-
 // Hook into WordPress actions
 add_action('admin_init', 'custom_rss_parser_schedule_event');
 
@@ -122,7 +120,6 @@ function custom_rss_parser_run()
                     $guid = $source_root_link . $item->guid . '';
                 } else {
                     $guid = $item->guid . '';
-
                 }
 
                 // Check if the item already exists in the database
@@ -130,8 +127,6 @@ function custom_rss_parser_run()
                     // Insert the new item into the custom table
                     custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $resource_name);
                 }
-
-
             }
 
         endwhile;

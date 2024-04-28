@@ -36,9 +36,9 @@
 //     exit;
 // }
 require_once (__DIR__ . '/../../../wp-load.php');
-require_once ( __DIR__ . '/../../../wp-admin/includes/media.php');
-require_once ( __DIR__ . '/../../../wp-admin/includes/image.php');
-require_once ( __DIR__ . '/../../../wp-admin/includes/file.php');
+require_once (__DIR__ . '/../../../wp-admin/includes/media.php');
+require_once (__DIR__ . '/../../../wp-admin/includes/image.php');
+require_once (__DIR__ . '/../../../wp-admin/includes/file.php');
 
 
 
@@ -78,10 +78,12 @@ function scrape_and_publish_post($guid, $resource_id)
     $source_feed_link = get_post_meta($resource_id, 'source_feed_link', true);
 
     $url = $guid;
+    error_log($url);
 
     // Load the HTML from the provided URL
     $html = file_get_html($url);
 
+    error_log($html);
 
     // Check if HTML is successfully loaded
     if ($html) {
@@ -99,8 +101,12 @@ function scrape_and_publish_post($guid, $resource_id)
             $title = 'عنوان پیدا نشد';
         }
 
-        $excerpt = $html->find($lead_selector, 0);
-        $excerpt = $excerpt->plaintext;
+        if ($html->find($lead_selector, 0)!= null) {
+            $excerpt = $html->find($lead_selector, 0);
+            $excerpt = $excerpt->plaintext;
+        } else {
+            $excerpt = '';
+        }
 
         $content = $html->find($body_selector, 0);
         $content = clear_not_allowed_tags($content->innertext);
@@ -122,7 +128,7 @@ function scrape_and_publish_post($guid, $resource_id)
                 'post_excerpt' => $excerpt,
                 'post_status' => 'publish',
                 'post_type' => 'post',
-                'post_date'     => date('Y-m-d H:i:s', $random_publish_time) // زمان انتشار رندوم
+                'post_date' => date('Y-m-d H:i:s', $random_publish_time) // زمان انتشار رندوم
             );
 
 
