@@ -43,7 +43,7 @@ function i8_register_daily_cron_schedule($schedules)
     );
 
     $schedules['i8_pc_post_publisher_cron'] = array(
-        'interval' => (60),
+        'interval' => (8 * 60),
         'display' => __('این کرون هر چند دقیقه پستی را از جدول زمانبدی افزونه دستیار در سایت منتشر میکند')
     );
 
