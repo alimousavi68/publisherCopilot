@@ -46,14 +46,21 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
     if ($_POST['action'] == 'publish_scraper') {
         $guid = $_POST['post_Guid'];
         $resource_id = $_POST['resource_id'];
-        $response = scrape_and_publish_post($guid, $resource_id);
+        
+        // give priority string value at $_POST['resource_id'] 
+        $publish_priority = isset($_POST['publish_priority']) ? $_POST['publish_priority'] : 'now';
+
+
+        error_log('publish_priority here:' . $publish_priority);
+
+        $response = scrape_and_publish_post($guid, $resource_id, $publish_priority);
         echo json_encode($response);
     }
 }
 
 add_action('admin_post_scrape_and_publish_post', 'scrape_and_publish_post');
 // Function to scrape data from a given URL and create a new WordPress post
-function scrape_and_publish_post($guid, $resource_id)
+function scrape_and_publish_post($guid, $resource_id,$publish_priority)
 {
     // دریافت مقدار Nonce از فرم
     // $nonce = $_POST['my_nonce_field'];
@@ -78,12 +85,12 @@ function scrape_and_publish_post($guid, $resource_id)
     $source_feed_link = get_post_meta($resource_id, 'source_feed_link', true);
 
     $url = $guid;
-    error_log($url);
+    // error_log($url);
 
     // Load the HTML from the provided URL
     $html = file_get_html($url);
 
-    error_log($html);
+    // error_log($html);
 
     // Check if HTML is successfully loaded
     if ($html) {
@@ -101,7 +108,7 @@ function scrape_and_publish_post($guid, $resource_id)
             $title = 'عنوان پیدا نشد';
         }
 
-        if ($html->find($lead_selector, 0)!= null) {
+        if ($html->find($lead_selector, 0) != null) {
             $excerpt = $html->find($lead_selector, 0);
             $excerpt = $excerpt->plaintext;
         } else {
@@ -114,25 +121,29 @@ function scrape_and_publish_post($guid, $resource_id)
 
         $thumbnail_url = $html->find($img_selector, 0)->src;
 
+        $post_status = 'draft';
+        if ($publish_priority == 'now') {
+            $post_status = 'publish';
+        }
+        error_log('post_status here:' . $post_status);
+
 
 
         // Check if all required elements are found
         if ($title && $excerpt && $content && $thumbnail_url) {
 
-            $random_publish_time = current_time('timestamp') + rand(0, 14400); // بین الان و دو ساعت بعد
+            // $random_publish_time = current_time('timestamp') + rand(0, 14400); // بین الان و دو ساعت بعد
+            $publish_time = current_time('timestamp');
 
             // Prepare data for creating a WordPress post
             $post_data = array(
                 'post_title' => $title,
                 'post_content' => $content,
                 'post_excerpt' => $excerpt,
-                'post_status' => 'publish',
-                'post_type' => 'post',
-                'post_date' => date('Y-m-d H:i:s', $random_publish_time) // زمان انتشار رندوم
+                'post_status' => $post_status,
+                'post_date' => date('Y-m-d H:i:s', $publish_time) // زمان انتشار
             );
 
-
-            // Insert the post into the WordPress database
             // درست کردن پست در وردپرس
             try {
                 $post_id = wp_insert_post($post_data);
@@ -162,6 +173,14 @@ function scrape_and_publish_post($guid, $resource_id)
                 // echo '<script>window.open("' . admin_url('post.php?action=edit&post=' . $post_id) . '", "_blank", "noopener,noreferrer");</script>';
                 // wp_safe_redirect(add_query_arg('success', 'true', wp_get_referer()));
                 // exit;
+
+                // add to wp_pc_post_schedule table in wordpress database a new record with $post_id and$publish_priority values
+
+                if ($post_status != 'publish' ||$publish_priority != 'now') {
+                    global $wpdb;
+                    $table_name = $wpdb->prefix . 'pc_post_schedule';
+                    $wpdb->insert($table_name, array('post_id' => $post_id, 'publish_priority' =>$publish_priority));
+                }
 
                 return (array('status' => true, 'message' => 'پست منتشر شد'));
             } else {

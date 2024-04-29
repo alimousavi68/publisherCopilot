@@ -127,8 +127,8 @@ function custom_rss_parser_display_items()
         echo '<div class="col-11 row bg-transparent"><div class="col-12 col-xl-6 bg-transparent feed-item-title"><a href="' . esc_html($item->guid) . '" target="_blank">' . esc_html($item->title) . '</a></div>';
 
         echo '<div class="col-4 col-xl-1 bg-transparent text-secondary item-meta-data">'
-        .'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hash" viewBox="0 0 16 16"><path d="M8.39 12.648a1 1 0 0 0-.015.18c0 .305.21.508.5.508.266 0 .492-.172.555-.477l.554-2.703h1.204c.421 0 .617-.234.617-.547 0-.312-.188-.53-.617-.53h-.985l.516-2.524h1.265c.43 0 .618-.227.618-.547 0-.313-.188-.524-.618-.524h-1.046l.476-2.304a1 1 0 0 0 .016-.164.51.51 0 0 0-.516-.516.54.54 0 0 0-.539.43l-.523 2.554H7.617l.477-2.304c.008-.04.015-.118.015-.164a.51.51 0 0 0-.523-.516.54.54 0 0 0-.531.43L6.53 5.484H5.414c-.43 0-.617.22-.617.532s.187.539.617.539h.906l-.515 2.523H4.609c-.421 0-.609.219-.609.531s.188.547.61.547h.976l-.516 2.492c-.008.04-.015.125-.015.18 0 .305.21.508.5.508.265 0 .492-.172.554-.477l.555-2.703h2.242zm-1-6.109h2.266l-.515 2.563H6.859l.532-2.563z"/></svg>'
-        . (($item->resource_name) ? ($item->resource_name) : '-') . '</div>';
+            . '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hash" viewBox="0 0 16 16"><path d="M8.39 12.648a1 1 0 0 0-.015.18c0 .305.21.508.5.508.266 0 .492-.172.555-.477l.554-2.703h1.204c.421 0 .617-.234.617-.547 0-.312-.188-.53-.617-.53h-.985l.516-2.524h1.265c.43 0 .618-.227.618-.547 0-.313-.188-.524-.618-.524h-1.046l.476-2.304a1 1 0 0 0 .016-.164.51.51 0 0 0-.516-.516.54.54 0 0 0-.539.43l-.523 2.554H7.617l.477-2.304c.008-.04.015-.118.015-.164a.51.51 0 0 0-.523-.516.54.54 0 0 0-.531.43L6.53 5.484H5.414c-.43 0-.617.22-.617.532s.187.539.617.539h.906l-.515 2.523H4.609c-.421 0-.609.219-.609.531s.188.547.61.547h.976l-.516 2.492c-.008.04-.015.125-.015.18 0 .305.21.508.5.508.265 0 .492-.172.554-.477l.555-2.703h2.242zm-1-6.109h2.266l-.515 2.563H6.859l.532-2.563z"/></svg>'
+            . (($item->resource_name) ? ($item->resource_name) : '-') . '</div>';
         echo '<div class="col-8 col-xl-2 bg-transparent text-secondary item-meta-data" style="direction:left">'
             . '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg>  '
             . \jDateTime::convertFormatToFormat('d / M | H:i ', 'Y-m-d H:i:s', $item->pub_date, 'Asia/Tehran')
@@ -146,35 +146,54 @@ function custom_rss_parser_display_items()
 
                     </a>
 
-                    <a class="col btn btn-sm rounded-pill btn-outline-secondary" title="انتشار فوری">
+                    <a class="scrape-link col btn btn-sm rounded-pill btn-outline-secondary" title="انتشار فوری"
+                        id="scraper-link-' . $item->id . '"
+                        data-id="' . $item->id . '"
+                        data-guid="' . $item->guid . '"
+                        data-priority="now"
+                        data-resource-id="' . esc_attr($item->resource_id) . '"
+                    >
+                    <img src="' . esc_url(get_admin_url() . 'images/wpspin_light-2x.gif') . '" style="display:none;position:absolute;left:50%;z-index:100;" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
                     </svg>
                     </a>
                     <a class="scrape-link col btn btn-sm rounded-pill btn-outline-danger" title="زمانبندی با الویت بالا"
+                    id="scraper-link-' . $item->id . '"
+                    data-id="' . $item->id . '"
+                    data-guid="' . $item->guid . '"
+                    data-priority="high"
+                    data-resource-id="' . esc_attr($item->resource_id) . '"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-stopwatch" viewBox="0 0 16 16">
+                            <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.9h-3a.5.5 0 0 0 0 1H8a.5.5 0 0 0 .5-.5z" />
+                            <path
+                                d="M6.5 1A.5.5 0 0 1 7 .5h2a.5.5 0 0 1 0 1v.57c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l1.414 1.415a.5.5 0 1 1-.707.707l-.353-.354-.354.354-.013.012A7 7 0 1 1 7 2.071V1.5a.5.5 0 0 1-.5-.5M8 3a6 6 0 1 0 .001 12A6 6 0 0 0 8 3" />
+                        </svg>
+                    </a>
+                    <a class="scrape-link col btn btn-sm rounded-pill btn-outline-warning" title="زمانبندی با الویت متوسط"
+                    id="scraper-link-' . $item->id . '"
+                    data-id="' . $item->id . '"
+                    data-guid="' . $item->guid . '"
+                    data-priority="medium"
+                    data-resource-id="' . esc_attr($item->resource_id) . '"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-stopwatch" viewBox="0 0 16 16">
+                            <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.9h-3a.5.5 0 0 0 0 1H8a.5.5 0 0 0 .5-.5z" />
+                            <path
+                                d="M6.5 1A.5.5 0 0 1 7 .5h2a.5.5 0 0 1 0 1v.57c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l1.414 1.415a.5.5 0 1 1-.707.707l-.353-.354-.354.354-.013.012A7 7 0 1 1 7 2.071V1.5a.5.5 0 0 1-.5-.5M8 3a6 6 0 1 0 .001 12A6 6 0 0 0 8 3" />
+                        </svg>
+                    </a>
+                    <a class="scrape-link col btn btn-sm rounded-pill btn-outline-success" title="زمانبندی با الویت کم"
                         id="scraper-link-' . $item->id . '"
                         data-id="' . $item->id . '"
                         data-guid="' . $item->guid . '"
+                        data-priority="low"
                         data-resource-id="' . esc_attr($item->resource_id) . '"
                     >
-                        <img src="' . esc_url(get_admin_url() . 'images/wpspin_light-2x.gif') . '" style="display:none;position:absolute;left:50%;z-index:100;" />
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-stopwatch" viewBox="0 0 16 16">
-                            <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.9h-3a.5.5 0 0 0 0 1H8a.5.5 0 0 0 .5-.5z" />
-                            <path
-                                d="M6.5 1A.5.5 0 0 1 7 .5h2a.5.5 0 0 1 0 1v.57c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l1.414 1.415a.5.5 0 1 1-.707.707l-.353-.354-.354.354-.013.012A7 7 0 1 1 7 2.071V1.5a.5.5 0 0 1-.5-.5M8 3a6 6 0 1 0 .001 12A6 6 0 0 0 8 3" />
-                        </svg>
-                    </a>
-                    <a class="col btn btn-sm rounded-pill btn-outline-warning" title="زمانبندی با الویت متوسط">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-stopwatch" viewBox="0 0 16 16">
-                            <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.9h-3a.5.5 0 0 0 0 1H8a.5.5 0 0 0 .5-.5z" />
-                            <path
-                                d="M6.5 1A.5.5 0 0 1 7 .5h2a.5.5 0 0 1 0 1v.57c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l1.414 1.415a.5.5 0 1 1-.707.707l-.353-.354-.354.354-.013.012A7 7 0 1 1 7 2.071V1.5a.5.5 0 0 1-.5-.5M8 3a6 6 0 1 0 .001 12A6 6 0 0 0 8 3" />
-                        </svg>
-                    </a>
-                    <a class="col btn btn-sm rounded-pill btn-outline-success" title="زمانبندی با الویت کم">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-stopwatch" viewBox="0 0 16 16">
                             <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.9h-3a.5.5 0 0 0 0 1H8a.5.5 0 0 0 .5-.5z" />
@@ -204,11 +223,13 @@ function custom_rss_parser_display_items()
 
 
             var scrapeLinks = document.querySelectorAll(".scrape-link");
+           
             scrapeLinks.forEach(function (link) {
                 link.addEventListener("click", function (e) {
                     var post_Guid = this.getAttribute("data-guid");
                     var resource_id = this.getAttribute("data-resource-id");
                     var post_id = this.getAttribute("data-id");
+                    var publish_priority = this.getAttribute("data-priority");
 
 
                     // style effect for this item
@@ -227,6 +248,7 @@ function custom_rss_parser_display_items()
                             action: 'publish_scraper',
                             post_Guid: post_Guid,
                             resource_id: resource_id,
+                            publish_priority : publish_priority
                         },
                         success: function (response) {
                             var response = JSON.parse(response);
@@ -255,6 +277,7 @@ function custom_rss_parser_display_items()
                 });
             });
 
+
         });
     </script>
 
@@ -268,10 +291,12 @@ function custom_rss_parser_display_items()
             font-family: serif !important;
             color: #767575;
         }
-        .item-meta-data{
+
+        .item-meta-data {
             font-size: 13px;
             color: #767575;
         }
+
         .wp-filter {
             border: 3px solid #f2f2f2;
         }

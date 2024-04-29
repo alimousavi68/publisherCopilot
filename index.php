@@ -23,6 +23,10 @@ function custom_rss_parser_schedule_event()
     if (!wp_next_scheduled('remove_all_feed_on_feeds_table')) {
         wp_schedule_event(time(), 'i8_daily_cron', 'remove_all_feed_on_feeds_table');
     }
+
+    if (!wp_next_scheduled('publish_post_at_scheduling_table')) {
+        wp_schedule_event(time(), 'i8_pc_post_publisher_cron', 'publish_post_at_scheduling_table');
+    }
 }
 
 add_filter('cron_schedules', 'i8_register_daily_cron_schedule');
@@ -32,10 +36,17 @@ function i8_register_daily_cron_schedule($schedules)
         'interval' => (60 * 60) * 24,
         'display' => __('این کرون هر ۲۴ ساعت اجرا میشود')
     );
+
     $schedules['5minutes'] = array(
         'interval' => (5 * 60),
         'display' => __('این کرون هر ۵دقیقه اجرا میشود')
     );
+
+    $schedules['i8_pc_post_publisher_cron'] = array(
+        'interval' => (60),
+        'display' => __('این کرون هر چند دقیقه پستی را از جدول زمانبدی افزونه دستیار در سایت منتشر میکند')
+    );
+
     return $schedules;
 }
 add_action('remove_all_feed_on_feeds_table', 'remove_all_feed_on_feeds_table');
@@ -87,7 +98,7 @@ function custom_rss_parser_create_tables()
         $sql_2 = "CREATE TABLE $table_post_schedule (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             post_id mediumint(9) NOT NULL,
-            publish_priority mediumint(9) NOT NULL,
+            publish_priority tinytext NOT NULL,
             PRIMARY KEY (id)
         ) $charset_collate;";
 
@@ -95,6 +106,61 @@ function custom_rss_parser_create_tables()
         dbDelta($sql_2);
     }
 
+}
+
+
+// Hook to handle the scheduled event
+add_action('publish_post_at_scheduling_table', 'publish_post_at_scheduling_table');
+function publish_post_at_scheduling_table()
+{
+    global $wpdb;
+    $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_post_schedule'") == $table_post_schedule) {
+
+        //select records from table where publish_priority is high order by id ascending
+
+
+        $high_priority_posts = $wpdb->get_results("SELECT * FROM $table_post_schedule WHERE publish_priority = 'high' ORDER BY id ASC LIMIT 1");
+        $medium_priority_posts = $wpdb->get_results("SELECT * FROM $table_post_schedule WHERE publish_priority = 'medium' ORDER BY id ASC LIMIT 1");
+        $low_priority_posts = $wpdb->get_results("SELECT * FROM $table_post_schedule WHERE publish_priority = 'low' ORDER BY id ASC LIMIT 1");
+
+        if ($high_priority_posts) {
+            i8_change_post_status($high_priority_posts);
+        } elseif ($medium_priority_posts) {
+            i8_change_post_status($medium_priority_posts);
+        } elseif ($low_priority_posts) {
+            i8_change_post_status($low_priority_posts);
+        }
+
+    }
+}
+
+function i8_change_post_status($priority_posts){
+    global $wpdb;
+    $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
+
+    foreach ($priority_posts as $post) {
+        // از $post برای دسترسی به مقادیر مختلف هر ردیف استفاده می‌کنیم
+        $id = $post->id;
+        $post_id = $post->post_id;
+
+        $target_post = get_post($post_id);
+        if ($target_post) {
+            $target_post->post_status = 'publish';
+            $target_post->post_date = current_time('mysql');
+            $target_post->post_date_gmt = current_time('mysql', 1);
+            wp_update_post($target_post);
+        } else {
+            error_log('i8: post not found');
+        }
+        // delete record where id=$id at $table_post_schedule
+        $action_status = $wpdb->delete($table_post_schedule, array('id' => $id));
+        if($action_status){
+            error_log('i8: deleted record with id='. $id.'from table '. $table_post_schedule);
+        }else{
+            error_log('i8: failed to delete record with id='. $id.'from table '. $table_post_schedule);
+        }
+    }
 }
 
 // Hook to handle the scheduled event
@@ -200,9 +266,9 @@ require_once ABSPATH . 'wp-admin/includes/file.php';
 require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
 require_once plugin_dir_path(__FILE__) . 'resources_post_type.php';
 
-include_once(plugin_dir_path(__FILE__) . 'menu.php');
-include_once(plugin_dir_path(__FILE__) . 'scraper.php');
+include_once (plugin_dir_path(__FILE__) . 'menu.php');
+include_once (plugin_dir_path(__FILE__) . 'scraper.php');
 
 // Include jalali-date external library 
-require_once(plugin_dir_path(__FILE__) . 'jdatetime.class.php');
+require_once (plugin_dir_path(__FILE__) . 'jdatetime.class.php');
 // error_log(plugin_dir_path(__FILE__). 'admin/menu.php');
