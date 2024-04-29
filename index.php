@@ -10,7 +10,7 @@ Author: Your Name
 add_action('admin_init', 'custom_rss_parser_schedule_event');
 
 // Add action to create custom table if not exists
-add_action('admin_init', 'custom_rss_parser_create_table');
+add_action('admin_init', 'custom_rss_parser_create_tables');
 
 // Schedule event to run every 5 minutes
 function custom_rss_parser_schedule_event()
@@ -57,11 +57,12 @@ function remove_all_feed_on_feeds_table()
 
 
 // Function to check if custom table exists and create it if not
-function custom_rss_parser_create_table()
+function custom_rss_parser_create_tables()
 {
 
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_rss_items';
+    $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
 
     if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
         $charset_collate = $wpdb->get_charset_collate();
@@ -79,6 +80,21 @@ function custom_rss_parser_create_table()
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
     }
+
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_post_schedule'") != $table_post_schedule) {
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql_2 = "CREATE TABLE $table_post_schedule (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            post_id mediumint(9) NOT NULL,
+            publish_priority mediumint(9) NOT NULL,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta($sql_2);
+    }
+
 }
 
 // Hook to handle the scheduled event
