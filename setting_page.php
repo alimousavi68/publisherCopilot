@@ -52,13 +52,6 @@ function publisher_copoilot_register_settings() {
 
     register_setting('publisher_copoilot_settings_group', 'news_interval_end');
 
-    $start_time = strtotime(get_option('start_cron_time'));
-    $end_time = strtotime(get_option('end_cron_time'));
-    $work_time_count = intval(get_option('end_cron_time')) - intval(get_option('start_cron_time'));
-    $sum_post_count = rand(get_option('news_interval_start'), get_option('news_interval_end'));
-    $post_count_publishing_per_house = round($sum_post_count / $work_time_count);
-    $post_interval_publishing = (round(60 / $post_count_publishing_per_house)) * 60;
-
     add_settings_section(
         'publisher_copoilot_settings_section',
         'تنظیمات دستیار',
