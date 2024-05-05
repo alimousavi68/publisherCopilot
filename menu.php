@@ -18,16 +18,16 @@ add_action('admin_menu', 'custom_rss_parser_menu');
 function custom_rss_parser_menu()
 {
     add_menu_page(
-        'Custom RSS Items',
-        'Custom RSS',
-        'manage_options',
-        'custom_rss_parser_page',
-        'custom_rss_parser_page_callback'
+        'آخرین فیدهای دستیار' ,
+        'دستیار' ,
+        'manage_options' ,
+        'publisher_copoilot' ,
+        'publisher_copoilot_callback','dashicons-image-filter' , 5
     );
 }
 
 // Callback function for menu page
-function custom_rss_parser_page_callback()
+function publisher_copoilot_callback()
 {
     if (isset($_GET['success'])) {
         $action_status = $_GET['success'];
@@ -59,7 +59,7 @@ function custom_rss_parser_page_callback()
         <div class="wp-filter">
             <div style="float:left ; padding:10px 10px;">
 
-                <a href="admin.php?page=custom_rss_parser_page&action=update_feeds"
+                <a href="admin.php?page=publisher_copoilot&action=update_feeds"
                     class="btn btn-sm rounded-pill btn-outline-secondary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                         class="bi bi-arrow-repeat" viewBox="0 0 16 16">

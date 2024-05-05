@@ -24,8 +24,38 @@ function custom_rss_parser_schedule_event()
         wp_schedule_event(time(), 'i8_daily_cron', 'remove_all_feed_on_feeds_table');
     }
 
+
     if (!wp_next_scheduled('publish_post_at_scheduling_table')) {
-        wp_schedule_event(time(), 'i8_pc_post_publisher_cron', 'publish_post_at_scheduling_table');
+
+        date_default_timezone_set('Asia/Tehran' );
+
+        $start_time = strtotime(get_option('start_cron_time'));
+        $end_time = strtotime(get_option('end_cron_time'));
+
+        $work_time_count = intval(get_option('end_cron_time')) - intval(get_option('start_cron_time'));
+        $sum_post_count = rand(get_option('news_interval_start'), get_option('news_interval_end'));
+
+        $post_count_publishing_per_hours = round($sum_post_count / $work_time_count);
+        $post_interval_publishing = (round(60 / $post_count_publishing_per_hours)) * 60;
+
+        update_option('post_interval_publishing', $post_interval_publishing);
+
+
+
+        error_log('start time ' . $start_time);
+        error_log('end time ' .  $end_time);
+        //set time zone to asia/tehran
+        
+        error_log('current time:' . time());
+
+        // تنظیم محدوده زمانی
+        if (time() >= $start_time && time() <= $end_time) {
+            error_log('current time' . time());
+            error_log('start time' . $start_time);
+            error_log('end time' . $end_time);
+            wp_schedule_event(time(), 'i8_pc_post_publisher_cron', 'publish_post_at_scheduling_table');
+        }
+
     }
 }
 
@@ -42,11 +72,11 @@ function i8_register_daily_cron_schedule($schedules)
         'display' => __('این کرون هر ۵دقیقه اجرا میشود')
     );
 
+    $post_interval_publishing = get_option('post_interval_publishing');
     $schedules['i8_pc_post_publisher_cron'] = array(
-        'interval' => (8 * 60),
+        'interval' => ($post_interval_publishing),
         'display' => __('این کرون هر چند دقیقه پستی را از جدول زمانبدی افزونه دستیار در سایت منتشر میکند')
     );
-
     return $schedules;
 }
 add_action('remove_all_feed_on_feeds_table', 'remove_all_feed_on_feeds_table');
@@ -135,7 +165,8 @@ function publish_post_at_scheduling_table()
     }
 }
 
-function i8_change_post_status($priority_posts){
+function i8_change_post_status($priority_posts)
+{
     global $wpdb;
     $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
 
@@ -146,19 +177,21 @@ function i8_change_post_status($priority_posts){
 
         $target_post = get_post($post_id);
         if ($target_post) {
+            $random_interval = rand(60, 300);
+            $publish_time = time() + $random_interval;
             $target_post->post_status = 'publish';
-            $target_post->post_date = current_time('mysql');
-            $target_post->post_date_gmt = current_time('mysql', 1);
+            $target_post->post_date = date('Y-m-d H:i:s', $publish_time);
+            $target_post->post_date_gmt = gmdate('Y-m-d H:i:s', $publish_time);
             wp_update_post($target_post);
         } else {
             error_log('i8: post not found');
         }
         // delete record where id=$id at $table_post_schedule
         $action_status = $wpdb->delete($table_post_schedule, array('id' => $id));
-        if($action_status){
-            error_log('i8: deleted record with id='. $id.'from table '. $table_post_schedule);
-        }else{
-            error_log('i8: failed to delete record with id='. $id.'from table '. $table_post_schedule);
+        if ($action_status) {
+            error_log('i8: deleted record with id=' . $id . 'from table ' . $table_post_schedule);
+        } else {
+            error_log('i8: failed to delete record with id=' . $id . 'from table ' . $table_post_schedule);
         }
     }
 }
@@ -267,6 +300,7 @@ require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
 require_once plugin_dir_path(__FILE__) . 'resources_post_type.php';
 
 include_once (plugin_dir_path(__FILE__) . 'menu.php');
+include_once (plugin_dir_path(__FILE__) . 'setting_page.php');
 include_once (plugin_dir_path(__FILE__) . 'scraper.php');
 
 // Include jalali-date external library 
