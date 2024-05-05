@@ -11,6 +11,7 @@ add_action('admin_init', 'custom_rss_parser_schedule_event');
 
 // Add action to create custom table if not exists
 add_action('admin_init', 'custom_rss_parser_create_tables');
+date_default_timezone_set('Asia/Tehran' );
 
 // Schedule event to run every 5 minutes
 function custom_rss_parser_schedule_event()
@@ -27,7 +28,6 @@ function custom_rss_parser_schedule_event()
 
     if (!wp_next_scheduled('publish_post_at_scheduling_table')) {
 
-        date_default_timezone_set('Asia/Tehran' );
 
         $start_time = strtotime(get_option('start_cron_time'));
         $end_time = strtotime(get_option('end_cron_time'));
@@ -179,6 +179,12 @@ function i8_change_post_status($priority_posts)
         if ($target_post) {
             $random_interval = rand(300, 600);
             $publish_time = time() + $random_interval;
+            
+            error_log('current time: ' . time() );
+            error_log('current time: ' . date('h:i:s' , time()) );
+            error_log('current time: ' . $publish_time );
+            error_log('current time: ' . date('h:i:s' , $publish_time) );
+
             $target_post->post_status = 'publish';
             $target_post->post_date = date('Y-m-d H:i:s', $publish_time);
             $target_post->post_date_gmt = gmdate('Y-m-d H:i:s', $publish_time);

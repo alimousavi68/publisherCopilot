@@ -210,11 +210,16 @@ function clear_not_allowed_tags($html)
     libxml_clear_errors(); // پاک کردن خطاها
 
     // حذف تگ‌های <a> و <h1>
-    $tagsToRemove = array('a', 'h1');
+    $tagsToRemove = array('a','h1','strong');
     foreach ($tagsToRemove as $tag) {
+        error_log('remove tag here: ' . $tag );
+
         $elementsToRemove = $dom->getElementsByTagName($tag);
         foreach ($elementsToRemove as $element) {
-            $element->parentNode->removeChild($element);
+            $text = $element->nodeValue;
+            $textNode = $dom->createTextNode($text);
+            $element->parentNode->replaceChild($textNode, $element);
+            // $element->parentNode->removeChild($element);
         }
     }
 
@@ -224,6 +229,8 @@ function clear_not_allowed_tags($html)
         $element->removeAttribute('id');
         $element->removeAttribute('class');
         $element->removeAttribute('style');
+        $element->removeAttribute('href');
+        $element->removeAttribute('title');
     }
 
     // دریافت HTML نهایی
