@@ -177,7 +177,7 @@ function i8_change_post_status($priority_posts)
 
         $target_post = get_post($post_id);
         if ($target_post) {
-            $random_interval = rand(60, 300);
+            $random_interval = rand(300, 600);
             $publish_time = time() + $random_interval;
             $target_post->post_status = 'publish';
             $target_post->post_date = date('Y-m-d H:i:s', $publish_time);
