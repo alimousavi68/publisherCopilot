@@ -46,7 +46,7 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
     if ($_POST['action'] == 'publish_scraper') {
         $guid = $_POST['post_Guid'];
         $resource_id = $_POST['resource_id'];
-        
+
         // give priority string value at $_POST['resource_id'] 
         $publish_priority = isset($_POST['publish_priority']) ? $_POST['publish_priority'] : 'now';
 
@@ -60,8 +60,9 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
 
 add_action('admin_post_scrape_and_publish_post', 'scrape_and_publish_post');
 // Function to scrape data from a given URL and create a new WordPress post
-function scrape_and_publish_post($guid, $resource_id,$publish_priority)
+function scrape_and_publish_post($guid, $resource_id, $publish_priority)
 {
+
     // دریافت مقدار Nonce از فرم
     // $nonce = $_POST['my_nonce_field'];
 
@@ -127,13 +128,12 @@ function scrape_and_publish_post($guid, $resource_id,$publish_priority)
         }
         error_log('post_status here:' . $post_status);
 
-
+        date_default_timezone_set('Asia/Tehran');
 
         // Check if all required elements are found
         if ($title && $excerpt && $content && $thumbnail_url) {
-
-            // $random_publish_time = current_time('timestamp') + rand(0, 14400); // بین الان و دو ساعت بعد
-            $publish_time = current_time('timestamp');
+            $random_interval = rand(300, 600);
+            $publish_time = time() + $random_interval;
 
             // Prepare data for creating a WordPress post
             $post_data = array(
@@ -176,10 +176,10 @@ function scrape_and_publish_post($guid, $resource_id,$publish_priority)
 
                 // add to wp_pc_post_schedule table in wordpress database a new record with $post_id and$publish_priority values
 
-                if ($post_status != 'publish' ||$publish_priority != 'now') {
+                if ($post_status != 'publish' || $publish_priority != 'now') {
                     global $wpdb;
                     $table_name = $wpdb->prefix . 'pc_post_schedule';
-                    $wpdb->insert($table_name, array('post_id' => $post_id, 'publish_priority' =>$publish_priority));
+                    $wpdb->insert($table_name, array('post_id' => $post_id, 'publish_priority' => $publish_priority));
                 }
 
                 return (array('status' => true, 'message' => 'پست منتشر شد'));
@@ -210,9 +210,9 @@ function clear_not_allowed_tags($html)
     libxml_clear_errors(); // پاک کردن خطاها
 
     // حذف تگ‌های <a> و <h1>
-    $tagsToRemove = array('a','h1','strong');
+    $tagsToRemove = array('a', 'h1', 'strong');
     foreach ($tagsToRemove as $tag) {
-        error_log('remove tag here: ' . $tag );
+        // error_log('remove tag here: ' . $tag );
 
         $elementsToRemove = $dom->getElementsByTagName($tag);
         foreach ($elementsToRemove as $element) {

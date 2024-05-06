@@ -11,11 +11,15 @@ add_action('admin_init', 'custom_rss_parser_schedule_event');
 
 // Add action to create custom table if not exists
 add_action('admin_init', 'custom_rss_parser_create_tables');
-date_default_timezone_set('Asia/Tehran' );
+// date_default_timezone_set('Asia/Tehran');
 
 // Schedule event to run every 5 minutes
 function custom_rss_parser_schedule_event()
 {
+
+
+
+
     // Schedule the event to run every 5 minutes
     if (!wp_next_scheduled('custom_rss_parser_event')) {
         wp_schedule_event(time(), '5minutes', 'custom_rss_parser_event');
@@ -25,34 +29,24 @@ function custom_rss_parser_schedule_event()
         wp_schedule_event(time(), 'i8_daily_cron', 'remove_all_feed_on_feeds_table');
     }
 
+    $start_time = strtotime(get_option('start_cron_time'));
+    $end_time = strtotime(get_option('end_cron_time'));
+
+    $work_time_count = intval(get_option('end_cron_time')) - intval(get_option('start_cron_time'));
+    $sum_post_count = rand(get_option('news_interval_start'), get_option('news_interval_end'));
+
+    $post_count_publishing_per_hours = round($sum_post_count / $work_time_count);
+    $post_interval_publishing = (60 / round( $post_count_publishing_per_hours)) * 60;
+
+    update_option('post_interval_publishing', $post_interval_publishing);
 
     if (!wp_next_scheduled('publish_post_at_scheduling_table')) {
 
-
-        $start_time = strtotime(get_option('start_cron_time'));
-        $end_time = strtotime(get_option('end_cron_time'));
-
-        $work_time_count = intval(get_option('end_cron_time')) - intval(get_option('start_cron_time'));
-        $sum_post_count = rand(get_option('news_interval_start'), get_option('news_interval_end'));
-
-        $post_count_publishing_per_hours = round($sum_post_count / $work_time_count);
-        $post_interval_publishing = (round(60 / $post_count_publishing_per_hours)) * 60;
-
-        update_option('post_interval_publishing', $post_interval_publishing);
-
-
-
-        error_log('start time ' . $start_time);
-        error_log('end time ' .  $end_time);
-        //set time zone to asia/tehran
-        
-        error_log('current time:' . time());
-
         // تنظیم محدوده زمانی
         if (time() >= $start_time && time() <= $end_time) {
-            error_log('current time' . time());
-            error_log('start time' . $start_time);
-            error_log('end time' . $end_time);
+            // error_log('current time' . time());
+            // error_log('start time' . $start_time);
+            // error_log('end time' . $end_time);
             wp_schedule_event(time(), 'i8_pc_post_publisher_cron', 'publish_post_at_scheduling_table');
         }
 
@@ -72,7 +66,7 @@ function i8_register_daily_cron_schedule($schedules)
         'display' => __('این کرون هر ۵دقیقه اجرا میشود')
     );
 
-    $post_interval_publishing = get_option('post_interval_publishing');
+    $post_interval_publishing = get_option('post_interval_publishing') + rand(200, 400);
     $schedules['i8_pc_post_publisher_cron'] = array(
         'interval' => ($post_interval_publishing),
         'display' => __('این کرون هر چند دقیقه پستی را از جدول زمانبدی افزونه دستیار در سایت منتشر میکند')
@@ -97,9 +91,11 @@ function remove_all_feed_on_feeds_table()
 }
 
 
+
 // Function to check if custom table exists and create it if not
 function custom_rss_parser_create_tables()
 {
+
 
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_rss_items';
@@ -143,25 +139,30 @@ function custom_rss_parser_create_tables()
 add_action('publish_post_at_scheduling_table', 'publish_post_at_scheduling_table');
 function publish_post_at_scheduling_table()
 {
-    global $wpdb;
-    $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table_post_schedule'") == $table_post_schedule) {
+    date_default_timezone_set('Asia/Tehran');
+    $start_time = strtotime(get_option('start_cron_time'));
+    $end_time =   strtotime(get_option('end_cron_time'));
 
-        //select records from table where publish_priority is high order by id ascending
+    // تنظیم محدوده زمانی
+    if (time() >= $start_time && time() <= $end_time) {
 
+        global $wpdb;
+        $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table_post_schedule'") == $table_post_schedule) {
 
-        $high_priority_posts = $wpdb->get_results("SELECT * FROM $table_post_schedule WHERE publish_priority = 'high' ORDER BY id ASC LIMIT 1");
-        $medium_priority_posts = $wpdb->get_results("SELECT * FROM $table_post_schedule WHERE publish_priority = 'medium' ORDER BY id ASC LIMIT 1");
-        $low_priority_posts = $wpdb->get_results("SELECT * FROM $table_post_schedule WHERE publish_priority = 'low' ORDER BY id ASC LIMIT 1");
+            $high_priority_posts = $wpdb->get_results("SELECT * FROM $table_post_schedule WHERE publish_priority = 'high' ORDER BY id ASC LIMIT 1");
+            $medium_priority_posts = $wpdb->get_results("SELECT * FROM $table_post_schedule WHERE publish_priority = 'medium' ORDER BY id ASC LIMIT 1");
+            $low_priority_posts = $wpdb->get_results("SELECT * FROM $table_post_schedule WHERE publish_priority = 'low' ORDER BY id ASC LIMIT 1");
 
-        if ($high_priority_posts) {
-            i8_change_post_status($high_priority_posts);
-        } elseif ($medium_priority_posts) {
-            i8_change_post_status($medium_priority_posts);
-        } elseif ($low_priority_posts) {
-            i8_change_post_status($low_priority_posts);
+            if ($high_priority_posts) {
+                i8_change_post_status($high_priority_posts);
+            } elseif ($medium_priority_posts) {
+                i8_change_post_status($medium_priority_posts);
+            } elseif ($low_priority_posts) {
+                i8_change_post_status($low_priority_posts);
+            }
+
         }
-
     }
 }
 
@@ -171,24 +172,26 @@ function i8_change_post_status($priority_posts)
     $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
 
     foreach ($priority_posts as $post) {
+
         // از $post برای دسترسی به مقادیر مختلف هر ردیف استفاده می‌کنیم
         $id = $post->id;
         $post_id = $post->post_id;
 
-        $target_post = get_post($post_id);
-        if ($target_post) {
-            $random_interval = rand(300, 600);
-            $publish_time = time() + $random_interval;
-            
-            error_log('current time: ' . time() );
-            error_log('current time: ' . date('h:i:s' , time()) );
-            error_log('current time: ' . $publish_time );
-            error_log('current time: ' . date('h:i:s' , $publish_time) );
+        if (true) {
+            date_default_timezone_set('Asia/Tehran');
 
-            $target_post->post_status = 'publish';
-            $target_post->post_date = date('Y-m-d H:i:s', $publish_time);
-            $target_post->post_date_gmt = gmdate('Y-m-d H:i:s', $publish_time);
-            wp_update_post($target_post);
+            $random_interval = rand(400, 900);
+            $publish_time = time() + $random_interval;
+
+            // Prepare data for creating a WordPress post
+            $post_data = array(
+                'ID' => $post_id,
+                'post_status' => 'future',
+                'post_date' => date('Y-m-d H:i:s', $publish_time), // استفاده از زمان تصادفی برای post_date
+                'post_date_gmt' => gmdate('Y-m-d H:i:s', $publish_time), // استفاده از زمان تصادفی برای post_date_gmt
+            );
+            wp_update_post($post_data);
+
         } else {
             error_log('i8: post not found');
         }
@@ -201,6 +204,7 @@ function i8_change_post_status($priority_posts)
         }
     }
 }
+
 
 // Hook to handle the scheduled event
 add_action('custom_rss_parser_event', 'custom_rss_parser_run');
