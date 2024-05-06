@@ -66,7 +66,7 @@ function i8_register_daily_cron_schedule($schedules)
         'display' => __('این کرون هر ۵دقیقه اجرا میشود')
     );
 
-    $post_interval_publishing = get_option('post_interval_publishing') + rand(200, 400);
+    $post_interval_publishing = get_option('post_interval_publishing') + rand(500, 1500);
     $schedules['i8_pc_post_publisher_cron'] = array(
         'interval' => ($post_interval_publishing),
         'display' => __('این کرون هر چند دقیقه پستی را از جدول زمانبدی افزونه دستیار در سایت منتشر میکند')
