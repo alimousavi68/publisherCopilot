@@ -51,7 +51,7 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
         $publish_priority = isset($_POST['publish_priority']) ? $_POST['publish_priority'] : 'now';
 
 
-        error_log('publish_priority here:' . $publish_priority);
+        // error_log('publish_priority here:' . $publish_priority);
 
         $response = scrape_and_publish_post($guid, $resource_id, $publish_priority);
         echo json_encode($response);
@@ -111,7 +111,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
 
         if ($html->find($lead_selector, 0) != null) {
             $excerpt = $html->find($lead_selector, 0);
-            $excerpt = $excerpt->plaintext;
+            $excerpt = trim($excerpt->plaintext);
         } else {
             $excerpt = '';
         }
@@ -126,7 +126,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
         if ($publish_priority == 'now') {
             $post_status = 'publish';
         }
-        error_log('post_status here:' . $post_status);
+        // error_log('post_status here:' . $post_status);
 
         date_default_timezone_set('Asia/Tehran');
 
@@ -165,7 +165,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
                 }
             } elseif (!function_exists('media_sideload_image')) {
                 // return (array('status' => false, 'message' => 'media_sideload_image() function is not available.'));
-                error_log('media_sideload_image() function is not available.');
+                // error_log('media_sideload_image() function is not available.');
             }
 
             // Output success or failure message
@@ -206,7 +206,7 @@ function clear_not_allowed_tags($html)
 
     // بارگیری HTML بدون عنوان
     libxml_use_internal_errors(true); // غیرفعال کردن پیام‌های خطا
-    $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD); // اضافه کردن تگ xml و بارگیری HTML بدون عنوان
+    $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD); 
     libxml_clear_errors(); // پاک کردن خطاها
 
     // حذف تگ‌های <a> و <h1>
