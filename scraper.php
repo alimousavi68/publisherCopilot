@@ -242,8 +242,3 @@ function clear_not_allowed_tags($html)
     // بازگرداندن HTML نهایی
     return $filteredHtml;
 }
-
-
-
-
-
