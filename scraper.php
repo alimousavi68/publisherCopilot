@@ -57,6 +57,20 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
         echo json_encode($response);
     }
 }
+function complete_url($url, $base_url)
+{
+    // چک می‌کند که آیا URL شامل پروتکل است یا خیر (http:// یا https://)
+    if (parse_url($url, PHP_URL_SCHEME) === null) {
+        // اگر URL با '/' شروع شود، به ابتدای آن base_url را اضافه می‌کند
+        if ($url[0] === '/') {
+            return rtrim($base_url, '/') . $url;
+        } else {
+            return rtrim($base_url, '/') . '/' . ltrim($url, '/');
+        }
+    }
+    // اگر URL شامل پروتکل باشد، همان URL را برمی‌گرداند
+    return $url;
+}
 
 add_action('admin_post_scrape_and_publish_post', 'scrape_and_publish_post');
 // Function to scrape data from a given URL and create a new WordPress post
@@ -85,13 +99,22 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
     $source_root_link = get_post_meta($resource_id, 'source_root_link', true);
     $source_feed_link = get_post_meta($resource_id, 'source_feed_link', true);
 
+
     $url = $guid;
-    // error_log($url);
+    $encoded_url = preg_replace_callback(
+        '/[^\x20-\x7f]/',
+        function ($matches) {
+            return rawurlencode($matches[0]);
+        },
+        $url
+    );
+
+    error_log($encoded_url);
 
     // Load the HTML from the provided URL
-    $html = file_get_html($url);
+    $html = file_get_html($encoded_url);
 
-    // error_log($html);
+    error_log($html);
 
     // Check if HTML is successfully loaded
     if ($html) {
@@ -116,11 +139,14 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
             $excerpt = '';
         }
 
+
         $content = $html->find($body_selector, 0);
-        $content = clear_not_allowed_tags($content->innertext);
+        // error_log($content);
+        $content = clear_not_allowed_tags($content->innertext , $source_root_link);
 
 
         $thumbnail_url = $html->find($img_selector, 0)->src;
+
 
         $post_status = 'draft';
         if ($publish_priority == 'now') {
@@ -155,6 +181,9 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
 
             // Upload and set the featured image
             if ($post_id && function_exists('media_sideload_image')) {
+                $thumbnail_url = complete_url($thumbnail_url, $source_root_link);
+
+
                 $attachment_id = media_sideload_image($thumbnail_url, $post_id, 'thumbnail', 'id');
 
                 if (!is_wp_error($attachment_id)) {
@@ -199,27 +228,29 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
     }
 }
 
-function clear_not_allowed_tags($html)
+
+function clear_not_allowed_tags($html, $base_url)
 {
     // ایجاد یک شیء DOMDocument
     $dom = new DOMDocument();
 
     // بارگیری HTML بدون عنوان
     libxml_use_internal_errors(true); // غیرفعال کردن پیام‌های خطا
-    $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD); 
+    $dom->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
     libxml_clear_errors(); // پاک کردن خطاها
 
     // حذف تگ‌های <a> و <h1>
     $tagsToRemove = array('a', 'h1', 'strong');
     foreach ($tagsToRemove as $tag) {
-        // error_log('remove tag here: ' . $tag );
-
         $elementsToRemove = $dom->getElementsByTagName($tag);
+        $elements = [];
         foreach ($elementsToRemove as $element) {
+            $elements[] = $element; // Save elements to array for safe removal
+        }
+        foreach ($elements as $element) {
             $text = $element->nodeValue;
             $textNode = $dom->createTextNode($text);
             $element->parentNode->replaceChild($textNode, $element);
-            // $element->parentNode->removeChild($element);
         }
     }
 
@@ -231,6 +262,14 @@ function clear_not_allowed_tags($html)
         $element->removeAttribute('style');
         $element->removeAttribute('href');
         $element->removeAttribute('title');
+    }
+
+    // بررسی و اصلاح src تگ‌های img
+    $imgTags = $dom->getElementsByTagName('img');
+    foreach ($imgTags as $img) {
+        $src = $img->getAttribute('src');
+        $complete_src = complete_url($src, $base_url);
+        $img->setAttribute('src', $complete_src);
     }
 
     // دریافت HTML نهایی

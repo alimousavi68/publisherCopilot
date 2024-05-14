@@ -34,8 +34,8 @@ function custom_rss_parser_schedule_event()
     $end_time_res = strtotime($end_time);
 
     $news_interval_start = get_option('news_interval_start') ? get_option('news_interval_start') : '20';
-    $news_interval_end   = get_option('news_interval_end'  ) ? get_option('news_interval_end'  ) : '30';
- 
+    $news_interval_end = get_option('news_interval_end') ? get_option('news_interval_end') : '30';
+
     $work_time_count = intval($end_time) - intval($start_time);
     $sum_post_count = rand($news_interval_start, $news_interval_end);
 
@@ -143,7 +143,7 @@ function publish_post_at_scheduling_table()
 {
     date_default_timezone_set('Asia/Tehran');
     $start_time = strtotime(get_option('start_cron_time'));
-    $end_time =   strtotime(get_option('end_cron_time'));
+    $end_time = strtotime(get_option('end_cron_time'));
 
     // تنظیم محدوده زمانی
     if (time() >= $start_time && time() <= $end_time) {
@@ -243,10 +243,14 @@ function custom_rss_parser_run()
                 $title = $item->title;
                 $pub_date = date('Y-m-d H:i:s', strtotime($item->pubDate));
 
-                if ($need_to_merge_guid_link == 1) {
-                    $guid = $source_root_link . $item->guid . '';
-                } else {
-                    $guid = $item->guid . '';
+                if (isset($item->guid)) {
+                    if ($need_to_merge_guid_link == 1) {
+                        $guid = $source_root_link . $item->guid . '';
+                    } else {
+                        $guid = $item->guid . '';
+                    }
+                } elseif (isset($item->link)) {
+                    $guid = $item->link . '';
                 }
 
                 // Check if the item already exists in the database

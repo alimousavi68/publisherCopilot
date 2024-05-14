@@ -120,12 +120,12 @@ function display_custom_meta_box($post)
         <textarea id="escape_elements" name="escape_elements"
             class="widefat"><?php echo esc_textarea($escape_elements); ?></textarea><br><br>
 
-        <label for="source_root_link">Source Feed Link:</label><br>
+        <label for="source_root_link">Source root Link: </label><br>
         <input type="text" id="source_root_link" name="source_root_link" class="widefat"
             value="<?php echo esc_attr($source_root_link); ?>"><br><br>
 
 
-        <label for="source_feed_link">Source root Link:</label><br>
+        <label for="source_feed_link">Source Feed Link:</label><br>
         <input type="text" id="source_feed_link" name="source_feed_link" class="widefat"
             value="<?php echo esc_attr($source_feed_link); ?>"><br><br>
 
