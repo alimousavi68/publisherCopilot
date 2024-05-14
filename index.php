@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: Custom RSS Parser
+Plugin Name: publisher copilot
 Description: Parse and store RSS feed data into a custom table.
-Version: 1.0
-Author: ali mousavi
+Version: 1.1
+Author: HashtBehesht
 */
 
 // Hook into WordPress actions

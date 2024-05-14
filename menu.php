@@ -71,7 +71,7 @@ function publisher_copoilot_callback()
                     به روزرسانی
                 </a>
 
-                <a href="admin.php?page=custom_rss_parser_page&action=delete_all"
+                <a href="admin.php?page=publisher_copoilot&action=delete_all"
                     class="btn btn-sm rounded-pill btn-outline-secondary">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eraser"
                         viewBox="0 0 16 16">
