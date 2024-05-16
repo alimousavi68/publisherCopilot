@@ -18,17 +18,21 @@ add_action('admin_menu', 'custom_rss_parser_menu');
 function custom_rss_parser_menu()
 {
     add_menu_page(
-        'آخرین فیدهای دستیار' ,
-        'دستیار' ,
-        'manage_options' ,
-        'publisher_copoilot' ,
-        'publisher_copoilot_callback','dashicons-image-filter' , 5
+        'آخرین فیدهای دستیار',
+        'دستیار',
+        'manage_options',
+        'publisher_copoilot',
+        'publisher_copoilot_callback',
+        'dashicons-image-filter',
+        5
     );
 }
 
 // Callback function for menu page
 function publisher_copoilot_callback()
 {
+
+
     if (isset($_GET['success'])) {
         $action_status = $_GET['success'];
         if ($action_status == 'true') {
@@ -55,31 +59,55 @@ function publisher_copoilot_callback()
     ?>
 
     <div class="wrap">
-        <h1 class="wp-heading-inline">آخرین فیدها</h1>
+
         <div class="wp-filter">
-            <div style="float:left ; padding:10px 10px;">
+            <div class="d-flex p-4 justify-content-between gap-2">
+                <h5 class="wp-heading-inline">جدیدترین فیدها</h5>
+                <div class="d-flex gap-2 btn-group ">
+                    <div class="d-flex flex-wrap gap-1 align-items-center">
+                        <?php
+                        $current_url = add_query_arg(null, null);
 
-                <a href="admin.php?page=publisher_copoilot&action=update_feeds"
-                    class="btn btn-sm rounded-pill btn-outline-secondary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                        class="bi bi-arrow-repeat" viewBox="0 0 16 16">
-                        <path
-                            d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
-                        <path fill-rule="evenodd"
-                            d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
-                    </svg>
-                    به روزرسانی
-                </a>
+                        ?>
+                        <span>تعداد در صفحه:</span>
+                        <a href="<?php echo add_query_arg('item_per_page', 25, $current_url); ?>"
+                            class="btn btn-sm rounded-pill btn-outline-secondary">
+                            25
+                        </a>
+                        <a href="<?php echo add_query_arg('item_per_page', 50, $current_url); ?>"
+                            class="btn btn-sm rounded-pill btn-outline-secondary">
+                            50
+                        </a>
+                        <a href="<?php echo add_query_arg('item_per_page', 100, $current_url); ?> ?>"
+                            class="btn btn-sm rounded-pill btn-outline-secondary">
+                            100
+                        </a>
+                    </div>
 
-                <a href="admin.php?page=publisher_copoilot&action=delete_all"
-                    class="btn btn-sm rounded-pill btn-outline-secondary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eraser"
-                        viewBox="0 0 16 16">
-                        <path
-                            d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828zm2.121.707a1 1 0 0 0-1.414 0L4.16 7.547l5.293 5.293 4.633-4.633a1 1 0 0 0 0-1.414zM8.746 13.547 3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293z" />
-                    </svg>
-                    حذف همه
-                </a>
+                    <div class="d-flex gap-1">
+                        <a href="admin.php?page=publisher_copoilot&action=update_feeds"
+                            class="btn btn-sm rounded-pill btn-outline-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-arrow-repeat" viewBox="0 0 16 16">
+                                <path
+                                    d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
+                                <path fill-rule="evenodd"
+                                    d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
+                            </svg>
+                            به روزرسانی
+                        </a>
+
+                        <a href="admin.php?page=publisher_copoilot&action=delete_all"
+                            class="btn btn-sm rounded-pill btn-outline-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-eraser" viewBox="0 0 16 16">
+                                <path
+                                    d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828zm2.121.707a1 1 0 0 0-1.414 0L4.16 7.547l5.293 5.293 4.633-4.633a1 1 0 0 0 0-1.414zM8.746 13.547 3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293z" />
+                            </svg>
+                            حذف همه
+                        </a>
+                    </div>
+                </div>
 
 
 
@@ -98,21 +126,75 @@ function publisher_copoilot_callback()
 // Function to display the list of items
 function custom_rss_parser_display_items()
 {
+    if ($_GET['item_per_page']) {
+        $items_per_page = $_GET['item_per_page'];
+        if (get_option('pc_item_per_page') && get_option('pc_item_per_page') != $items_per_page) {
+            update_option('pc_item_per_page', $items_per_page);
+        } else {
+            add_option('pc_item_per_page', $items_per_page);
+        }
+    } else {
+
+        if (get_option('pc_item_per_page')) {
+            $items_per_page = get_option('pc_item_per_page');
+        } else {
+            add_option('pc_item_per_page', 20);
+            $items_per_page = 20;
+        }
+    }
+
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_rss_items';
 
-    // Fetch items from the database
-    $items = $wpdb->get_results("SELECT * FROM $table_name ORDER BY id DESC");
+    // Define the number of items per page
 
-    // Display the items in a table
+    // Get the current page number
+    $paged = isset($_GET['paged']) ? absint($_GET['paged']) : 1;
+
+    // Calculate the offset for the query
+    $offset = ($paged - 1) * $items_per_page;
+
+    // Fetch items from the database with pagination
+    $total_items = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+    $items = $wpdb->get_results(
+        $wpdb->prepare(
+            "SELECT * FROM $table_name ORDER BY id DESC LIMIT %d OFFSET %d",
+            $items_per_page,
+            $offset
+        )
+    );
+
+    // Pagination
+    $total_pages = ceil($total_items / $items_per_page);
+
+    if ($total_pages > 1) {
+        $current_page = max(1, $paged);
+        echo "<div class='tablenav mb-3' ><div class='tablenav-pages'>";
+        echo paginate_links(
+            array(
+                'base' => add_query_arg('paged', '%#%'),
+                'format' => '',
+                'current' => $current_page,
+                'total' => $total_pages,
+                'prev_text' => __('&laquo; Previous'),
+                'next_text' => __('Next &raquo;'),
+                'type' => 'list',
+            )
+        );
+        echo "</div>";
+        echo ' نتایج: ' . $total_items . ' مورد - ';
+        echo 'از ' . $offset + 1 . ' تا ' . ($offset + $items_per_page);
+        echo "</div>";
+
+    }
     ?>
 
-
     <?php
+
     echo '<div class="table table-hover px-3 ">
 
     <div class="row d-none d-md-flex">
-        <div class="th col col-3 col-md-1"> # </div>
+        <div class="th col col-auto"> # </div>
         <div class="col col-9 col-md-11 row ">
             <div class="th col col-12 col-xl-6">عنوان</div>
             <div class="th col col-4 col-xl-1  d-none d-md-flex">منبع</div>
@@ -121,9 +203,9 @@ function custom_rss_parser_display_items()
         </div>
         
     </div>';
-    foreach ($items as $item) {
+    foreach ($items as $key => $item) {
         echo '<div class="tr row p-2" id="item-' . esc_html($item->id) . '" >';
-        echo '<div class="col-1 bg-transparent row-counter">' . esc_html($item->id) . '</div>';
+        echo '<div class="col-auto bg-transparent row-counter">' . $offset + $key + 1 . '</div>';
         echo '<div class="col-11 row bg-transparent"><div class="col-12 col-xl-6 bg-transparent feed-item-title"><a href="' . esc_html($item->guid) . '" target="_blank">' . esc_html($item->title) . '</a></div>';
 
         echo '<div class="col-4 col-xl-1 bg-transparent text-secondary item-meta-data">'
@@ -211,8 +293,30 @@ function custom_rss_parser_display_items()
         echo '</div></div>';
 
     }
+
+
     echo ' </div>';
+    // Pagination
+    $total_pages = ceil($total_items / $items_per_page);
+
+    if ($total_pages > 1) {
+        $current_page = max(1, $paged);
+        echo "<div class='tablenav' ><div class='tablenav-pages'>";
+        echo paginate_links(
+            array(
+                'base' => add_query_arg('paged', '%#%'),
+                'format' => '',
+                'current' => $current_page,
+                'total' => $total_pages,
+                'prev_text' => __('&laquo; Previous'),
+                'next_text' => __('Next &raquo;'),
+                'type' => 'list',
+            )
+        );
+        echo "</div></div>";
+    }
     ?>
+
 
 
     <link href="<?php echo plugin_dir_url(__FILE__); ?>/bootstrap.min.css" rel="stylesheet">
@@ -223,7 +327,7 @@ function custom_rss_parser_display_items()
 
 
             var scrapeLinks = document.querySelectorAll(".scrape-link");
-           
+
             scrapeLinks.forEach(function (link) {
                 link.addEventListener("click", function (e) {
                     var post_Guid = this.getAttribute("data-guid");
@@ -248,7 +352,7 @@ function custom_rss_parser_display_items()
                             action: 'publish_scraper',
                             post_Guid: post_Guid,
                             resource_id: resource_id,
-                            publish_priority : publish_priority
+                            publish_priority: publish_priority
                         },
                         success: function (response) {
                             var response = JSON.parse(response);
@@ -362,6 +466,43 @@ function custom_rss_parser_display_items()
 
         .scraped-feeds-table .tr:hover {
             background-color: #eaf9ff;
+        }
+
+        /* pagination */
+        .tablenav-pages .page-numbers {
+            display: flex;
+            gap: 15px;
+            padding-left: 0;
+        }
+
+        .tablenav .tablenav-pages li {
+            display: flex;
+            flex-wrap: nowrap;
+            align-content: center;
+            justify-content: center;
+            min-width: 30px;
+            min-height: 30px;
+            margin: 0;
+            padding: 0 4px;
+            font-size: 16px;
+            line-height: 1.625;
+            text-align: center;
+            color: #000;
+            border: 3px solid #f2f2f2;
+            border-radius: 1px;
+
+        }
+
+        .tablenav .tablenav-pages li:hover {
+            background-color: #f2f2f2;
+
+        }
+
+        .tablenav .tablenav-pages li a {
+            text-decoration: none;
+            color: #297aa9;
+            width: 100%;
+            height: 100%;
         }
     </style>
     <script src="<?php echo plugin_dir_url(__FILE__); ?>/sweetalert2@11.js"></script>

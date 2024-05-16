@@ -129,10 +129,13 @@ function display_custom_meta_box($post)
         <input type="text" id="source_feed_link" name="source_feed_link" class="widefat"
             value="<?php echo esc_attr($source_feed_link); ?>"><br><br>
 
-
+<?php
+error_log('start need value:'.get_post_meta($post->ID, 'need_to_merge_guid_link', true))
+?>
         <label for="need_to_merge_guid_link">need to merge guid link:
             <input type="checkbox" name="need_to_merge_guid_link" id="need_to_merge_guid_link"
-             value="1" <?php checked(1, get_post_meta($post->ID, 'need_to_merge_guid_link', true)); ?>>
+             value="<?php echo(get_post_meta($post->ID, 'need_to_merge_guid_link', true) == 1) ? 1 : 0 ; ?>"
+               <?php checked(get_post_meta($post->ID, 'need_to_merge_guid_link', 1 , true)); ?> >
         </label><br>
     </p>
     <?php
@@ -174,9 +177,15 @@ function save_custom_meta_box($post_id)
     if (isset($_POST['source_feed_link'])) {
         update_post_meta($post_id, 'source_feed_link', sanitize_text_field($_POST['source_feed_link']));
     }
+    
+    
     // save need_to_merge_guid_link
     if (isset($_POST['need_to_merge_guid_link'])) { 
-        update_post_meta($post_id, 'need_to_merge_guid_link', $_POST['need_to_merge_guid_link']);
+        error_log('if, need to merge: ' . $_POST['need_to_merge_guid_link']);
+        update_post_meta($post_id, 'need_to_merge_guid_link', 1);
+    }
+    else {
+        update_post_meta($post_id, 'need_to_merge_guid_link', 0);
     }
 
 }
