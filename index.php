@@ -320,4 +320,4 @@ include_once (plugin_dir_path(__FILE__) . 'setting_page.php');
 include_once (plugin_dir_path(__FILE__) . 'scraper.php');
 
 // Include jalali-date external library 
-// require_once (plugin_dir_path(__FILE__) . 'jdatetime.class.php');
+require_once (plugin_dir_path(__FILE__) . 'jdatetime.class.php');
