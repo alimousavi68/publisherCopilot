@@ -185,7 +185,6 @@ function custom_rss_parser_display_items()
         echo ' نتایج: ' . $total_items . ' مورد - ';
         echo 'از ' . $offset + 1 . ' تا ' . ($offset + $items_per_page);
         echo "</div>";
-
     }
     ?>
 
