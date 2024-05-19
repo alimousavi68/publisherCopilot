@@ -100,21 +100,18 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
     $source_feed_link = get_post_meta($resource_id, 'source_feed_link', true);
     $need_to_merge_guid_link = get_post_meta($resource_id, 'need_to_merge_guid_link', true);
 
-    if ($need_to_merge_guid_link == 1) {
-        $guid = $source_root_link . $guid . '';
-    } else {
-        $guid = $guid . '';
-    }
 
+    $guid = $guid . '';
     $url = $guid;
-    $encoded_url = preg_replace_callback('/[^\x20-\x7f]/',function ($matches) {return rawurlencode($matches[0]);},$url);
+    $encoded_url = preg_replace_callback('/[^\x20-\x7f]/', function ($matches) {
+        return rawurlencode($matches[0]); }, $url);
 
     error_log($encoded_url);
 
     // Load the HTML from the provided URL
     $html = file_get_html($encoded_url);
 
-    error_log($html);
+    // error_log($html);
 
     // Check if HTML is successfully loaded
     if ($html) {
@@ -144,7 +141,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
         // error_log($content);
         $content = clear_not_allowed_tags($content->innertext, $source_root_link);
 
-
+        error_log('img selector :' . $img_selector);
         $thumbnail_url = $html->find($img_selector, 0)->src;
 
 

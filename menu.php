@@ -11,6 +11,7 @@ if (file_exists($wp_load_path)) {
 }
 
 
+
 // Hook into the admin menu
 add_action('admin_menu', 'custom_rss_parser_menu');
 
@@ -27,12 +28,38 @@ function custom_rss_parser_menu()
         5
     );
 }
+function get_all_source_name()
+{
+    // wp get query for fetch resouces_post_type post type 
+    $args = array(
+        'post_type' => 'resource',
+        'post_status' => 'publish',
+    );
+    $resources_query = new WP_Query($args);
+    if ($resources_query->have_posts()) {
+        while ($resources_query->have_posts()) {
+            $resources_query->the_post();
+            // Output content here
+            $resource_arr[] = array(
+                'id' => get_the_ID(),
+                'name' => get_the_title(),
+            );
+        }
+        return $resource_arr;
+        wp_reset_postdata();
+    } else {
+        error_log('else fired');
+        return false;
+    }
+
+}
 
 // Callback function for menu page
 function publisher_copoilot_callback()
 {
 
-
+    
+    
     if (isset($_GET['success'])) {
         $action_status = $_GET['success'];
         if ($action_status == 'true') {
@@ -56,6 +83,12 @@ function publisher_copoilot_callback()
         do_action('custom_rss_parser_event');
         wp_safe_redirect(add_query_arg('success', 'true', wp_get_referer()));
     }
+    // $current_url = wp_get_referer();
+
+    // اگر URL صفحه قبل موجود نبود، از URL فعلی استفاده کنید
+
+    $current_url = add_query_arg(NULL, NULL);
+
     ?>
 
     <div class="wrap">
@@ -64,9 +97,32 @@ function publisher_copoilot_callback()
             <div class="d-flex p-4 justify-content-between gap-2">
                 <h5 class="wp-heading-inline">جدیدترین فیدها</h5>
                 <div class="d-flex gap-2 btn-group ">
+                    <div>
+                        <form action="<?php echo esc_url($current_url); ?>" method="get">
+                            <?php
+                            foreach ($_GET as $key => $value) {
+                                if ($key != 'source_name') {
+                                    echo '<input type="hidden" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '">';
+                                }
+                            }
+                            ?>
+                            <div class="d-flex">
+                                <select name="source" class="form-select rounded-pill btn-outline-secondar">
+                                    <?php foreach (get_all_source_name() as $source_name): ?>
+                                        <option value="<?php echo $source_name['id']; ?>" 
+                                        <?php echo (isset($_GET['source']) && $_GET['source'] == $source_name['id']) ? esc_attr('selected') : ''; ?>
+ ><?php echo $source_name['name']; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button type="submit" class="btn btn-sm rounded-pill btn-outline-secondar">فیلتر</button>
+                            </div>
+                        </form>
+                    </div>
+
                     <div class="d-flex flex-wrap gap-1 align-items-center">
                         <?php
-                        $current_url = add_query_arg(null, null);
+
 
                         ?>
                         <span>تعداد در صفحه:</span>
@@ -126,7 +182,7 @@ function publisher_copoilot_callback()
 // Function to display the list of items
 function custom_rss_parser_display_items()
 {
-    if ($_GET['item_per_page']) {
+    if (isset($_GET['item_per_page'])) {
         $items_per_page = $_GET['item_per_page'];
         if (get_option('pc_item_per_page') && get_option('pc_item_per_page') != $items_per_page) {
             update_option('pc_item_per_page', $items_per_page);
@@ -156,13 +212,25 @@ function custom_rss_parser_display_items()
 
     // Fetch items from the database with pagination
     $total_items = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
-    $items = $wpdb->get_results(
-        $wpdb->prepare(
-            "SELECT * FROM $table_name ORDER BY id DESC LIMIT %d OFFSET %d",
+    if (isset($_GET['source'])) {
+        // اگر $source_id موجود بود، شرط WHERE را اضافه کنید
+        $items = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM $table_name WHERE resource_id = %d ORDER BY id DESC LIMIT %d OFFSET %d",
+            $_GET['source'],
             $items_per_page,
             $offset
-        )
-    );
+        ));
+
+    } else {
+        $items = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM $table_name ORDER BY id DESC LIMIT %d OFFSET %d",
+                $items_per_page,
+                $offset
+            )
+        );
+
+    }
 
     // Pagination
     $total_pages = ceil($total_items / $items_per_page);
