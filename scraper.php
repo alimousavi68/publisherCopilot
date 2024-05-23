@@ -141,7 +141,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
         // error_log($content);
         $content = clear_not_allowed_tags($content->innertext, $source_root_link);
 
-        error_log('img selector :' . $img_selector);
+        // error_log('img selector :' . $img_selector);
         $thumbnail_url = $html->find($img_selector, 0)->src;
 
 

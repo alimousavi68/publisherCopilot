@@ -130,7 +130,7 @@ function display_custom_meta_box($post)
             value="<?php echo esc_attr($source_feed_link); ?>"><br><br>
 
 <?php
-error_log('start need value:'.get_post_meta($post->ID, 'need_to_merge_guid_link', true))
+error_log('start need value:'.get_post_meta($post->ID, 'need_to_merge_guid_link', true));
 ?>
         <label for="need_to_merge_guid_link">need to merge guid link:
             <input type="checkbox" name="need_to_merge_guid_link" id="need_to_merge_guid_link"
