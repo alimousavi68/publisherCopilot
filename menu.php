@@ -256,121 +256,126 @@ function custom_rss_parser_display_items()
     }
     ?>
 
-    <?php
+    
 
-    echo '<div class="table table-hover px-3 ">
-
+    <div class="table table-hover px-3 ">
     <div class="row d-none d-md-flex">
-        <div class="th col col-auto"> # </div>
+        <div class="th col col-1"> # </div>
         <div class="col col-9 col-md-11 row ">
             <div class="th col col-12 col-xl-6">عنوان</div>
             <div class="th col col-4 col-xl-1  d-none d-md-flex">منبع</div>
             <div class="th col col-8 col-xl-2  d-none d-md-flex">تاریخ انتشار</div>
             <div class="th col col-12 col-xl-3 d-none d-md-flex">عملیات</div>
         </div>
-        
-    </div>';
-    foreach ($items as $key => $item) {
-        echo '<div class="tr row p-2" id="item-' . esc_html($item->id) . '" >';
-        echo '<div class="col-auto bg-transparent row-counter">' . $offset + $key + 1 . '</div>';
-        echo '<div class="col-11 row bg-transparent"><div class="col-12 col-xl-6 bg-transparent feed-item-title"><a href="' . esc_html($item->guid) . '" target="_blank">' . esc_html($item->title) . '</a></div>';
+    </div>
+    
 
-        echo '<div class="col-4 col-xl-1 bg-transparent text-secondary item-meta-data">'
-            . '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hash" viewBox="0 0 16 16"><path d="M8.39 12.648a1 1 0 0 0-.015.18c0 .305.21.508.5.508.266 0 .492-.172.555-.477l.554-2.703h1.204c.421 0 .617-.234.617-.547 0-.312-.188-.53-.617-.53h-.985l.516-2.524h1.265c.43 0 .618-.227.618-.547 0-.313-.188-.524-.618-.524h-1.046l.476-2.304a1 1 0 0 0 .016-.164.51.51 0 0 0-.516-.516.54.54 0 0 0-.539.43l-.523 2.554H7.617l.477-2.304c.008-.04.015-.118.015-.164a.51.51 0 0 0-.523-.516.54.54 0 0 0-.531.43L6.53 5.484H5.414c-.43 0-.617.22-.617.532s.187.539.617.539h.906l-.515 2.523H4.609c-.421 0-.609.219-.609.531s.188.547.61.547h.976l-.516 2.492c-.008.04-.015.125-.015.18 0 .305.21.508.5.508.265 0 .492-.172.554-.477l.555-2.703h2.242zm-1-6.109h2.266l-.515 2.563H6.859l.532-2.563z"/></svg>'
-            . (($item->resource_name) ? ($item->resource_name) : '-') . '</div>';
-        echo '<div class="col-8 col-xl-2 bg-transparent text-secondary item-meta-data" style="direction:left">'
-            . '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/></svg>  '
-            . \jDateTime::convertFormatToFormat('d / M | H:i ', 'Y-m-d H:i:s', $item->pub_date, 'Asia/Tehran')
-            . '</div>';
-        echo '<div class="col-12 col-xl-3 row gap-2 bg-transparent action-bar">
+<?php
+foreach ($items as $key => $item) {
+    $item_id = esc_html($item->id);
+    $row_counter = $offset + $key + 1;
+    $item_guid = esc_html($item->guid);
+    $item_title = esc_html($item->title);
+    $resource_name = $item->resource_name ? $item->resource_name : '-';
+    $pub_date = \jDateTime::convertFormatToFormat('d / M | H:i ', 'Y-m-d H:i:s', $item->pub_date, 'Asia/Tehran');
+    $resource_id = esc_attr($item->resource_id);
+    $admin_url = esc_url(get_admin_url() . 'images/wpspin_light-2x.gif');
+    ?>
 
-                    <a href="' . esc_html($item->guid) . '" target="_blank" class="col btn btn-sm rounded-pill btn-outline-secondary" title="بازدید در سایت مرجع">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye"
-                            viewBox="0 0 16 16">
-                            <path
-                                d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
-                            <path
-                                d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
-                        </svg>
-
-                    </a>
-
-                    <a class="scrape-link col btn btn-sm rounded-pill btn-outline-secondary" title="انتشار فوری"
-                        id="scraper-link-' . $item->id . '"
-                        data-id="' . $item->id . '"
-                        data-guid="' . $item->guid . '"
-                        data-priority="now"
-                        data-resource-id="' . esc_attr($item->resource_id) . '"
-                    >
-                    <img src="' . esc_url(get_admin_url() . 'images/wpspin_light-2x.gif') . '" style="display:none;position:absolute;left:50%;z-index:100;" />
+    <div class="tr row p-2" id="item-<?php echo $item_id; ?>">
+        <div class="col-auto bg-transparent row-counter"><?php echo $row_counter; ?></div>
+        <div class="col-11 row bg-transparent">
+            <div class="col-12 col-xl-6 bg-transparent feed-item-title">
+                <a href="<?php echo $item_guid; ?>" target="_blank"><?php echo $item_title; ?></a>
+            </div>
+            <div class="col-4 col-xl-1 bg-transparent text-secondary item-meta-data">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hash" viewBox="0 0 16 16">
+                    <path d="M8.39 12.648a1 1 0 0 0-.015.18c0 .305.21.508.5.508.266 0 .492-.172.555-.477l.554-2.703h1.204c.421 0 .617-.234.617-.547 0-.312-.188-.53-.617-.53h-.985l.516-2.524h1.265c.43 0 .618-.227.618-.547 0-.313-.188-.524-.618-.524h-1.046l.476-2.304a1 1 0 0 0 .016-.164.51.51 0 0 0-.516-.516.54.54 0 0 0-.539.43l-.523 2.554H7.617l.477-2.304c.008-.04.015-.118.015-.164a.51.51 0 0 0-.523-.516.54.54 0 0 0-.531.43L6.53 5.484H5.414c-.43 0-.617.22-.617.532s.187.539.617.539h.906l-.515 2.523H4.609c-.421 0-.609.219-.609.531s.188.547.61.547h.976l-.516 2.492c-.008.04-.015.125-.015.18 0 .305.21.508.5.508.265 0 .492-.172.554-.477l.555-2.703h2.242zm-1-6.109h2.266l-.515 2.563H6.859l.532-2.563z"/>
+                </svg>
+                <?php echo $resource_name; ?>
+            </div>
+            <div class="col-8 col-xl-2 bg-transparent text-secondary item-meta-data" style="direction:left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
+                    <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
+                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
+                </svg>
+                <?php echo $pub_date; ?>
+            </div>
+            <div class="col-12 col-xl-3 row gap-2 bg-transparent action-bar">
+                <a href="<?php echo $item_guid; ?>" target="_blank" class="col btn btn-sm rounded-pill btn-outline-secondary" title="بازدید در سایت مرجع">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                        <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                    </svg>
+                </a>
+                <a class="scrape-link col btn btn-sm rounded-pill btn-outline-secondary" title="انتشار فوری"
+                   id="scraper-link-<?php echo $item->id; ?>"
+                   data-id="<?php echo $item->id; ?>"
+                   data-guid="<?php echo $item_guid; ?>"
+                   data-priority="now"
+                   data-resource-id="<?php echo $resource_id; ?>">
+                    <img src="<?php echo $admin_url; ?>" style="display:none;position:absolute;left:50%;z-index:100;" />
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
                     </svg>
-                    </a>
-                    <a class="scrape-link col btn btn-sm rounded-pill btn-outline-danger" title="زمانبندی با الویت بالا"
-                    id="scraper-link-' . $item->id . '"
-                    data-id="' . $item->id . '"
-                    data-guid="' . $item->guid . '"
-                    data-priority="high"
-                    data-resource-id="' . esc_attr($item->resource_id) . '"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-stopwatch" viewBox="0 0 16 16">
-                            <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.9h-3a.5.5 0 0 0 0 1H8a.5.5 0 0 0 .5-.5z" />
-                            <path
-                                d="M6.5 1A.5.5 0 0 1 7 .5h2a.5.5 0 0 1 0 1v.57c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l1.414 1.415a.5.5 0 1 1-.707.707l-.353-.354-.354.354-.013.012A7 7 0 1 1 7 2.071V1.5a.5.5 0 0 1-.5-.5M8 3a6 6 0 1 0 .001 12A6 6 0 0 0 8 3" />
-                        </svg>
-                    </a>
-                    <a class="scrape-link col btn btn-sm rounded-pill btn-outline-warning" title="زمانبندی با الویت متوسط"
-                    id="scraper-link-' . $item->id . '"
-                    data-id="' . $item->id . '"
-                    data-guid="' . $item->guid . '"
-                    data-priority="medium"
-                    data-resource-id="' . esc_attr($item->resource_id) . '"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-stopwatch" viewBox="0 0 16 16">
-                            <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.9h-3a.5.5 0 0 0 0 1H8a.5.5 0 0 0 .5-.5z" />
-                            <path
-                                d="M6.5 1A.5.5 0 0 1 7 .5h2a.5.5 0 0 1 0 1v.57c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l1.414 1.415a.5.5 0 1 1-.707.707l-.353-.354-.354.354-.013.012A7 7 0 1 1 7 2.071V1.5a.5.5 0 0 1-.5-.5M8 3a6 6 0 1 0 .001 12A6 6 0 0 0 8 3" />
-                        </svg>
-                    </a>
-                    <a class="scrape-link col btn btn-sm rounded-pill btn-outline-success" title="زمانبندی با الویت کم"
-                        id="scraper-link-' . $item->id . '"
-                        data-id="' . $item->id . '"
-                        data-guid="' . $item->guid . '"
-                        data-priority="low"
-                        data-resource-id="' . esc_attr($item->resource_id) . '"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-stopwatch" viewBox="0 0 16 16">
-                            <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.9h-3a.5.5 0 0 0 0 1H8a.5.5 0 0 0 .5-.5z" />
-                            <path
-                                d="M6.5 1A.5.5 0 0 1 7 .5h2a.5.5 0 0 1 0 1v.57c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l1.414 1.415a.5.5 0 1 1-.707.707l-.353-.354-.354.354-.013.012A7 7 0 1 1 7 2.071V1.5a.5.5 0 0 1-.5-.5M8 3a6 6 0 1 0 .001 12A6 6 0 0 0 8 3" />
-                        </svg>
-                    </a>
-                    <a class="col btn btn-sm rounded-pill btn-outline-secondary" title="حذف فید">
+                </a>
+                <a class="scrape-link col btn btn-sm rounded-pill btn-outline-danger" title="زمانبندی با الویت بالا"
+                   id="scraper-link-<?php echo $item->id; ?>"
+                   data-id="<?php echo $item->id; ?>"
+                   data-guid="<?php echo $item_guid; ?>"
+                   data-priority="high"
+                   data-resource-id="<?php echo $resource_id; ?>">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stopwatch" viewBox="0 0 16 16">
+                        <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.9h-3a.5.5 0 0 0 0 1H8a.5.5 0 0 0 .5-.5z"/>
+                        <path d="M6.5 1A.5.5 0 0 1 7 .5h2a.5.5 0 0 1 0 1v.57
+
+c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l1.414 1.415a.5.5 0 1 1-.707.707l-.353-.354-.354.354-.013.012A7 7 0 1 1 7 2.071V1.5a.5.5 0 0 1-.5-.5M8 3a6 6 0 1 0 .001 12A6 6 0 0 0 8 3"/>
+                    </svg>
+                </a>
+                <a class="scrape-link col btn btn-sm rounded-pill btn-outline-warning" title="زمانبندی با الویت متوسط"
+                   id="scraper-link-<?php echo $item->id; ?>"
+                   data-id="<?php echo $item->id; ?>"
+                   data-guid="<?php echo $item_guid; ?>"
+                   data-priority="medium"
+                   data-resource-id="<?php echo $resource_id; ?>">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stopwatch" viewBox="0 0 16 16">
+                        <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.9h-3a.5.5 0 0 0 0 1H8a.5.5 0 0 0 .5-.5z"/>
+                        <path d="M6.5 1A.5.5 0 0 1 7 .5h2a.5.5 0 0 1 0 1v.57c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l1.414 1.415a.5.5 0 1 1-.707.707l-.353-.354-.354.354-.013.012A7 7 0 1 1 7 2.071V1.5a.5.5 0 0 1-.5-.5M8 3a6 6 0 1 0 .001 12A6 6 0 0 0 8 3"/>
+                    </svg>
+                </a>
+                <a class="scrape-link col btn btn-sm rounded-pill btn-outline-success" title="زمانبندی با الویت کم"
+                   id="scraper-link-<?php echo $item->id; ?>"
+                   data-id="<?php echo $item->id; ?>"
+                   data-guid="<?php echo $item_guid; ?>"
+                   data-priority="low"
+                   data-resource-id="<?php echo $resource_id; ?>">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stopwatch" viewBox="0 0 16 16">
+                        <path d="M8.5 5.6a.5.5 0 1 0-1 0v2.9h-3a.5.5 0 0 0 0 1H8a.5.5 0 0 0 .5-.5z"/>
+                        <path d="M6.5 1A.5.5 0 0 1 7 .5h2a.5.5 0 0 1 0 1v.57c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l1.414 1.415a.5.5 0 1 1-.707.707l-.353-.354-.354.354-.013.012A7 7 0 1 1 7 2.071V1.5a.5.5 0 0 1-.5-.5M8 3a6 6 0 1 0 .001 12A6 6 0 0 0 8 3"/>
+                    </svg>
+                </a>
+                <a class="col btn btn-sm rounded-pill btn-outline-secondary" title="حذف فید">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-x" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M6.146 5.146a.5.5 0 0 1 .708 0L8 6.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 7l1.147 1.146a.5.5 0 0 1-.708.708L8 7.707 6.854 8.854a.5.5 0 1 1-.708-.708L7.293 7 6.146 5.854a.5.5 0 0 1 0-.708"/>
-  <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1z"/>
-</svg>
-                    </a>
-                </div>';
-        echo '</div></div>';
+                        <path fill-rule="evenodd" d="M6.146 5.146a.5.5 0 0 1 .708 0L8 6.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 7l1.147 1.146a.5.5 0 0 1-.708.708L8 7.707 6.854 8.854a.5.5 0 1 1-.708-.708L7.293 7 6.146 5.854a.5.5 0 0 1 0-.708"/>
+                        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php
+}
 
-    }
+$total_pages = ceil($total_items / $items_per_page);
 
-
-    echo ' </div>';
-    // Pagination
-    $total_pages = ceil($total_items / $items_per_page);
-
-    if ($total_pages > 1) {
-        $current_page = max(1, $paged);
-        echo "<div class='tablenav' ><div class='tablenav-pages'>";
-        echo paginate_links(
-            array(
+if ($total_pages > 1) {
+    $current_page = max(1, $paged);
+    ?>
+    <div class='tablenav'>
+        <div class='tablenav-pages'>
+            <?php
+            echo paginate_links(array(
                 'base' => add_query_arg('paged', '%#%'),
                 'format' => '',
                 'current' => $current_page,
@@ -378,11 +383,14 @@ function custom_rss_parser_display_items()
                 'prev_text' => __('&laquo; Previous'),
                 'next_text' => __('Next &raquo;'),
                 'type' => 'list',
-            )
-        );
-        echo "</div></div>";
-    }
-    ?>
+            ));
+            ?>
+        </div>
+    </div>
+    </div>
+    <?php
+}
+?>
 
 
 
