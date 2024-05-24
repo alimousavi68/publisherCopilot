@@ -12,7 +12,7 @@ eval(base64_decode($encoded_Code));
 
 
  // Include jalali-date external library 
- require_once (plugin_dir_path(__FILE__) . 'jdatetime.class.php');
+//  require_once (plugin_dir_path(__FILE__) . 'jdatetime.class.php');
 
 
 // Schedule event to run every 5 minutes
