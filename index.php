@@ -1,14 +1,98 @@
 <?php
 /*
 Plugin Name: Publisher Copilot
-Description: اافزونه دستیار هوشمند (کبلاینت)
+Description: اافزونه دستیار هوشمند (کلاینت)
 Version: 1.3
 Author: Hasht Behesht
 */
 
+register_activation_hook(__FILE__, 'i8_pc_plugin_activate');
+function i8_pc_plugin_activate()
+{
+    if (!get_option('i8_pc_plugin_sd')) {
+        $encoded_date = base64_encode(current_time('timestamp'));
+        add_option('i8_pc_plugin_sd', $encoded_date, '', 'no');
+    }
+    if (!get_option('i8_pc_plugin_vd')) {
+        $valid_domains = array(
+            'rasadiplus.ir',
+            'andishehqarn.ir',
+            'ashkaar.ir',
+            'rasaderooz.com',
+            'andishemoaser.ir',
+            'localhost:8888'
+        );
+        $encoded_domains = base64_encode(serialize($valid_domains));
+        add_option('i8_pc_plugin_vd', $encoded_domains, '', 'no');
+    }
+}
 
-$encoded_Code= 'CnJlZ2lzdGVyX2FjdGl2YXRpb25faG9vayhfX0ZJTEVfXywgJ2k4X3BjX3BsdWdpbl9hY3RpdmF0ZScpOwpmdW5jdGlvbiBpOF9wY19wbHVnaW5fYWN0aXZhdGUoKQp7CiAgICBpZiAoIWdldF9vcHRpb24oJ2k4X3BjX3BsdWdpbl9zZCcpKSB7CiAgICAgICAgJGVuY29kZWRfZGF0ZSA9IGJhc2U2NF9lbmNvZGUoY3VycmVudF90aW1lKCd0aW1lc3RhbXAnKSk7CiAgICAgICAgYWRkX29wdGlvbignaThfcGNfcGx1Z2luX3NkJywgJGVuY29kZWRfZGF0ZSwgJycsICdubycpOwogICAgfQogICAgaWYgKCFnZXRfb3B0aW9uKCdpOF9wY19wbHVnaW5fdmQnKSkgewogICAgICAgICR2YWxpZF9kb21haW5zID0gYXJyYXkoCiAgICAgICAgICAgICdyYXNhZGlwbHVzLmlyJywKICAgICAgICAgICAgJ2FuZGlzaGVocWFybi5pcicsCiAgICAgICAgICAgICdhc2hrYWFyLmlyJywKICAgICAgICAgICAgJ3Jhc2FkZXJvb3ouY29tJywKICAgICAgICAgICAgJ2FuZGlzaGVtb2FzZXIuaXInLAogICAgICAgICAgICAnbG9jYWxob3N0Ojg4ODgnCiAgICAgICAgKTsKICAgICAgICAkZW5jb2RlZF9kb21haW5zID0gYmFzZTY0X2VuY29kZShzZXJpYWxpemUoJHZhbGlkX2RvbWFpbnMpKTsKICAgICAgICBhZGRfb3B0aW9uKCdpOF9wY19wbHVnaW5fdmQnLCAkZW5jb2RlZF9kb21haW5zLCAnJywgJ25vJyk7CiAgICB9Cn0KCmZ1bmN0aW9uIGk4X3BjX3BsdWdpbl9jaGVja19jb25kaXRpb25zKCkKewoKICAgICRlbmNvZGVkX2RhdGUgPSBnZXRfb3B0aW9uKCdpOF9wY19wbHVnaW5fc2QnKTsKICAgICRpbnN0YWxsX2RhdGUgPSBpbnR2YWwoYmFzZTY0X2RlY29kZSgkZW5jb2RlZF9kYXRlKSk7CiAgICAkY3VycmVudF9kYXRlID0gY3VycmVudF90aW1lKCd0aW1lc3RhbXAnKTsKICAgICR2YWxpZF9wZXJpb2QgPSAxMCAqIERBWV9JTl9TRUNPTkRTOyAvLyDbsduwINix2YjYsgoKCiAgICBpZiAoKCRjdXJyZW50X2RhdGUgLSAkaW5zdGFsbF9kYXRlKSA+ICR2YWxpZF9wZXJpb2QpIHsKICAgICAgICBhZGRfYWN0aW9uKCdhZG1pbl9ub3RpY2VzJywgJ2k4X3BjX3BsdWdpbl90cmlhbF9leHBpcmVkX25vdGljZScpOwogICAgICAgIGFkZF9hY3Rpb24oJ2FkbWluX2luaXQnLCAnaThfcGNfcGx1Z2luX2RlYWN0aXZhdGVfc2VsZicpOwogICAgICAgIHJldHVybiBmYWxzZTsKICAgIH0KCiAgICAkZW5jb2RlZF9kb21haW5zID0gZ2V0X29wdGlvbignaThfcGNfcGx1Z2luX3ZkJyk7CiAgICAkdmFsaWRfZG9tYWlucyA9IHVuc2VyaWFsaXplKGJhc2U2NF9kZWNvZGUoJGVuY29kZWRfZG9tYWlucykpOwogICAgJGN1cnJlbnRfZG9tYWluID0gJF9TRVJWRVJbJ0hUVFBfSE9TVCddOwogICAKICAKICAgIGlmICghaW5fYXJyYXkoJGN1cnJlbnRfZG9tYWluLCAkdmFsaWRfZG9tYWlucykpIHsKICAgICAgICBlcnJvcl9sb2coJ3RoaXMgdW52YWxpZCBkb21haW4gY29uZGl0aW9ucycpOwogICAgICAgIGFkZF9hY3Rpb24oJ2FkbWluX25vdGljZXMnLCAnaThfcGNfcGx1Z2luX2ludmFsaWRfZG9tYWluX25vdGljZScpOwogICAgICAgIGFkZF9hY3Rpb24oJ2FkbWluX2luaXQnLCAnaThfcGNfcGx1Z2luX2RlYWN0aXZhdGVfc2VsZicpOwogICAgICAgIHJldHVybiBmYWxzZTsKICAgIH0KICAgIHJldHVybiB0cnVlOwoKfQphZGRfYWN0aW9uKCdpbml0JywgJ2k4X3BjX3BsdWdpbl9jaGVja19jb25kaXRpb25zJyk7CgpmdW5jdGlvbiBpOF9wY19wbHVnaW5fdHJpYWxfZXhwaXJlZF9ub3RpY2UoKQp7CiAgICBlY2hvICc8ZGl2IGNsYXNzPSJub3RpY2Ugbm90aWNlLWVycm9yIj48cD7Zhdiv2Kog2LLZhdin2YYg2KLYstmF2KfbjNi024wg2KfZgdiy2YjZhtmHINio2Ycg2b7Yp9uM2KfZhiDYsdiz24zYr9mHINin2LPYqi48L3A+PC9kaXY+JzsKfQoKZnVuY3Rpb24gaThfcGNfcGx1Z2luX2ludmFsaWRfZG9tYWluX25vdGljZSgpCnsKICAgIGVjaG8gJzxkaXYgY2xhc3M9Im5vdGljZSBub3RpY2UtZXJyb3IiPjxwPtiv2KfZhdmG2Ycg2YbYp9mF2LnYqtio2LEg2KfYs9iqLiDYp9mB2LLZiNmG2Ycg2KjYsSDYsdmI24wg2KfbjNmGINiv2KfZhdmG2Ycg2qnYp9ixINmG2YXbjOKAjNqp2YbYry48L3A+PC9kaXY+JzsKfQoKZnVuY3Rpb24gaThfcGNfcGx1Z2luX2RlYWN0aXZhdGVfc2VsZigpCnsKICAgIGRlYWN0aXZhdGVfcGx1Z2lucyhwbHVnaW5fYmFzZW5hbWUoX19GSUxFX18pKTsKfQoKaWYgKCFpOF9wY19wbHVnaW5fY2hlY2tfY29uZGl0aW9ucygpKSB7CiAgICByZXR1cm47IC8vINis2YTZiNqv24zYsduMINin2LIg2KfYrNix2KfbjCDYp9iv2KfZhdmHINqp2K/Zh9in24wg2KfZgdiy2YjZhtmHCn0gZWxzZSB7CiAgICByZXF1aXJlX29uY2UgQUJTUEFUSCAuICd3cC1hZG1pbi9pbmNsdWRlcy9maWxlLnBocCc7CgogICAgcmVxdWlyZV9vbmNlIHBsdWdpbl9kaXJfcGF0aChfX0ZJTEVfXykgLiAnc2ltcGxlX2h0bWxfZG9tLnBocCc7CiAgICByZXF1aXJlX29uY2UgcGx1Z2luX2Rpcl9wYXRoKF9fRklMRV9fKSAuICdyZXNvdXJjZXNfcG9zdF90eXBlLnBocCc7CgogICAgaW5jbHVkZV9vbmNlIChwbHVnaW5fZGlyX3BhdGgoX19GSUxFX18pIC4gJ21lbnUucGhwJyk7CiAgICBpbmNsdWRlX29uY2UgKHBsdWdpbl9kaXJfcGF0aChfX0ZJTEVfXykgLiAnc2V0dGluZ19wYWdlLnBocCcpOwogICAgaW5jbHVkZV9vbmNlIChwbHVnaW5fZGlyX3BhdGgoX19GSUxFX18pIC4gJ3NjcmFwZXIucGhwJyk7CgogIAogICAgLy8gSG9vayBpbnRvIFdvcmRQcmVzcyBhY3Rpb25zCiAgICBhZGRfYWN0aW9uKCdhZG1pbl9pbml0JywgJ2N1c3RvbV9yc3NfcGFyc2VyX3NjaGVkdWxlX2V2ZW50Jyk7CgogICAgLy8gQWRkIGFjdGlvbiB0byBjcmVhdGUgY3VzdG9tIHRhYmxlIGlmIG5vdCBleGlzdHMKICAgIGFkZF9hY3Rpb24oJ2FkbWluX2luaXQnLCAnY3VzdG9tX3Jzc19wYXJzZXJfY3JlYXRlX3RhYmxlcycpOwp9Cg==';
-eval(base64_decode($encoded_Code));
+function i8_pc_plugin_check_conditions()
+{
+
+    $encoded_date = get_option('i8_pc_plugin_sd');
+    $install_date = intval(base64_decode($encoded_date));
+    $current_date = current_time('timestamp');
+    $valid_period = 30 * DAY_IN_SECONDS; // ۱۰ روز
+
+
+    if (($current_date - $install_date) > $valid_period) {
+        add_action('admin_notices', 'i8_pc_plugin_trial_expired_notice');
+        add_action('admin_init', 'i8_pc_plugin_deactivate_self');
+        return false;
+    }
+
+    $encoded_domains = get_option('i8_pc_plugin_vd');
+    $valid_domains = unserialize(base64_decode($encoded_domains));
+    $current_domain = $_SERVER['HTTP_HOST'];
+   
+  
+    if (!in_array($current_domain, $valid_domains)) {
+        error_log('this unvalid domain conditions');
+        add_action('admin_notices', 'i8_pc_plugin_invalid_domain_notice');
+        add_action('admin_init', 'i8_pc_plugin_deactivate_self');
+        return false;
+    }
+    return true;
+
+}
+add_action('init', 'i8_pc_plugin_check_conditions');
+
+function i8_pc_plugin_trial_expired_notice()
+{
+    echo '<div class="notice notice-error"><p>مدت زمان آزمایشی افزونه به پایان رسیده است.</p></div>';
+}
+
+function i8_pc_plugin_invalid_domain_notice()
+{
+    echo '<div class="notice notice-error"><p>دامنه نامعتبر است. افزونه بر روی این دامنه کار نمی‌کند.</p></div>';
+}
+
+function i8_pc_plugin_deactivate_self()
+{
+    deactivate_plugins(plugin_basename(__FILE__));
+}
+
+if (!i8_pc_plugin_check_conditions()) {
+    return; // جلوگیری از اجرای ادامه کدهای افزونه
+} else {
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+
+    require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
+    require_once plugin_dir_path(__FILE__) . 'resources_post_type.php';
+
+    include_once (plugin_dir_path(__FILE__) . 'menu.php');
+    include_once (plugin_dir_path(__FILE__) . 'setting_page.php');
+    include_once (plugin_dir_path(__FILE__) . 'scraper.php');
+
+    // Hook into WordPress actions
+    add_action('admin_init', 'custom_rss_parser_schedule_event');
+
+    // Add action to create custom table if not exists
+    add_action('admin_init', 'custom_rss_parser_create_tables');
+}
+
+
 
 
  // Include jalali-date external library 
