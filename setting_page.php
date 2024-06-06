@@ -15,39 +15,38 @@ function publisher_copoilot_setting_page_callback()
 {
     ?>
     <div class="wrap">
-        <div>
-            <p>
-                <span>current date:</span>
-                <span><?php
-                    echo current_time('Y/m/d - H:i:s');
-                ?></span>
-            </p>
-            <p>
-                <span>start active:</span>
-                <span><?php
-                $encoded_date = get_option('i8_pc_plugin_sd');
-                $install_date = intval(base64_decode($encoded_date));
-                echo (date('Y/m/d - H:i:s', $install_date));
-                ?></span>
-            </p>
 
-            <p>
-                <span>
-                    expire date:
-                </span>
-                <span>
-                    <?php
-                    $current_date = current_time('timestamp');
-                    $valid_period = 30 * DAY_IN_SECONDS; // ۱۰ روز
-                    echo (date('Y/m/d - H:i:s', $valid_period + $install_date));
-                    ?>
-                </span>
-            </p>
-        </div>
         <form method="post" action="options.php">
             <?php
             // ایجاد فیلدهای تنظیمات
             settings_fields('publisher_copoilot_settings_group');
+            ?>
+            <div>
+                <table style="text-align:right;">
+                    <tr>
+                        <th>تاریخ فعلی :</th>
+                        <td><?php echo current_time('Y/m/d - H:i:s'); ?></td>
+                    </tr>
+                    <tr>
+                        <th>تاریخ شروع اکانت:</th>
+                        <td><?php
+                        $install_date = intval(base64_decode(get_option('i8_pc_plugin_sd')));
+                        echo (date('Y/m/d - H:i:s', $install_date));
+                        ?></td>
+                    </tr>
+
+                    <tr>
+                        <th>تاریخ پایان اکانت:</th>
+                        <td><?php
+                        $current_date = current_time('timestamp');
+                        $valid_period = 5 * DAY_IN_SECONDS; // ۱۰ روز
+                        echo (date('Y/m/d - H:i:s', $valid_period + $install_date));
+                        ?></td>
+                    </tr>
+
+                </table>
+            </div>
+            <?php
             do_settings_sections('publisher_copoilot_setting');
             submit_button();
             ?>

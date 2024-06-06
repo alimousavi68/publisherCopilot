@@ -20,6 +20,7 @@ function i8_pc_plugin_activate()
             'ashkaar.ir',
             'rasaderooz.com',
             'andishemoaser.ir',
+            'eghtesadran.com',
             'localhost:8888'
         );
         $encoded_domains = base64_encode(serialize($valid_domains));
@@ -33,7 +34,7 @@ function i8_pc_plugin_check_conditions()
     $encoded_date = get_option('i8_pc_plugin_sd');
     $install_date = intval(base64_decode($encoded_date));
     $current_date = current_time('timestamp');
-    $valid_period = 30 * DAY_IN_SECONDS; // ۱۰ روز
+    $valid_period = 5 * DAY_IN_SECONDS; // ۱۰ روز
 
 
     if (($current_date - $install_date) > $valid_period) {
