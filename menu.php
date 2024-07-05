@@ -6,7 +6,7 @@ $wp_load_path = get_home_path() . 'wp-load.php';
 if (file_exists($wp_load_path)) {
     require_once ($wp_load_path);
 } else {
-    error_log('wp-load.php not found!');
+    // error_log('wp-load.php not found!');
     exit;
 }
 
@@ -48,7 +48,7 @@ function get_all_source_name()
         return $resource_arr;
         wp_reset_postdata();
     } else {
-        error_log('else fired');
+        // error_log('else fired');
         return false;
     }
 

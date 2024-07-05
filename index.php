@@ -7,6 +7,8 @@ Author: Hasht Behesht
 */
 
 register_activation_hook(__FILE__, 'i8_pc_plugin_activate');
+//Start encode 
+
 function i8_pc_plugin_activate()
 {
     if (!get_option('i8_pc_plugin_sd')) {
@@ -16,12 +18,9 @@ function i8_pc_plugin_activate()
     if (!get_option('i8_pc_plugin_vd')) {
         $valid_domains = array(
             'rasadiplus.ir',
-            'andishehqarn.ir',
             'ashkaar.ir',
-            'rasaderooz.com',
             'andishemoaser.ir',
-            'eghtesadran.com',
-            'localhost:8888'
+            'localhost:8888',
         );
         $encoded_domains = base64_encode(serialize($valid_domains));
         add_option('i8_pc_plugin_vd', $encoded_domains, '', 'no');
@@ -34,8 +33,7 @@ function i8_pc_plugin_check_conditions()
     $encoded_date = get_option('i8_pc_plugin_sd');
     $install_date = intval(base64_decode($encoded_date));
     $current_date = current_time('timestamp');
-    $valid_period = 5 * DAY_IN_SECONDS; // ۱۰ روز
-
+    $valid_period = 365 * DAY_IN_SECONDS; 
 
     if (($current_date - $install_date) > $valid_period) {
         add_action('admin_notices', 'i8_pc_plugin_trial_expired_notice');
@@ -49,15 +47,22 @@ function i8_pc_plugin_check_conditions()
    
   
     if (!in_array($current_domain, $valid_domains)) {
-        error_log('this unvalid domain conditions');
-        add_action('admin_notices', 'i8_pc_plugin_invalid_domain_notice');
-        add_action('admin_init', 'i8_pc_plugin_deactivate_self');
-        return false;
+        // add_action('admin_notices', 'i8_pc_plugin_invalid_domain_notice');
+        // add_action('admin_init', 'i8_pc_plugin_deactivate_self');
+        return true;
     }
     return true;
 
 }
 add_action('init', 'i8_pc_plugin_check_conditions');
+
+
+
+
+// $encoded_Code='';
+// eval(base64_decode($encoded_Code));
+//End encode 
+
 
 function i8_pc_plugin_trial_expired_notice()
 {
@@ -84,6 +89,7 @@ if (!i8_pc_plugin_check_conditions()) {
 
     include_once (plugin_dir_path(__FILE__) . 'menu.php');
     include_once (plugin_dir_path(__FILE__) . 'setting_page.php');
+    include_once (plugin_dir_path(__FILE__) . 'schedule-queue.php');
     include_once (plugin_dir_path(__FILE__) . 'scraper.php');
 
     // Hook into WordPress actions
@@ -97,7 +103,7 @@ if (!i8_pc_plugin_check_conditions()) {
 
 
  // Include jalali-date external library 
-//  require_once (plugin_dir_path(__FILE__) . 'jdatetime.class.php');
+ require_once (plugin_dir_path(__FILE__) . 'jdatetime.class.php');
 
 
 // Schedule event to run every 5 minutes

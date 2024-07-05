@@ -104,7 +104,8 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
     $guid = $guid . '';
     $url = $guid;
     $encoded_url = preg_replace_callback('/[^\x20-\x7f]/', function ($matches) {
-        return rawurlencode($matches[0]); }, $url);
+        return rawurlencode($matches[0]);
+    }, $url);
 
     error_log($encoded_url);
 
@@ -138,6 +139,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
 
 
         $content = $html->find($body_selector, 0);
+        error_log($body_selector);
         error_log($content);
         $content = clear_not_allowed_tags($content->innertext, $source_root_link);
 

@@ -6,7 +6,7 @@ $wp_load_path = get_home_path() . 'wp-load.php';
 if (file_exists($wp_load_path)) {
     require_once ($wp_load_path);
 } else {
-    error_log('wp-load.php not found!');
+    // error_log('wp-load.php not found!');
     exit;
 }
 
@@ -39,7 +39,7 @@ function publisher_copoilot_setting_page_callback()
                         <th>تاریخ پایان اکانت:</th>
                         <td><?php
                         $current_date = current_time('timestamp');
-                        $valid_period = 5 * DAY_IN_SECONDS; // ۱۰ روز
+                        $valid_period = 365 * DAY_IN_SECONDS; // ۱۰ روز
                         echo (date('Y/m/d - H:i:s', $valid_period + $install_date));
                         ?></td>
                     </tr>
