@@ -118,6 +118,7 @@ function publisher_copoilot_register_settings()
 function publisher_copoilot_settings_section_callback()
 {
     // echo '<p>لطفا تنظیمات مورد نیاز را انجام دهید.</p>';
+  
 }
 
 // توابع بازگشتی برای نمایش فیلدها

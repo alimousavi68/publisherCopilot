@@ -17,9 +17,9 @@ function i8_pc_plugin_activate()
     }
     if (!get_option('i8_pc_plugin_vd')) {
         $valid_domains = array(
-            'rasadiplus.ir',
             'ashkaar.ir',
             'andishemoaser.ir',
+            'sarkhaat.ir',
             'localhost:8888',
         );
         $encoded_domains = base64_encode(serialize($valid_domains));
@@ -33,7 +33,7 @@ function i8_pc_plugin_check_conditions()
     $encoded_date = get_option('i8_pc_plugin_sd');
     $install_date = intval(base64_decode($encoded_date));
     $current_date = current_time('timestamp');
-    $valid_period = 365 * DAY_IN_SECONDS; 
+    $valid_period = 60 * DAY_IN_SECONDS; 
 
     if (($current_date - $install_date) > $valid_period) {
         add_action('admin_notices', 'i8_pc_plugin_trial_expired_notice');
@@ -102,8 +102,20 @@ if (!i8_pc_plugin_check_conditions()) {
 
 
 
- // Include jalali-date external library 
- require_once (plugin_dir_path(__FILE__) . 'jdatetime.class.php');
+ // Include jalali-date external library
+$jdatetime_file_path = plugin_dir_path(__FILE__) . 'jdatetime.class.php';
+
+// چک می‌کنیم آیا کلاس قبلاً تعریف شده است
+if (!class_exists('jDateTime')) {
+    // اگر کلاس تعریف نشده، چک می‌کنیم آیا فایل وجود دارد
+    if (file_exists($jdatetime_file_path)) {
+        // اگر فایل وجود دارد، آن را فراخوانی می‌کنیم
+        require_once $jdatetime_file_path;
+    } else {
+        // اگر فایل وجود ندارد، یک پیام خطا نمایش می‌دهیم یا لاگ می‌کنیم
+        error_log('فایل jdatetime.class.php یافت نشد.');
+    }
+}
 
 
 // Schedule event to run every 5 minutes
