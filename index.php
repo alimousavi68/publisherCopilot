@@ -6,9 +6,47 @@ Version: 1.3
 Author: Hasht Behesht
 */
 
-register_activation_hook(__FILE__, 'i8_pc_plugin_activate');
-//Start encode 
 
+// function send_license_validation_request()
+// {
+//     $response = wp_remote_post('http://localhost:8888/rssnews/wp-json/license/v1/validate/', array(
+//         'body' => array(
+//             'domain' => 'http://localhost:8888/rasadi',
+//             'license_code' => 'lc_rasadi'
+//         )
+//     )
+//     );
+
+//     if (is_wp_error($response)) {
+//         return 'Error in sending request';
+//     }
+
+//     $body = wp_remote_retrieve_body($response);
+//     $status = wp_remote_retrieve_response_code($response);
+
+//     if ($status == 200) {
+//         $data = json_decode($body, true);
+//         error_log('i am client:' . 'License is valid');
+//         error_log('user_id:' . $data['user_id']);
+//         error_log('secret_code:' . $data['secret_code']);
+        
+//         error_log('license name:' . $data['license']['name']);
+//         error_log('license days:' . $data['license']['days']);
+//         error_log('license update_preiod:' . $data['license']['update_preiod']);
+//         error_log('license day_max_post_publish:' . $data['license']['day_max_post_publish']);
+//     } else {
+//         error_log('i am client:' . 'License is not valid');
+//     }
+// }
+
+// // فراخوانی تابع
+// send_license_validation_request();
+
+
+
+register_activation_hook(__FILE__, 'i8_pc_plugin_activate');
+
+//Start encode
 function i8_pc_plugin_activate()
 {
     if (!get_option('i8_pc_plugin_sd')) {
@@ -27,13 +65,15 @@ function i8_pc_plugin_activate()
     }
 }
 
+
+
 function i8_pc_plugin_check_conditions()
 {
 
     $encoded_date = get_option('i8_pc_plugin_sd');
     $install_date = intval(base64_decode($encoded_date));
     $current_date = current_time('timestamp');
-    $valid_period = 60 * DAY_IN_SECONDS; 
+    $valid_period = 60 * DAY_IN_SECONDS;
 
     if (($current_date - $install_date) > $valid_period) {
         add_action('admin_notices', 'i8_pc_plugin_trial_expired_notice');
@@ -44,8 +84,8 @@ function i8_pc_plugin_check_conditions()
     $encoded_domains = get_option('i8_pc_plugin_vd');
     $valid_domains = unserialize(base64_decode($encoded_domains));
     $current_domain = $_SERVER['HTTP_HOST'];
-   
-  
+
+
     if (!in_array($current_domain, $valid_domains)) {
         // add_action('admin_notices', 'i8_pc_plugin_invalid_domain_notice');
         // add_action('admin_init', 'i8_pc_plugin_deactivate_self');
@@ -102,7 +142,7 @@ if (!i8_pc_plugin_check_conditions()) {
 
 
 
- // Include jalali-date external library
+// Include jalali-date external library
 $jdatetime_file_path = plugin_dir_path(__FILE__) . 'jdatetime.class.php';
 
 // چک می‌کنیم آیا کلاس قبلاً تعریف شده است
@@ -144,7 +184,7 @@ function custom_rss_parser_schedule_event()
     $work_time_count = intval($end_time) - intval($start_time);
     $sum_post_count = rand($news_interval_start, $news_interval_end);
 
-    $post_count_publishing_per_hours = round($sum_post_count / $work_time_count);
+    @$post_count_publishing_per_hours = round($sum_post_count / $work_time_count);
     $post_interval_publishing = (60 / round($post_count_publishing_per_hours)) * 60;
 
     update_option('post_interval_publishing', $post_interval_publishing);
