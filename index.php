@@ -184,7 +184,12 @@ function custom_rss_parser_schedule_event()
     $work_time_count = intval($end_time) - intval($start_time);
     $sum_post_count = rand($news_interval_start, $news_interval_end);
 
-    @$post_count_publishing_per_hours = round($sum_post_count / $work_time_count);
+    if ($work_time_count == 0) {
+        $post_count_publishing_per_hours = 10; 
+    } else {
+        $post_count_publishing_per_hours = round($sum_post_count / $work_time_count);
+    }
+
     $post_interval_publishing = (60 / round($post_count_publishing_per_hours)) * 60;
 
     update_option('post_interval_publishing', $post_interval_publishing);
