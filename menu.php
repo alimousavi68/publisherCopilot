@@ -392,17 +392,10 @@ if ($total_pages > 1) {
 }
 ?>
 
-
-
-    <link href="<?php echo plugin_dir_url(__FILE__); ?>/bootstrap.min.css" rel="stylesheet">
-    <!-- <script src="<?php //echo plugin_dir_url(__FILE__); ?>/bootstrap.bundle.min.js"></script> -->
-
+    <link href="<?php echo (COP_PLUGIN_URL . '/bootstrap.min.css'); ?>" rel="stylesheet">
     <script>
         jQuery(document).ready(function ($) {
-
-
             var scrapeLinks = document.querySelectorAll(".scrape-link");
-
             scrapeLinks.forEach(function (link) {
                 link.addEventListener("click", function (e) {
                     var post_Guid = this.getAttribute("data-guid");
@@ -451,12 +444,8 @@ if ($total_pages > 1) {
                             document.getElementById("item-" + post_id).classList.remove("blinking");
                         }
                     });
-
-
                 });
             });
-
-
         });
     </script>
 
@@ -580,6 +569,8 @@ if ($total_pages > 1) {
             height: 100%;
         }
     </style>
+
+
     <script src="<?php echo plugin_dir_url(__FILE__); ?>/sweetalert2@11.js"></script>
     <script>
         const Toast = Swal.mixin({
@@ -593,8 +584,6 @@ if ($total_pages > 1) {
                 toast.onmouseleave = Swal.resumeTimer;
             }
         });
-
-
     </script>
     <?php
 }

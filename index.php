@@ -5,42 +5,111 @@ Description: اافزونه دستیار هوشمند (کلاینت)
 Version: 1.3
 Author: Hasht Behesht
 */
+// Declare Const vraibleS
+define('COP_PLUGIN_DIR_PATH', plugin_dir_path(__FILE__));
+define('COP_PLUGIN_URL'     , plugins_url( '', __FILE__ ));
+
+require_once(COP_PLUGIN_DIR_PATH . '/helper_functions.php');
 
 
-// function send_license_validation_request()
-// {
-//     $response = wp_remote_post('http://localhost:8888/rssnews/wp-json/license/v1/validate/', array(
-//         'body' => array(
-//             'domain' => 'http://localhost:8888/rasadi',
-//             'license_code' => 'lc_rasadi'
-//         )
-//     )
-//     );
 
-//     if (is_wp_error($response)) {
-//         return 'Error in sending request';
-//     }
+function send_license_validation_request()
+{
+    $response = wp_remote_post(
+        'http://localhost:8888/rssnews/wp-json/license/v1/validate/',
+        array(
+            'body' => array(
+                'subscription_secret_code' => 'i8-3u38rAAg9ntYtXl##'
+            )
+        )
+    );
 
-//     $body = wp_remote_retrieve_body($response);
-//     $status = wp_remote_retrieve_response_code($response);
+    if (is_wp_error($response)) {
+        return 'Error in sending request';
+    }
 
-//     if ($status == 200) {
-//         $data = json_decode($body, true);
-//         error_log('i am client:' . 'License is valid');
-//         error_log('user_id:' . $data['user_id']);
-//         error_log('secret_code:' . $data['secret_code']);
-        
-//         error_log('license name:' . $data['license']['name']);
-//         error_log('license days:' . $data['license']['days']);
-//         error_log('license update_preiod:' . $data['license']['update_preiod']);
-//         error_log('license day_max_post_publish:' . $data['license']['day_max_post_publish']);
-//     } else {
-//         error_log('i am client:' . 'License is not valid');
-//     }
-// }
+    $body = wp_remote_retrieve_body($response);
+    $status = wp_remote_retrieve_response_code($response);
 
-// // فراخوانی تابع
+    if ($status == 200) {
+        $recived_data = json_decode($body, true);
+
+        $response_data = array(
+            'plan_name' => $recived_data['plan_name'],
+            'subscription_start_date' => $recived_data['subscription_start_date'],
+            'plan_duration' => $recived_data['plan_duration'],
+            'plan_cron_interval' => $recived_data['plan_cron_interval'],
+            'plan_max_post_fetch' => $recived_data['plan_max_post_fetch'],
+            'resources_data' => $recived_data['resources_data'],
+        );
+        i8_save_response_license_data($response_data);
+
+    } else {
+        // some doing work for notif to admin for expire lisence and disable plugin 
+        error_log('i am client:' . 'License is not valid');
+    }
+}
+// فراخوانی تابع
 // send_license_validation_request();
+
+
+function i8_save_response_license_data($recived_data)
+{
+    $response_data = array(
+        'plan_name' => $recived_data['plan_name'],
+        'subscription_start_date' => $recived_data['subscription_start_date'],
+        'plan_duration' => $recived_data['plan_duration'],
+        'plan_cron_interval' => $recived_data['plan_cron_interval'],
+        'plan_max_post_fetch' => $recived_data['plan_max_post_fetch'],
+        'resources_data' => $recived_data['resources_data'],
+    );
+    update_option('i8_plan_name', $response_data['plan_name']);
+    update_option('i8_subscription_start_date', $response_data['plan_name']);
+    update_option('i8_plan_duration', $response_data['plan_name']);
+    update_option('i8_plan_cron_interval', $response_data['plan_name']);
+    update_option('i8_plan_max_post_fetch', $response_data['plan_name']);
+
+    update_resources_details($response_data['resources_data']);
+}
+
+// add resource details to database
+function update_resources_details($data_array) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'custom_resource_details';
+
+    // پاک کردن تمام رکوردهای قبلی
+    $wpdb->query("TRUNCATE TABLE $table_name");
+
+    // اضافه کردن داده‌های جدید
+    foreach ($data_array as $data) {
+        $wpdb->insert($table_name, array(
+            'resource_id' => $data['resource_id'],
+            'resource_title' => $data['resource_title'],
+            'title_selector' => $data['title_selector'],
+            'img_selector' => $data['img_selector'],
+            'lead_selector' => $data['lead_selector'],
+            'body_selector' => $data['body_selector'],
+            'bup_date_selector' => $data['bup_date_selector'],
+            'category_selector' => $data['category_selector'],
+            'tags_selector' => $data['tags_selector'],
+            'escape_elements' => $data['escape_elements'],
+            'source_root_link' => $data['source_root_link'],
+            'source_feed_link' => $data['source_feed_link'],
+            'need_to_merge_guid_link' => $data['need_to_merge_guid_link']
+        ));
+    }
+}
+// get resources details from database
+function get_resources_details() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'custom_resource_details';
+    $data = $wpdb->get_results("SELECT * FROM $table_name");
+    error_log('i am client:' . print_r($data,true));
+    return $data;
+}
+
+
+
 
 
 
@@ -185,7 +254,7 @@ function custom_rss_parser_schedule_event()
     $sum_post_count = rand($news_interval_start, $news_interval_end);
 
     if ($work_time_count == 0) {
-        $post_count_publishing_per_hours = 10; 
+        $post_count_publishing_per_hours = 10;
     } else {
         $post_count_publishing_per_hours = round($sum_post_count / $work_time_count);
     }
@@ -246,12 +315,13 @@ function remove_all_feed_on_feeds_table()
 
 
 
-// Function to check if custom table exists and create it if not
+// Function to check if custom tables exist and create them if not
 function custom_rss_parser_create_tables()
 {
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_rss_items';
     $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
+    $table_resource_details = $wpdb->prefix . 'custom_resource_details'; // نام جدول جدید
 
     if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
         $charset_collate = $wpdb->get_charset_collate();
@@ -284,7 +354,33 @@ function custom_rss_parser_create_tables()
         dbDelta($sql_2);
     }
 
+    // ایجاد جدول جدید برای جزئیات منابع
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_resource_details'") != $table_resource_details) {
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql_3 = "CREATE TABLE $table_resource_details (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            resource_id bigint(20) NOT NULL,
+            resource_title text NOT NULL,
+            title_selector varchar(255) DEFAULT NULL,
+            img_selector varchar(255) DEFAULT NULL,
+            lead_selector varchar(255) DEFAULT NULL,
+            body_selector varchar(255) DEFAULT NULL,
+            bup_date_selector varchar(255) DEFAULT NULL,
+            category_selector varchar(255) DEFAULT NULL,
+            tags_selector varchar(255) DEFAULT NULL,
+            escape_elements text DEFAULT NULL,
+            source_root_link varchar(255) DEFAULT NULL,
+            source_feed_link varchar(255) DEFAULT NULL,
+            need_to_merge_guid_link tinyint(1) DEFAULT 0,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta($sql_3);
+    }
 }
+
 
 
 // Hook to handle the scheduled event

@@ -70,14 +70,9 @@ function pc_schedule_queue_page_callback()
     $post_publish_priority = $wpdb->get_results($query);
 
 
-
-
-
-
-
-
     ?>
-    <link href="<?php echo plugin_dir_url(__FILE__); ?>/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo (COP_PLUGIN_URL . '/bootstrap.min.css'); ?>" rel="stylesheet">
+
     <style>
         .row-counter {
             display: flex;
@@ -255,12 +250,12 @@ function pc_schedule_queue_page_callback()
                 <div class="row d-none d-md-flex">
                     <div class="th col col-1"> نوبت </div>
                     <div class="col col-9 col-md-11 row ">
-                        <div class="th col col-12 col-xl-5">عنوان</div>
+                        <div class="th col col-12 col-xl-4">عنوان</div>
                         <div class="th col col-4 col-xl-1  d-none d-md-flex">اولویت</div>
                         <div class="th col col-8 col-xl-2  d-none d-md-flex">زمان حدودی انتشار</div>
                         <div class="th col col-8 col-xl-1  d-none d-md-flex">وضعیت پست</div>
                         <div class="th col col-8 col-xl-1  d-none d-md-flex">نویسنده</div>
-                        <div class="th col col-12 col-xl-1 d-none d-md-flex">عملیات</div>
+                        <div class="th col col-12 col-xl-2 d-none d-md-flex">عملیات</div>
                     </div>
                 </div>
 
@@ -270,10 +265,10 @@ function pc_schedule_queue_page_callback()
                     foreach ($results as $key => $item):
 
                         ?>
-                        <div class="tr row p-2" id="item-1998">
+                        <div class="tr row p-2" id="item-<?php echo $item->id; ?>">
                             <div class="col-auto bg-transparent row-counter"><?php echo $key + 1; ?></div>
                             <div class="col-11 row bg-transparent">
-                                <div class="col-12 col-xl-6 bg-transparent feed-item-title">
+                                <div class="col-12 col-xl-5 bg-transparent feed-item-title">
                                     <a href="<?php echo get_edit_post_link($item->post_id); ?>"
                                         target="_blank"><?php echo get_the_title($item->post_id); ?></a>
                                 </div>
@@ -303,9 +298,9 @@ function pc_schedule_queue_page_callback()
                                             break;
                                         case 'publish':
                                             echo '<span class="text-danger"> ' .
-                                            ' <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16"><path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/><path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/></svg>'
-                                            . ' منتشر شده ' 
-                                            .'</span>';
+                                                ' <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16"><path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/><path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/></svg>'
+                                                . ' منتشر شده '
+                                                . '</span>';
                                             break;
                                         case 'pending':
                                             echo '<span class="text-danger">' . 'در انتظار بررسی' . '</span>';
@@ -324,7 +319,7 @@ function pc_schedule_queue_page_callback()
                                 <div class="col-8 col-xl-1 bg-transparent text-secondary item-meta-data" style="direction:left">
                                     <?php echo get_the_author_meta('display_name', get_post_field('post_author', $item->post_id)); ?>
                                 </div>
-                                <div class="col-12 col-xl-1 row gap-2 bg-transparent action-bar">
+                                <div class="col-12 col-xl-2 row gap-2 bg-transparent action-bar">
                                     <a class="col btn btn-sm rounded-pill btn-outline-secondary" title="ویرایش فید" target="_blank"
                                         href="<?php echo get_edit_post_link($item->post_id); ?>">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -345,7 +340,8 @@ function pc_schedule_queue_page_callback()
                                                 d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z" />
                                         </svg>
                                     </a>
-                                    <a class="col btn btn-sm rounded-pill btn-outline-secondary d-none" title="حذف فید">
+                                    <a class="delete-link col btn btn-sm rounded-pill btn-outline-danger"
+                                        id="item-<?php echo $item->id; ?>" data-id="<?php echo $item->id; ?>">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                             class="bi bi-bookmark-x" viewBox="0 0 16 16">
                                             <path fill-rule="evenodd"
@@ -355,8 +351,8 @@ function pc_schedule_queue_page_callback()
                                                 d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1z">
                                             </path>
                                         </svg>
-
                                     </a>
+
                                 </div>
                             </div>
                         </div>
@@ -370,6 +366,42 @@ function pc_schedule_queue_page_callback()
         </div>
     </div>
 
+    <script>
+        jQuery(document).ready(function ($) {
+            $('.delete-link').click(function (e) {
+                e.preventDefault();
+                var itemId = $(this).data('id'); // دریافت ID از attribute data-id
+
+                $.ajax({
+                    url: ajaxurl, // این متغیر توسط وردپرس تعریف شده است
+                    type: 'POST',
+                    data: {
+                        action: 'delete_item', // این نام عملیات است که در PHP تعریف می‌کنیم
+                        id: itemId
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        var query_status = response.status;
+                        delete_html_list_item(query_status, itemId);
+                        // alert(response.message);
+                    },
+                    error: function (response) {
+                        alert('مشکلی پیش امد')
+                    }
+                });
+
+                function delete_html_list_item(query_status, itemId) {
+                    if (query_status == 'success') {
+                        $('#item-' + itemId).toggle("slow", function () {
+                            $(this).remove();
+                        });
+                    }
+                }
+
+            });
+        });
+
+    </script>
 
     <?php
 

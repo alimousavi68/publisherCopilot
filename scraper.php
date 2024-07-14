@@ -57,6 +57,7 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
         echo json_encode($response);
     }
 }
+
 function complete_url($url, $base_url)
 {
     // چک می‌کند که آیا URL شامل پروتکل است یا خیر (http:// یا https://)
