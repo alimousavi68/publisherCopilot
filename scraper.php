@@ -151,7 +151,11 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
         $post_status = 'draft';
         if ($publish_priority == 'now') {
             $post_status = 'publish';
+        } elseif ($publish_priority == 'pending') {
+            $post_status = 'pending';
+
         }
+
         // error_log('post_status here:' . $post_status);
 
         date_default_timezone_set('Asia/Tehran');
@@ -205,7 +209,11 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
 
                 // add to wp_pc_post_schedule table in wordpress database a new record with $post_id and$publish_priority values
 
-                if ($post_status != 'publish' || $publish_priority != 'now') {
+                error_log('my post prority: ' . $publish_priority);
+
+                if ($publish_priority != 'now' and $publish_priority != 'pending') {
+                    error_log('im here . in to if : ' . $publish_priority);
+
                     global $wpdb;
                     $table_name = $wpdb->prefix . 'pc_post_schedule';
                     $wpdb->insert($table_name, array('post_id' => $post_id, 'publish_priority' => $publish_priority));

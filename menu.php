@@ -277,20 +277,10 @@ foreach ($items as $key => $item) {
     $item_guid = esc_html($item->guid);
     $item_title = esc_html($item->title);
     $resource_name = $item->resource_name ? $item->resource_name : '-';
-
-    error_log('pub date: ' . $item->pub_date);
+    // fetch and set time zome feed_time and date
     $dateTime = new DateTime($item->pub_date, new DateTimeZone('GMT'));
-    error_log('date time: ' . $dateTime->format('Y-m-d H:i:s'));
-
-
     $dateTime->setTimezone(new DateTimeZone('Asia/Tehran'));
-    // error_log('date time after set tehran: ' . $dateTime->format('Y-m-d H:i:s'));
-    // $pub_date = \jDateTime::convertFormatToFormat('d / M | H:i', 'Y-m-d H:i:s', $item->pub_date, 'Asia/Tehran');
-
     $pub_date = \jDateTime::convertFormatToFormat('d / M | H:i', 'Y-m-d H:i:s', $dateTime->format('Y-m-d H:i:s'));
-    error_log('pub date after set tehran: ' . $pub_date);
-
-
 
     $resource_id = esc_attr($item->resource_id);
     $admin_url = esc_url(get_admin_url() . 'images/wpspin_light-2x.gif');
@@ -299,7 +289,7 @@ foreach ($items as $key => $item) {
     <div class="tr row p-2" id="item-<?php echo $item_id; ?>">
         <div class="col-auto bg-transparent row-counter"><?php echo $row_counter; ?></div>
         <div class="col-11 row bg-transparent">
-            <div class="col-12 col-xl-6 bg-transparent feed-item-title">
+            <div class="col-12 col-xl-5 bg-transparent feed-item-title">
                 <a href="<?php echo $item_guid; ?>" target="_blank"><?php echo $item_title; ?></a>
             </div>
             <div class="col-4 col-xl-1 bg-transparent text-secondary item-meta-data">
@@ -315,13 +305,23 @@ foreach ($items as $key => $item) {
                 </svg>
                 <?php echo $pub_date; ?>
             </div>
-            <div class="col-12 col-xl-3 row gap-2 bg-transparent action-bar">
+            <div class="col-12 col-xl-4 row gap-2 bg-transparent action-bar">
                 <a href="<?php echo $item_guid; ?>" target="_blank" class="col btn btn-sm rounded-pill btn-outline-secondary" title="بازدید در سایت مرجع">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
                         <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
                         <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
                     </svg>
                 </a>
+                <a class="scrape-link col btn btn-sm rounded-pill btn-outline-secondary" title="واکشی و پیش نویس"
+                   id="scraper-link-<?php echo $item->id; ?>"
+                   data-id="<?php echo $item->id; ?>"
+                   data-guid="<?php echo $item_guid; ?>"
+                   data-priority="pending"
+                   data-resource-id="<?php echo $resource_id; ?>">
+                    <img src="<?php echo $admin_url; ?>" style="display:none;position:absolute;left:50%;z-index:100;" />
+                    <svg width="16px" height="16px" stroke-width="1.7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 6.5V5C3 3.89543 3.89543 3 5 3H16.1716C16.702 3 17.2107 3.21071 17.5858 3.58579L20.4142 6.41421C20.7893 6.78929 21 7.29799 21 7.82843V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V17.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8 3H16V8.4C16 8.73137 15.7314 9 15.4 9H8.6C8.26863 9 8 8.73137 8 8.4V3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M18 21V13.6C18 13.2686 17.7314 13 17.4 13H15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6 21V17.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 12H1M1 12L4 9M1 12L4 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </a>
+
                 <a class="scrape-link col btn btn-sm rounded-pill btn-outline-secondary" title="انتشار فوری"
                    id="scraper-link-<?php echo $item->id; ?>"
                    data-id="<?php echo $item->id; ?>"
@@ -416,7 +416,6 @@ if ($total_pages > 1) {
                     var resource_id = this.getAttribute("data-resource-id");
                     var post_id = this.getAttribute("data-id");
                     var publish_priority = this.getAttribute("data-priority");
-
 
                     // style effect for this item
                     var scrapeImg = document.querySelectorAll("#scraper-link-" + post_id + ">img");
