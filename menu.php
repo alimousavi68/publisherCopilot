@@ -277,7 +277,21 @@ foreach ($items as $key => $item) {
     $item_guid = esc_html($item->guid);
     $item_title = esc_html($item->title);
     $resource_name = $item->resource_name ? $item->resource_name : '-';
-    $pub_date = \jDateTime::convertFormatToFormat('d / M | H:i ', 'Y-m-d H:i:s', $item->pub_date, 'Asia/Tehran');
+
+    error_log('pub date: ' . $item->pub_date);
+    $dateTime = new DateTime($item->pub_date, new DateTimeZone('GMT'));
+    error_log('date time: ' . $dateTime->format('Y-m-d H:i:s'));
+
+
+    $dateTime->setTimezone(new DateTimeZone('Asia/Tehran'));
+    // error_log('date time after set tehran: ' . $dateTime->format('Y-m-d H:i:s'));
+    // $pub_date = \jDateTime::convertFormatToFormat('d / M | H:i', 'Y-m-d H:i:s', $item->pub_date, 'Asia/Tehran');
+
+    $pub_date = \jDateTime::convertFormatToFormat('d / M | H:i', 'Y-m-d H:i:s', $dateTime->format('Y-m-d H:i:s'));
+    error_log('pub date after set tehran: ' . $pub_date);
+
+
+
     $resource_id = esc_attr($item->resource_id);
     $admin_url = esc_url(get_admin_url() . 'images/wpspin_light-2x.gif');
     ?>
