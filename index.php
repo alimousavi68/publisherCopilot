@@ -7,52 +7,15 @@ Author: Hasht Behesht
 */
 // Declare Const vraibleS
 define('COP_PLUGIN_DIR_PATH', plugin_dir_path(__FILE__));
-define('COP_PLUGIN_URL'     , plugins_url( '', __FILE__ ));
+define('COP_PLUGIN_URL', plugins_url('', __FILE__));
+define('COP_REST_API_SERVER_URL', 'http://localhost:8888/rssnews/wp-json/license/v1/validate/');
+define('COP_SUBSCRIPTION_SECRET_CODE', 'i8-3u38rAAg9ntYtXl##');
 
-require_once(COP_PLUGIN_DIR_PATH . '/helper_functions.php');
-
-
-
-function send_license_validation_request()
-{
-    $response = wp_remote_post(
-        'http://localhost:8888/rssnews/wp-json/license/v1/validate/',
-        array(
-            'body' => array(
-                'subscription_secret_code' => 'i8-3u38rAAg9ntYtXl##'
-            )
-        )
-    );
-
-    if (is_wp_error($response)) {
-        return 'Error in sending request';
-    }
-
-    $body = wp_remote_retrieve_body($response);
-    $status = wp_remote_retrieve_response_code($response);
-
-    if ($status == 200) {
-        $recived_data = json_decode($body, true);
-
-        $response_data = array(
-            'plan_name' => $recived_data['plan_name'],
-            'subscription_start_date' => $recived_data['subscription_start_date'],
-            'plan_duration' => $recived_data['plan_duration'],
-            'plan_cron_interval' => $recived_data['plan_cron_interval'],
-            'plan_max_post_fetch' => $recived_data['plan_max_post_fetch'],
-            'resources_data' => $recived_data['resources_data'],
-        );
-        i8_save_response_license_data($response_data);
-
-    } else {
-        // some doing work for notif to admin for expire lisence and disable plugin 
-        error_log('i am client:' . 'License is not valid');
-    }
-}
-// فراخوانی تابع
-// send_license_validation_request();
+require_once (COP_PLUGIN_DIR_PATH . '/helper_functions.php');
 
 
+
+// Save " LINCENCE PLAN " RESPONSE DATA to database
 function i8_save_response_license_data($recived_data)
 {
     $response_data = array(
@@ -72,8 +35,9 @@ function i8_save_response_license_data($recived_data)
     update_resources_details($response_data['resources_data']);
 }
 
-// add resource details to database
-function update_resources_details($data_array) {
+// Save " RESOURCE DETAILS " RESPONSE DATA to database
+function update_resources_details($data_array)
+{
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_resource_details';
 
@@ -96,26 +60,26 @@ function update_resources_details($data_array) {
             'source_root_link' => $data['source_root_link'],
             'source_feed_link' => $data['source_feed_link'],
             'need_to_merge_guid_link' => $data['need_to_merge_guid_link']
-        ));
+        )
+        );
     }
 }
+
 // get resources details from database
-function get_resources_details() {
+function get_resources_details()
+{
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_resource_details';
     $data = $wpdb->get_results("SELECT * FROM $table_name");
-    error_log('i am client:' . print_r($data,true));
+    // error_log('i am client:' . print_r($data, true));
     return $data;
 }
 
 
 
-
-
-
+// ACTIVATE PLUGIN AND FUNCTIONS
 register_activation_hook(__FILE__, 'i8_pc_plugin_activate');
 
-//Start encode
 function i8_pc_plugin_activate()
 {
     if (!get_option('i8_pc_plugin_sd')) {
@@ -135,7 +99,7 @@ function i8_pc_plugin_activate()
 }
 
 
-
+// CHECK PLUGIN CONDITIONS
 function i8_pc_plugin_check_conditions()
 {
 
@@ -173,6 +137,7 @@ add_action('init', 'i8_pc_plugin_check_conditions');
 //End encode 
 
 
+// NOTICES FUNCTIONS
 function i8_pc_plugin_trial_expired_notice()
 {
     echo '<div class="notice notice-error"><p>مدت زمان آزمایشی افزونه به پایان رسیده است.</p></div>';
@@ -183,6 +148,7 @@ function i8_pc_plugin_invalid_domain_notice()
     echo '<div class="notice notice-error"><p>دامنه نامعتبر است. افزونه بر روی این دامنه کار نمی‌کند.</p></div>';
 }
 
+// DEACTIVATE PLUGIN FUNCTION
 function i8_pc_plugin_deactivate_self()
 {
     deactivate_plugins(plugin_basename(__FILE__));
@@ -385,8 +351,11 @@ function custom_rss_parser_create_tables()
 
 // Hook to handle the scheduled event
 add_action('publish_post_at_scheduling_table', 'publish_post_at_scheduling_table');
+
+
 function publish_post_at_scheduling_table()
 {
+    // error_log('publish_post_at_scheduling_table RUNNING');
     date_default_timezone_set('Asia/Tehran');
     $start_time = strtotime(get_option('start_cron_time'));
     $end_time = strtotime(get_option('end_cron_time'));
@@ -416,6 +385,8 @@ function publish_post_at_scheduling_table()
 
 function i8_change_post_status($priority_posts)
 {
+    // error_log('i8_change_post_status RUNNING');
+
     global $wpdb;
     $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
 
@@ -425,7 +396,12 @@ function i8_change_post_status($priority_posts)
         $id = $post->id;
         $post_id = $post->post_id;
 
-        if (true) {
+        // chack post status 
+        $post_status = get_post_status($post_id);
+
+        if ($post_status == 'draft') {
+            // error_log('npost is draf and publishe it');
+
             date_default_timezone_set('Asia/Tehran');
 
             $random_interval = rand(400, 900);
@@ -440,16 +416,21 @@ function i8_change_post_status($priority_posts)
             );
             wp_update_post($post_data);
 
+            // delete record where id=$id at $table_post_schedule
+            $action_status = $wpdb->delete($table_post_schedule, array('id' => $id));
+            if ($action_status) {
+                // error_log('i8: deleted record with id=' . $id . 'from table ' . $table_post_schedule);
+            } else {
+                // error_log('i8: failed to delete record with id=' . $id . 'from table ' . $table_post_schedule);
+            }
+
         } else {
-            // error_log('i8: post not found');
+            // error_log('not fund or not aa draft post and delete record');
+
+            i8_delete_item_at_scheulde_list($id);
+            publish_post_at_scheduling_table();
         }
-        // delete record where id=$id at $table_post_schedule
-        $action_status = $wpdb->delete($table_post_schedule, array('id' => $id));
-        if ($action_status) {
-            // error_log('i8: deleted record with id=' . $id . 'from table ' . $table_post_schedule);
-        } else {
-            // error_log('i8: failed to delete record with id=' . $id . 'from table ' . $table_post_schedule);
-        }
+
     }
 }
 

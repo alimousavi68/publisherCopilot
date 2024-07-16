@@ -108,7 +108,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
         return rawurlencode($matches[0]);
     }, $url);
 
-    error_log($encoded_url);
+    // error_log($encoded_url);
 
     // Load the HTML from the provided URL
     $html = file_get_html($encoded_url);
@@ -140,8 +140,8 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
 
 
         $content = $html->find($body_selector, 0);
-        error_log($body_selector);
-        error_log($content);
+        // error_log($body_selector);
+        // error_log($content);
         $content = clear_not_allowed_tags($content->innertext, $source_root_link);
 
         // error_log('img selector :' . $img_selector);
