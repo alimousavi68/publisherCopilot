@@ -113,10 +113,6 @@ function render_cop_manager_meta_box()
                 <option value="low" <?php echo ($old_priority == 'low') ? 'selected' : ''; ?>>🟢 اولویت پایین</option>
             </select>
         </label>
-        <p>
-            <span>🚨</span>
-            <span style="font-size:10px;">برای اعمال زمانبدی بعد از انتخاب، پست را ذخیره پیش نویس کنید!</span>
-        </p>
     </div>
     <?php
 }
