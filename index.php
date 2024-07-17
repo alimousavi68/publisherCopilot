@@ -427,7 +427,7 @@ function i8_change_post_status($priority_posts)
         } else {
             // error_log('not fund or not aa draft post and delete record');
 
-            i8_delete_item_at_scheulde_list($id);
+            i8_delete_item_at_scheulde_list($id,null);
             publish_post_at_scheduling_table();
         }
 
