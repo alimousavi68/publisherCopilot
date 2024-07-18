@@ -15,66 +15,6 @@ require_once (COP_PLUGIN_DIR_PATH . '/helper_functions.php');
 
 
 
-// Save " LINCENCE PLAN " RESPONSE DATA to database
-function i8_save_response_license_data($recived_data)
-{
-    $response_data = array(
-        'plan_name' => $recived_data['plan_name'],
-        'subscription_start_date' => $recived_data['subscription_start_date'],
-        'plan_duration' => $recived_data['plan_duration'],
-        'plan_cron_interval' => $recived_data['plan_cron_interval'],
-        'plan_max_post_fetch' => $recived_data['plan_max_post_fetch'],
-        'resources_data' => $recived_data['resources_data'],
-    );
-    update_option('i8_plan_name', $response_data['plan_name']);
-    update_option('i8_subscription_start_date', $response_data['plan_name']);
-    update_option('i8_plan_duration', $response_data['plan_name']);
-    update_option('i8_plan_cron_interval', $response_data['plan_name']);
-    update_option('i8_plan_max_post_fetch', $response_data['plan_name']);
-
-    update_resources_details($response_data['resources_data']);
-}
-
-// Save " RESOURCE DETAILS " RESPONSE DATA to database
-function update_resources_details($data_array)
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'custom_resource_details';
-
-    // پاک کردن تمام رکوردهای قبلی
-    $wpdb->query("TRUNCATE TABLE $table_name");
-
-    // اضافه کردن داده‌های جدید
-    foreach ($data_array as $data) {
-        $wpdb->insert($table_name, array(
-            'resource_id' => $data['resource_id'],
-            'resource_title' => $data['resource_title'],
-            'title_selector' => $data['title_selector'],
-            'img_selector' => $data['img_selector'],
-            'lead_selector' => $data['lead_selector'],
-            'body_selector' => $data['body_selector'],
-            'bup_date_selector' => $data['bup_date_selector'],
-            'category_selector' => $data['category_selector'],
-            'tags_selector' => $data['tags_selector'],
-            'escape_elements' => $data['escape_elements'],
-            'source_root_link' => $data['source_root_link'],
-            'source_feed_link' => $data['source_feed_link'],
-            'need_to_merge_guid_link' => $data['need_to_merge_guid_link']
-        )
-        );
-    }
-}
-
-// get resources details from database
-function get_resources_details()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'custom_resource_details';
-    $data = $wpdb->get_results("SELECT * FROM $table_name");
-    // error_log('i am client:' . print_r($data, true));
-    return $data;
-}
-
 
 
 // ACTIVATE PLUGIN AND FUNCTIONS
@@ -427,7 +367,7 @@ function i8_change_post_status($priority_posts)
         } else {
             // error_log('not fund or not aa draft post and delete record');
 
-            i8_delete_item_at_scheulde_list($id,null);
+            i8_delete_item_at_scheulde_list($id, null);
             publish_post_at_scheduling_table();
         }
 
@@ -442,25 +382,30 @@ add_action('custom_rss_parser_event', 'custom_rss_parser_run');
 function custom_rss_parser_run()
 {
     // Replace 'YOUR_RSS_FEED_URL' with the actual RSS feed URL
-    $args = array(
-        'post_type' => 'resource',
-        'post_status' => 'publish',
-    );
+    // $args = array(
+    //     'post_type' => 'resource',
+    //     'post_status' => 'publish',
+    // );
 
-    $feeds_list = new WP_Query($args);
+    // $feeds_list = new WP_Query($args);
 
-    if ($feeds_list->have_posts()):
-        while ($feeds_list->have_posts()):
-            $feeds_list->the_post();
-            $rss_feed_url = get_post_meta(get_the_ID(), 'source_feed_link', true);
-            $source_root_link = get_post_meta(get_the_ID(), 'source_root_link', true);
-            $resource_id = get_the_ID();
-            $resource_name = get_the_title();
-            $need_to_merge_guid_link = get_post_meta(get_the_ID(), 'need_to_merge_guid_link', true);
+    $feeds_list = get_resources_details();
+
+
+    if ($feeds_list):
+        foreach ($feeds_list as $feed):
+            
+            // fetch data form feed item to variable 
+            $rss_feed_url = $feed->source_feed_link;
+            $source_root_link = $feed->source_root_link;
+            $resource_id = $feed->resource_id;
+            $resource_name = $feed->resource_title;
+            $need_to_merge_guid_link = $feed->need_to_merge_guid_link;
 
             // Fetch the RSS feed
             $rss_feed = fetch_rss_feed($rss_feed_url);
 
+            // exit, if rss feed not found
             if (!$rss_feed) {
                 return;
             }
@@ -486,8 +431,7 @@ function custom_rss_parser_run()
                     custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $resource_name);
                 }
             }
-        endwhile;
-
+        endforeach;
     endif;
 }
 

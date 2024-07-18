@@ -28,31 +28,7 @@ function custom_rss_parser_menu()
         5
     );
 }
-function get_all_source_name()
-{
-    // wp get query for fetch resouces_post_type post type 
-    $args = array(
-        'post_type' => 'resource',
-        'post_status' => 'publish',
-    );
-    $resources_query = new WP_Query($args);
-    if ($resources_query->have_posts()) {
-        while ($resources_query->have_posts()) {
-            $resources_query->the_post();
-            // Output content here
-            $resource_arr[] = array(
-                'id' => get_the_ID(),
-                'name' => get_the_title(),
-            );
-        }
-        return $resource_arr;
-        wp_reset_postdata();
-    } else {
-        // error_log('else fired');
-        return false;
-    }
 
-}
 
 // Callback function for menu page
 function publisher_copoilot_callback()
@@ -109,9 +85,8 @@ function publisher_copoilot_callback()
                             <div class="d-flex">
                                 <select name="source" class="form-select rounded-pill btn-outline-secondar">
                                     <?php foreach (get_all_source_name() as $source_name): ?>
-                                        <option value="<?php echo $source_name['id']; ?>" 
-                                        <?php echo (isset($_GET['source']) && $_GET['source'] == $source_name['id']) ? esc_attr('selected') : ''; ?>
- ><?php echo $source_name['name']; ?>
+                                        <option value="<?php echo $source_name->resource_id; ?>" 
+                                        <?php echo (isset($_GET['source']) && $_GET['source'] == $source_name->resource_id) ? esc_attr('selected') : ''; ?> ><?php echo $source_name->resource_title; ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
