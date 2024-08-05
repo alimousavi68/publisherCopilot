@@ -33,8 +33,6 @@ function custom_rss_parser_menu()
 // Callback function for menu page
 function publisher_copoilot_callback()
 {
-
-    
     
     if (isset($_GET['success'])) {
         $action_status = $_GET['success'];

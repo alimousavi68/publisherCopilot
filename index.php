@@ -5,37 +5,33 @@ Description: اافزونه دستیار هوشمند (کلاینت)
 Version: 1.3
 Author: Hasht Behesht
 */
+
 // Declare Const vraibleS
 define('COP_PLUGIN_DIR_PATH', plugin_dir_path(__FILE__));
 define('COP_PLUGIN_URL', plugins_url('', __FILE__));
-define('COP_REST_API_SERVER_URL', 'http://localhost:8888/rssnews/wp-json/license/v1/validate/');
-define('COP_SUBSCRIPTION_SECRET_CODE', 'i8-3u38rAAg9ntYtXl##');
+define('COP_REST_API_SERVER_URL', 'https://copublisher.ir/cop/wp-json/license/v1/validate/');
 
 require_once (COP_PLUGIN_DIR_PATH . '/helper_functions.php');
-
-
-
-
 
 // ACTIVATE PLUGIN AND FUNCTIONS
 register_activation_hook(__FILE__, 'i8_pc_plugin_activate');
 
 function i8_pc_plugin_activate()
 {
-    if (!get_option('i8_pc_plugin_sd')) {
-        $encoded_date = base64_encode(current_time('timestamp'));
-        add_option('i8_pc_plugin_sd', $encoded_date, '', 'no');
-    }
-    if (!get_option('i8_pc_plugin_vd')) {
-        $valid_domains = array(
-            'ashkaar.ir',
-            'andishemoaser.ir',
-            'sarkhaat.ir',
-            'localhost:8888',
-        );
-        $encoded_domains = base64_encode(serialize($valid_domains));
-        add_option('i8_pc_plugin_vd', $encoded_domains, '', 'no');
-    }
+    // if (!get_option('i8_pc_plugin_sd')) {
+    //     $encoded_date = base64_encode(current_time('timestamp'));
+    //     add_option('i8_pc_plugin_sd', $encoded_date, '', 'no');
+    // }
+    // if (!get_option('i8_pc_plugin_vd')) {
+    //     $valid_domains = array(
+    //         'ashkaar.ir',
+    //         'andishemoaser.ir',
+    //         'sarkhaat.ir',
+    //         'localhost:8888',
+    //     );
+    //     $encoded_domains = base64_encode(serialize($valid_domains));
+    //     add_option('i8_pc_plugin_vd', $encoded_domains, '', 'no');
+    // }
 }
 
 
@@ -43,34 +39,31 @@ function i8_pc_plugin_activate()
 function i8_pc_plugin_check_conditions()
 {
 
-    $encoded_date = get_option('i8_pc_plugin_sd');
-    $install_date = intval(base64_decode($encoded_date));
-    $current_date = current_time('timestamp');
-    $valid_period = 60 * DAY_IN_SECONDS;
+    // $encoded_date = get_option('i8_pc_plugin_sd');
+    // $install_date = intval(base64_decode($encoded_date));
+    // $current_date = current_time('timestamp');
+    // $valid_period = 60 * DAY_IN_SECONDS;
 
-    if (($current_date - $install_date) > $valid_period) {
-        add_action('admin_notices', 'i8_pc_plugin_trial_expired_notice');
-        add_action('admin_init', 'i8_pc_plugin_deactivate_self');
-        return false;
-    }
+    // if (($current_date - $install_date) > $valid_period) {
+    //     add_action('admin_notices', 'i8_pc_plugin_trial_expired_notice');
+    //     add_action('admin_init', 'i8_pc_plugin_deactivate_self');
+    //     return false;
+    // }
 
-    $encoded_domains = get_option('i8_pc_plugin_vd');
-    $valid_domains = unserialize(base64_decode($encoded_domains));
-    $current_domain = $_SERVER['HTTP_HOST'];
+    // $encoded_domains = get_option('i8_pc_plugin_vd');
+    // $valid_domains = unserialize(base64_decode($encoded_domains));
+    // $current_domain = $_SERVER['HTTP_HOST'];
 
 
-    if (!in_array($current_domain, $valid_domains)) {
-        // add_action('admin_notices', 'i8_pc_plugin_invalid_domain_notice');
-        // add_action('admin_init', 'i8_pc_plugin_deactivate_self');
-        return true;
-    }
-    return true;
+    // if (!in_array($current_domain, $valid_domains)) {
+    //     // add_action('admin_notices', 'i8_pc_plugin_invalid_domain_notice');
+    //     // add_action('admin_init', 'i8_pc_plugin_deactivate_self');
+    //     return true;
+    // }
+    // return true;
 
 }
 add_action('init', 'i8_pc_plugin_check_conditions');
-
-
-
 
 // $encoded_Code='';
 // eval(base64_decode($encoded_Code));
@@ -94,32 +87,15 @@ function i8_pc_plugin_deactivate_self()
     deactivate_plugins(plugin_basename(__FILE__));
 }
 
-if (!i8_pc_plugin_check_conditions()) {
-    return; // جلوگیری از اجرای ادامه کدهای افزونه
-} else {
-    require_once ABSPATH . 'wp-admin/includes/file.php';
 
-    require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
-    require_once plugin_dir_path(__FILE__) . 'resources_post_type.php';
-
-    include_once (plugin_dir_path(__FILE__) . 'menu.php');
-    include_once (plugin_dir_path(__FILE__) . 'setting_page.php');
-    include_once (plugin_dir_path(__FILE__) . 'schedule-queue.php');
-    include_once (plugin_dir_path(__FILE__) . 'scraper.php');
-
-    // Hook into WordPress actions
-    add_action('admin_init', 'custom_rss_parser_schedule_event');
-
-    // Add action to create custom table if not exists
-    add_action('admin_init', 'custom_rss_parser_create_tables');
-}
-
-
-
-
+require_once ABSPATH . 'wp-admin/includes/file.php';
+require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
+include_once (plugin_dir_path(__FILE__) . 'menu.php');
+include_once (plugin_dir_path(__FILE__) . 'setting_page.php');
+include_once (plugin_dir_path(__FILE__) . 'schedule-queue.php');
+include_once (plugin_dir_path(__FILE__) . 'scraper.php');
 // Include jalali-date external library
 $jdatetime_file_path = plugin_dir_path(__FILE__) . 'jdatetime.class.php';
-
 // چک می‌کنیم آیا کلاس قبلاً تعریف شده است
 if (!class_exists('jDateTime')) {
     // اگر کلاس تعریف نشده، چک می‌کنیم آیا فایل وجود دارد
@@ -132,7 +108,77 @@ if (!class_exists('jDateTime')) {
     }
 }
 
+// Add action to create custom table if not exists
+add_action('admin_init', 'custom_rss_parser_create_tables');
+// Function to check if custom tables exist and create them if not
+function custom_rss_parser_create_tables()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'custom_rss_items';
+    $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
+    $table_resource_details = $wpdb->prefix . 'custom_resource_details'; // نام جدول جدید
 
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            title text NOT NULL,
+            resource_name text NOT NULL,
+            resource_id mediumint(9) NOT NULL,
+            pub_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+            guid text NOT NULL,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta($sql);
+    }
+
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_post_schedule'") != $table_post_schedule) {
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql_2 = "CREATE TABLE $table_post_schedule (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            post_id mediumint(9) NOT NULL,
+            publish_priority tinytext NOT NULL,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta($sql_2);
+    }
+
+    // ایجاد جدول جدید برای جزئیات منابع
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_resource_details'") != $table_resource_details) {
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql_3 = "CREATE TABLE $table_resource_details (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            resource_id bigint(20) NOT NULL,
+            resource_title text NOT NULL,
+            title_selector varchar(255) DEFAULT NULL,
+            img_selector varchar(255) DEFAULT NULL,
+            lead_selector varchar(255) DEFAULT NULL,
+            body_selector varchar(255) DEFAULT NULL,
+            bup_date_selector varchar(255) DEFAULT NULL,
+            category_selector varchar(255) DEFAULT NULL,
+            tags_selector varchar(255) DEFAULT NULL,
+            escape_elements text DEFAULT NULL,
+            source_root_link varchar(255) DEFAULT NULL,
+            source_feed_link varchar(255) DEFAULT NULL,
+            need_to_merge_guid_link tinyint(1) DEFAULT 0,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta($sql_3);
+    }
+}
+
+
+// Hook into WordPress actions
+add_action('admin_init', 'custom_rss_parser_schedule_event');
 // Schedule event to run every 5 minutes
 function custom_rss_parser_schedule_event()
 {
@@ -204,95 +250,9 @@ function i8_register_daily_cron_schedule($schedules)
 }
 add_action('remove_all_feed_on_feeds_table', 'remove_all_feed_on_feeds_table');
 
-function remove_all_feed_on_feeds_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'custom_rss_items';
-    $delete_status = $wpdb->query("DELETE FROM $table_name");
-    if ($delete_status) {
-        wp_safe_redirect(add_query_arg('success', 'true', wp_get_referer()));
-        exit;
-    } else {
-        echo '<div class="notice notice-error is-dismissible">
-                <p>مشکلی پیش آمد!</p>
-            </div>';
-    }
-}
-
-
-
-// Function to check if custom tables exist and create them if not
-function custom_rss_parser_create_tables()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'custom_rss_items';
-    $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
-    $table_resource_details = $wpdb->prefix . 'custom_resource_details'; // نام جدول جدید
-
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-        $charset_collate = $wpdb->get_charset_collate();
-
-        $sql = "CREATE TABLE $table_name (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            title text NOT NULL,
-            resource_name text NOT NULL,
-            resource_id mediumint(9) NOT NULL,
-            pub_date datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-            guid text NOT NULL,
-            PRIMARY KEY (id)
-        ) $charset_collate;";
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta($sql);
-    }
-
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table_post_schedule'") != $table_post_schedule) {
-        $charset_collate = $wpdb->get_charset_collate();
-
-        $sql_2 = "CREATE TABLE $table_post_schedule (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            post_id mediumint(9) NOT NULL,
-            publish_priority tinytext NOT NULL,
-            PRIMARY KEY (id)
-        ) $charset_collate;";
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta($sql_2);
-    }
-
-    // ایجاد جدول جدید برای جزئیات منابع
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table_resource_details'") != $table_resource_details) {
-        $charset_collate = $wpdb->get_charset_collate();
-
-        $sql_3 = "CREATE TABLE $table_resource_details (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            resource_id bigint(20) NOT NULL,
-            resource_title text NOT NULL,
-            title_selector varchar(255) DEFAULT NULL,
-            img_selector varchar(255) DEFAULT NULL,
-            lead_selector varchar(255) DEFAULT NULL,
-            body_selector varchar(255) DEFAULT NULL,
-            bup_date_selector varchar(255) DEFAULT NULL,
-            category_selector varchar(255) DEFAULT NULL,
-            tags_selector varchar(255) DEFAULT NULL,
-            escape_elements text DEFAULT NULL,
-            source_root_link varchar(255) DEFAULT NULL,
-            source_feed_link varchar(255) DEFAULT NULL,
-            need_to_merge_guid_link tinyint(1) DEFAULT 0,
-            PRIMARY KEY (id)
-        ) $charset_collate;";
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta($sql_3);
-    }
-}
-
-
 
 // Hook to handle the scheduled event
 add_action('publish_post_at_scheduling_table', 'publish_post_at_scheduling_table');
-
-
 function publish_post_at_scheduling_table()
 {
     // error_log('publish_post_at_scheduling_table RUNNING');
@@ -381,20 +341,11 @@ add_action('custom_rss_parser_event', 'custom_rss_parser_run');
 // Function to parse and store RSS feed data
 function custom_rss_parser_run()
 {
-    // Replace 'YOUR_RSS_FEED_URL' with the actual RSS feed URL
-    // $args = array(
-    //     'post_type' => 'resource',
-    //     'post_status' => 'publish',
-    // );
-
-    // $feeds_list = new WP_Query($args);
-
     $feeds_list = get_resources_details();
-
 
     if ($feeds_list):
         foreach ($feeds_list as $feed):
-            
+
             // fetch data form feed item to variable 
             $rss_feed_url = $feed->source_feed_link;
             $source_root_link = $feed->source_root_link;
@@ -434,6 +385,7 @@ function custom_rss_parser_run()
         endforeach;
     endif;
 }
+
 
 // Function to fetch the RSS feed
 function fetch_rss_feed($url)

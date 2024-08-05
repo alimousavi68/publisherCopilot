@@ -5,16 +5,15 @@ require_once (__DIR__ . '/../../../wp-admin/includes/media.php');
 require_once (__DIR__ . '/../../../wp-admin/includes/image.php');
 require_once (__DIR__ . '/../../../wp-admin/includes/file.php');
 
-
-
 // Send request to server and get response
-function send_license_validation_request()
+function send_license_validation_request($secret_code)
 {
+    
     $response = wp_remote_post(
         COP_REST_API_SERVER_URL,
         array(
             'body' => array(
-                'subscription_secret_code' => COP_SUBSCRIPTION_SECRET_CODE
+                'subscription_secret_code' => $secret_code
             )
         )
     );
@@ -32,6 +31,7 @@ function send_license_validation_request()
         $response_data = array(
             'plan_name' => $recived_data['plan_name'],
             'subscription_start_date' => $recived_data['subscription_start_date'],
+            'subscription_end_date' => $recived_data['subscription_end_date'],
             'plan_duration' => $recived_data['plan_duration'],
             'plan_cron_interval' => $recived_data['plan_cron_interval'],
             'plan_max_post_fetch' => $recived_data['plan_max_post_fetch'],
@@ -39,28 +39,36 @@ function send_license_validation_request()
         );
         i8_save_response_license_data($response_data);
 
+        return true;
+
     } else {
+        error_log('error');
         // FOR DOING : some doing work for notif to admin for expire lisence and disable plugin 
         error_log('i am client:' . 'License is not valid');
+        cop_expired_subscription_actions();
+        return false;
     }
 }
 
 // Save " LINCENCE PLAN " RESPONSE DATA to database
 function i8_save_response_license_data($recived_data)
 {
+
     $response_data = array(
         'plan_name' => $recived_data['plan_name'],
         'subscription_start_date' => $recived_data['subscription_start_date'],
+        'subscription_end_date' => $recived_data['subscription_end_date'],
         'plan_duration' => $recived_data['plan_duration'],
         'plan_cron_interval' => $recived_data['plan_cron_interval'],
         'plan_max_post_fetch' => $recived_data['plan_max_post_fetch'],
         'resources_data' => $recived_data['resources_data'],
     );
     update_option('i8_plan_name', $response_data['plan_name']);
-    update_option('i8_subscription_start_date', $response_data['plan_name']);
-    update_option('i8_plan_duration', $response_data['plan_name']);
-    update_option('i8_plan_cron_interval', $response_data['plan_name']);
-    update_option('i8_plan_max_post_fetch', $response_data['plan_name']);
+    update_option('i8_subscription_start_date', $response_data['subscription_start_date']);
+    update_option('i8_subscription_end_date', $response_data['subscription_end_date']);
+    update_option('i8_plan_duration', $response_data['plan_duration']);
+    update_option('i8_plan_cron_interval', $response_data['plan_cron_interval']);
+    update_option('i8_plan_max_post_fetch', $response_data['plan_max_post_fetch']);
 
     update_resources_details($response_data['resources_data']);
 }
@@ -95,6 +103,12 @@ function update_resources_details($data_array)
     }
 }
 
+function truncate_resources_details_table(){
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'custom_resource_details';
+    $wpdb->query("TRUNCATE TABLE $table_name");
+}
+
 // get resources details from database
 function get_resources_details()
 {
@@ -112,32 +126,15 @@ function get_all_source_name(){
     return $data;
 }
 
-// function get_all_source_name()
-// {
-//     // wp get query for fetch resouces_post_type post type 
-//     $args = array(
-//         'post_type' => 'resource',
-//         'post_status' => 'publish',
-//     );
-//     $resources_query = new WP_Query($args);
-//     if ($resources_query->have_posts()) {
-//         while ($resources_query->have_posts()) {
-//             $resources_query->the_post();
-//             // Output content here
-//             $resource_arr[] = array(
-//                 'id' => get_the_ID(),
-//                 'name' => get_the_title(),
-//             );
-//         }
-//         return $resource_arr;
-//         wp_reset_postdata();
-//     } else {
-//         // error_log('else fired');
-//         return false;
-//     }
-// }
-
-
+function cop_expired_subscription_actions(){
+    delete_option('i8_plan_name');
+    delete_option('i8_subscription_start_date');
+    delete_option('i8_plan_duration');
+    delete_option('i8_plan_cron_interval');
+    delete_option('i8_plan_max_post_fetch');
+    truncate_resources_details_table();
+    remove_all_feed_on_feeds_table();
+}
 
 // فراخوانی تابع
 // send_license_validation_request();
@@ -336,4 +333,22 @@ function cop_update_post_priority($post_id, $new_priority)
         array('%s'), // فرمت داده‌های جدید
         array('%d')  // فرمت شرایط
     );
+}
+
+
+
+// remove all feed on feed table [custom_rss_items]
+function remove_all_feed_on_feeds_table()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'custom_rss_items';
+    $delete_status = $wpdb->query("DELETE FROM $table_name");
+    if ($delete_status) {
+        wp_safe_redirect(add_query_arg('success', 'true', wp_get_referer()));
+        exit;
+    } else {
+        echo '<div class="notice notice-error is-dismissible">
+                <p>مشکلی پیش آمد!</p>
+            </div>';
+    }
 }

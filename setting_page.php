@@ -10,48 +10,114 @@ if (file_exists($wp_load_path)) {
     exit;
 }
 
+
+
+
 // ایجاد صفحه تنظیمات
 function publisher_copoilot_setting_page_callback()
 {
+    $old_secret_code = get_option('i8_secret_code');
+    $secret_code = $_POST['cop_secret_code'];
+    $response = false;
+    if ($secret_code) {
+        update_option('i8_secret_code', $secret_code);
+        $old_secret_code = get_option('i8_secret_code');
+        $response = send_license_validation_request($secret_code);
+
+    } elseif (isset($old_secret_code)) {
+
+        $response = send_license_validation_request($old_secret_code);
+
+    } 
     ?>
     <div class="wrap">
+        <div class="license_section">
+            <form action="" method="post">
+                <label for="cop_secret_code">
+                    <span>کد مخفی: </span>
+                    <input type="text" value="<?php echo $old_secret_code; ?>" name="cop_secret_code"
+                        style="direction:ltr;text-align:left;">
+                    <button type="submit" name="cop_send_request_to_server">به روز رسانی وضعیت</button>
+                    <?php
+                    if ($response == true) {
+                        print_r('<p style="color:green;"> لایسنس شما معتبر است </p>');
+                    } else {
+                        print_r('<p style="color:red;"> کد شما معتبر نیست  </p>');
+                    }
+                    ?>
+                </label>
 
-        <form method="post" action="options.php">
-            <?php
-            // ایجاد فیلدهای تنظیمات
-            settings_fields('publisher_copoilot_settings_group');
-            ?>
-            <div>
-                <table style="text-align:right;">
-                    <tr>
-                        <th>تاریخ فعلی :</th>
-                        <td><?php echo current_time('Y/m/d - H:i:s'); ?></td>
-                    </tr>
-                    <tr>
-                        <th>تاریخ شروع اکانت:</th>
-                        <td><?php
-                        $install_date = intval(base64_decode(get_option('i8_pc_plugin_sd')));
-                        echo (date('Y/m/d - H:i:s', $install_date));
-                        ?></td>
-                    </tr>
+                <?php
+                if ($response):
+                    $i8_plan_name = (get_option('i8_plan_name')) ? get_option('i8_plan_name') : '-';
+                    $i8_subscription_start_date = (get_option('i8_subscription_start_date')) ? get_option('i8_subscription_start_date') : '-';
+                    $i8_subscription_end_date = (get_option('i8_subscription_end_date')) ? get_option('i8_subscription_end_date') : '-';
+                    $i8_plan_duration = (get_option('i8_plan_duration')) ? get_option('i8_plan_duration') : '-';
+                    $i8_plan_cron_interval = (get_option('i8_plan_cron_interval')) ? get_option('i8_plan_cron_interval') : '-';
+                    $i8_plan_max_post_fetch = (get_option('i8_plan_max_post_fetch')) ? get_option('i8_plan_max_post_fetch') : '-';
+                    ?>
+                    <table class="form-table">
+                        <tr>
+                            <td class="">نوع اشتراک:</td>
+                            <td><?php echo $i8_plan_name; ?></td>
+                        </tr>
+                     
+                        <tr>
+                            <td>مدت اشتراک(به روز):</td>
+                            <td><?php echo $i8_plan_duration; ?></td>
+                        </tr>
+                        <tr>
+                            <td>تاریخ شروع اشتراک:</td>
+                            <td><?php echo $i8_subscription_start_date;
+                            echo ' [ ';
+                            echo @\jDateTime::convertFormatToFormat('Y/m/d - H:i', 'Y-m-d H:i:s', $i8_subscription_start_date);
+                            echo ' ]';
 
-                    <tr>
-                        <th>تاریخ پایان اکانت:</th>
-                        <td><?php
-                        $current_date = current_time('timestamp');
-                        $valid_period = 365 * DAY_IN_SECONDS; // ۱۰ روز
-                        echo (date('Y/m/d - H:i:s', $valid_period + $install_date));
-                        ?></td>
-                    </tr>
+                            ?></td>
+                        </tr>
+                        <tr>
+                            <td>تاریخ پایان اشتراک</td>
+                            <td><?php echo $i8_subscription_end_date;
+                            echo ' [ ';
+                            echo @\jDateTime::convertFormatToFormat('Y/m/d - H:i', 'Y-m-d H:i:s', $i8_subscription_end_date);
+                            echo ' ]';
+                            ?></td>
+                        </tr>
+                        <tr>
+                            <td>فواصل بروزرسانی اتوماتیک فیدها:</td>
+                            <td><?php echo $i8_plan_cron_interval; ?></td>
+                        </tr>
+                        <tr>
+                            <td>تعداد مجاز انتشار پست: </td>
+                            <td><?php echo $i8_plan_max_post_fetch; ?></td>
+                        </tr>
 
-                </table>
-            </div>
-            <?php
-            do_settings_sections('publisher_copoilot_setting');
-            submit_button();
-            ?>
-        </form>
+                    </table>
+                    <?php
+                endif;
+                ?>
+
+            </form>
+
+            <form method="post" action="options.php">
+                <?php
+                // ایجاد فیلدهای تنظیمات
+                settings_fields('publisher_copoilot_settings_group');
+                ?>
+
+
+                <?php
+                do_settings_sections('publisher_copoilot_setting');
+                submit_button();
+                ?>
+            </form>
+        </div>
+
+
     </div>
+    <script>
+
+    </script>
     <?php
 }
 
@@ -118,7 +184,7 @@ function publisher_copoilot_register_settings()
 function publisher_copoilot_settings_section_callback()
 {
     // echo '<p>لطفا تنظیمات مورد نیاز را انجام دهید.</p>';
-  
+
 }
 
 // توابع بازگشتی برای نمایش فیلدها
