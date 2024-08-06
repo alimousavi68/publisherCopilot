@@ -8,13 +8,13 @@ require_once (__DIR__ . '/../../../wp-admin/includes/file.php');
 // Send request to server and get response
 function send_license_validation_request($secret_code)
 {
-    
+
     $response = wp_remote_post(
         COP_REST_API_SERVER_URL,
         array(
             'body' => array(
                 'subscription_secret_code' => $secret_code,
-                'subscription_site_url'     => home_url()
+                'subscription_site_url' => home_url()
             )
         )
     );
@@ -27,7 +27,7 @@ function send_license_validation_request($secret_code)
     $status = wp_remote_retrieve_response_code($response);
 
     // error_log($secret_code);
-    // error_log(print_r($body, true));
+    error_log(print_r($body, true));
 
     if ($status == 200) {
         $recived_data = json_decode($body, true);
@@ -88,26 +88,29 @@ function update_resources_details($data_array)
 
     // اضافه کردن داده‌های جدید
     foreach ($data_array as $data) {
-        $wpdb->insert($table_name, array(
-            'resource_id' => $data['resource_id'],
-            'resource_title' => $data['resource_title'],
-            'title_selector' => $data['title_selector'],
-            'img_selector' => $data['img_selector'],
-            'lead_selector' => $data['lead_selector'],
-            'body_selector' => $data['body_selector'],
-            'bup_date_selector' => $data['bup_date_selector'],
-            'category_selector' => $data['category_selector'],
-            'tags_selector' => $data['tags_selector'],
-            'escape_elements' => $data['escape_elements'],
-            'source_root_link' => $data['source_root_link'],
-            'source_feed_link' => $data['source_feed_link'],
-            'need_to_merge_guid_link' => $data['need_to_merge_guid_link']
-        )
+        $wpdb->insert(
+            $table_name,
+            array(
+                'resource_id' => $data['resource_id'],
+                'resource_title' => $data['resource_title'],
+                'title_selector' => $data['title_selector'],
+                'img_selector' => $data['img_selector'],
+                'lead_selector' => $data['lead_selector'],
+                'body_selector' => $data['body_selector'],
+                'bup_date_selector' => $data['bup_date_selector'],
+                'category_selector' => $data['category_selector'],
+                'tags_selector' => $data['tags_selector'],
+                'escape_elements' => $data['escape_elements'],
+                'source_root_link' => $data['source_root_link'],
+                'source_feed_link' => $data['source_feed_link'],
+                'need_to_merge_guid_link' => $data['need_to_merge_guid_link']
+            )
         );
     }
 }
 
-function truncate_resources_details_table(){
+function truncate_resources_details_table()
+{
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_resource_details';
     $wpdb->query("TRUNCATE TABLE $table_name");
@@ -123,14 +126,17 @@ function get_resources_details()
     return $data;
 }
 
-function get_all_source_name(){
+function get_all_source_name()
+{
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_resource_details';
     $data = $wpdb->get_results("SELECT resource_id,resource_title FROM $table_name");
+
     return $data;
 }
 
-function cop_expired_subscription_actions(){
+function cop_expired_subscription_actions()
+{
     delete_option('i8_plan_name');
     delete_option('i8_subscription_start_date');
     delete_option('i8_plan_duration');
@@ -270,7 +276,7 @@ function cop_set_post_priority_in_manager_meta_box($post_id, $post, $update)
         $updating_post = true;
 
         if ($old_priority != null and $old_priority != 'now') {
-            i8_delete_item_at_scheulde_list(null,$post_id);
+            i8_delete_item_at_scheulde_list(null, $post_id);
         }
 
         date_default_timezone_set('Asia/Tehran');
@@ -354,5 +360,21 @@ function remove_all_feed_on_feeds_table()
         echo '<div class="notice notice-error is-dismissible">
                 <p>مشکلی پیش آمد!</p>
             </div>';
+    }
+}
+
+// Get Resource Item Selector From Resource Id
+function get_resource_data($resource_id, $resource_item_selector)
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'custom_resource_details';
+    $sql = $wpdb->prepare("SELECT $resource_item_selector FROM $table_name WHERE resource_id = %d ",  $resource_id);
+
+    $selector = $wpdb->get_var($sql);
+
+    if ($selector) {
+        return $selector;
+    } else {
+        return '';
     }
 }

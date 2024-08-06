@@ -89,17 +89,17 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
     // }
 
     // دریافت مقادیر از فرم
-    $title_selector = get_post_meta($resource_id, 'title_selector', true);
-    $img_selector = get_post_meta($resource_id, 'img_selector', true);
-    $lead_selector = get_post_meta($resource_id, 'lead_selector', true);
-    $body_selector = get_post_meta($resource_id, 'body_selector', true);
-    $bup_date_selector = get_post_meta($resource_id, 'bup_date_selector', true);
-    $category_selector = get_post_meta($resource_id, 'category_selector', true);
-    $tags_selector = get_post_meta($resource_id, 'tags_selector', true);
-    $escape_elements = get_post_meta($resource_id, 'escape_elements', true);
-    $source_root_link = get_post_meta($resource_id, 'source_root_link', true);
-    $source_feed_link = get_post_meta($resource_id, 'source_feed_link', true);
-    $need_to_merge_guid_link = get_post_meta($resource_id, 'need_to_merge_guid_link', true);
+    $title_selector = get_resource_data($resource_id, 'title_selector');
+    $img_selector   = get_resource_data($resource_id, 'img_selector');
+    $lead_selector  = get_resource_data($resource_id, 'lead_selector');
+    $body_selector  = get_resource_data($resource_id, 'body_selector');
+    $bup_date_selector = get_resource_data($resource_id, 'bup_date_selector');
+    $category_selector = get_resource_data($resource_id, 'category_selector');
+    $tags_selector   = get_resource_data($resource_id, 'tags_selector');
+    $escape_elements = get_resource_data($resource_id, 'escape_elements');
+    $source_root_link = get_resource_data($resource_id, 'source_root_link');
+    $source_feed_link = get_resource_data($resource_id, 'source_feed_link');
+    $need_to_merge_guid_link = get_resource_data($resource_id, 'need_to_merge_guid_link');
 
 
     $guid = $guid . '';
@@ -128,7 +128,8 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
             $title = $title_element->plaintext;
         } else {
             // در صورت عدم وجود المان، مقدار پیشفرض یا اقدام مناسب دیگر
-            $title = 'عنوان پیدا نشد';
+            $title = '';
+            error_log('i am client- title is not found' . 'عنوان پیدا نشد');
         }
 
         if ($html->find($lead_selector, 0) != null) {
@@ -136,16 +137,25 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
             $excerpt = trim($excerpt->plaintext);
         } else {
             $excerpt = '';
+            error_log('i am client- excerpt is not found' . 'لید پیدا نشد');
         }
 
 
-        $content = $html->find($body_selector, 0);
-        // error_log($body_selector);
-        // error_log($content);
-        $content = clear_not_allowed_tags($content->innertext, $source_root_link);
 
-        // error_log('img selector :' . $img_selector);
-        $thumbnail_url = $html->find($img_selector, 0)->src;
+        if ($html->find($body_selector, 0) != null) {
+            $content = $html->find($body_selector, 0);
+            $content = clear_not_allowed_tags($content->innertext, $source_root_link);
+        } else {
+            $content = '';
+            error_log('i am client- content is not found' . 'بدنه پست پیدا نشد');
+        }
+
+        if ($thumbnail_url = $html->find($img_selector, 0)->src != null) {
+            $thumbnail_url = $html->find($img_selector, 0)->src;
+        } else {
+            $thumbnail_url = '';
+            error_log('i am client- thumbnail is not found' . 'عکس پست پیدا نشد');
+        }
 
 
         $post_status = 'draft';
