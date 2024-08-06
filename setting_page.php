@@ -20,13 +20,13 @@ function publisher_copoilot_setting_page_callback()
     $secret_code = $_POST['cop_secret_code'];
     $response = false;
     if ($secret_code) {
+        
         update_option('i8_secret_code', $secret_code);
         $old_secret_code = get_option('i8_secret_code');
         $response = send_license_validation_request($secret_code);
 
-
     } elseif (isset($old_secret_code)) {
-        
+
         $response = send_license_validation_request($old_secret_code);
 
     } 

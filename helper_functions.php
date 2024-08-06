@@ -13,11 +13,11 @@ function send_license_validation_request($secret_code)
         COP_REST_API_SERVER_URL,
         array(
             'body' => array(
-                'subscription_secret_code' => $secret_code
+                'subscription_secret_code' => $secret_code,
+                'subscription_site_url'     => home_url()
             )
         )
     );
-    error_log(print_r($response, true));
 
     if (is_wp_error($response)) {
         return 'Error in sending request';
@@ -25,6 +25,9 @@ function send_license_validation_request($secret_code)
 
     $body = wp_remote_retrieve_body($response);
     $status = wp_remote_retrieve_response_code($response);
+
+    // error_log($secret_code);
+    // error_log(print_r($body, true));
 
     if ($status == 200) {
         $recived_data = json_decode($body, true);
