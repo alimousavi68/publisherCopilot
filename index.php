@@ -9,7 +9,7 @@ Author: Hasht Behesht
 // Declare Const vraibleS
 define('COP_PLUGIN_DIR_PATH', plugin_dir_path(__FILE__));
 define('COP_PLUGIN_URL', plugins_url('', __FILE__));
-define('COP_REST_API_SERVER_URL', 'https://copublisher.ir/cop/wp-json/license/v1/validate/');
+define('COP_REST_API_SERVER_URL', 'https://copublisher.ir/wp-json/license/v1/validate/');
 
 require_once (COP_PLUGIN_DIR_PATH . '/helper_functions.php');
 

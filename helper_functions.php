@@ -17,6 +17,7 @@ function send_license_validation_request($secret_code)
             )
         )
     );
+    error_log(print_r($response, true));
 
     if (is_wp_error($response)) {
         return 'Error in sending request';

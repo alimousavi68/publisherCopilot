@@ -24,8 +24,9 @@ function publisher_copoilot_setting_page_callback()
         $old_secret_code = get_option('i8_secret_code');
         $response = send_license_validation_request($secret_code);
 
-    } elseif (isset($old_secret_code)) {
 
+    } elseif (isset($old_secret_code)) {
+        
         $response = send_license_validation_request($old_secret_code);
 
     } 
