@@ -13,73 +13,6 @@ define('COP_REST_API_SERVER_URL', 'https://copublisher.ir/wp-json/license/v1/val
 
 require_once (COP_PLUGIN_DIR_PATH . '/helper_functions.php');
 
-// ACTIVATE PLUGIN AND FUNCTIONS
-register_activation_hook(__FILE__, 'i8_pc_plugin_activate');
-
-function i8_pc_plugin_activate()
-{
-    // if (!get_option('i8_pc_plugin_sd')) {
-    //     $encoded_date = base64_encode(current_time('timestamp'));
-    //     add_option('i8_pc_plugin_sd', $encoded_date, '', 'no');
-    // }
-    // if (!get_option('i8_pc_plugin_vd')) {
-    //     $valid_domains = array(
-    //         'ashkaar.ir',
-    //         'andishemoaser.ir',
-    //         'sarkhaat.ir',
-    //         'localhost:8888',
-    //     );
-    //     $encoded_domains = base64_encode(serialize($valid_domains));
-    //     add_option('i8_pc_plugin_vd', $encoded_domains, '', 'no');
-    // }
-}
-
-
-// CHECK PLUGIN CONDITIONS
-function i8_pc_plugin_check_conditions()
-{
-
-    // $encoded_date = get_option('i8_pc_plugin_sd');
-    // $install_date = intval(base64_decode($encoded_date));
-    // $current_date = current_time('timestamp');
-    // $valid_period = 60 * DAY_IN_SECONDS;
-
-    // if (($current_date - $install_date) > $valid_period) {
-    //     add_action('admin_notices', 'i8_pc_plugin_trial_expired_notice');
-    //     add_action('admin_init', 'i8_pc_plugin_deactivate_self');
-    //     return false;
-    // }
-
-    // $encoded_domains = get_option('i8_pc_plugin_vd');
-    // $valid_domains = unserialize(base64_decode($encoded_domains));
-    // $current_domain = $_SERVER['HTTP_HOST'];
-
-
-    // if (!in_array($current_domain, $valid_domains)) {
-    //     // add_action('admin_notices', 'i8_pc_plugin_invalid_domain_notice');
-    //     // add_action('admin_init', 'i8_pc_plugin_deactivate_self');
-    //     return true;
-    // }
-    // return true;
-
-}
-add_action('init', 'i8_pc_plugin_check_conditions');
-
-// $encoded_Code='';
-// eval(base64_decode($encoded_Code));
-//End encode 
-
-
-// NOTICES FUNCTIONS
-function i8_pc_plugin_trial_expired_notice()
-{
-    echo '<div class="notice notice-error"><p>مدت زمان آزمایشی افزونه به پایان رسیده است.</p></div>';
-}
-
-function i8_pc_plugin_invalid_domain_notice()
-{
-    echo '<div class="notice notice-error"><p>دامنه نامعتبر است. افزونه بر روی این دامنه کار نمی‌کند.</p></div>';
-}
 
 // DEACTIVATE PLUGIN FUNCTION
 function i8_pc_plugin_deactivate_self()
@@ -87,26 +20,21 @@ function i8_pc_plugin_deactivate_self()
     deactivate_plugins(plugin_basename(__FILE__));
 }
 
-
+// چک می‌کنیم آیا کلاس قبلاً تعریف شده است
+if (!class_exists('jDateTime')) {
+    // Include jalali-date external library
+    require_once plugin_dir_path(__FILE__) . 'jdatetime.class.php';
+}
 require_once ABSPATH . 'wp-admin/includes/file.php';
 require_once plugin_dir_path(__FILE__) . 'simple_html_dom.php';
 include_once (plugin_dir_path(__FILE__) . 'menu.php');
 include_once (plugin_dir_path(__FILE__) . 'setting_page.php');
 include_once (plugin_dir_path(__FILE__) . 'schedule-queue.php');
 include_once (plugin_dir_path(__FILE__) . 'scraper.php');
-// Include jalali-date external library
-$jdatetime_file_path = plugin_dir_path(__FILE__) . 'jdatetime.class.php';
-// چک می‌کنیم آیا کلاس قبلاً تعریف شده است
-if (!class_exists('jDateTime')) {
-    // اگر کلاس تعریف نشده، چک می‌کنیم آیا فایل وجود دارد
-    if (file_exists($jdatetime_file_path)) {
-        // اگر فایل وجود دارد، آن را فراخوانی می‌کنیم
-        require_once $jdatetime_file_path;
-    } else {
-        // اگر فایل وجود ندارد، یک پیام خطا نمایش می‌دهیم یا لاگ می‌کنیم
-        error_log('فایل jdatetime.class.php یافت نشد.');
-    }
-}
+
+
+
+
 
 // Add action to create custom table if not exists
 add_action('admin_init', 'custom_rss_parser_create_tables');
