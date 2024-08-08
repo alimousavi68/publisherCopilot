@@ -27,7 +27,7 @@ function send_license_validation_request($secret_code)
     $status = wp_remote_retrieve_response_code($response);
 
     // error_log($secret_code);
-    error_log(print_r($body, true));
+    // error_log(print_r($body, true));
 
     if ($status == 200) {
         $recived_data = json_decode($body, true);
@@ -130,7 +130,7 @@ function get_all_source_name()
 {
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_resource_details';
-    $data = $wpdb->get_results("SELECT resource_id,resource_title FROM $table_name");
+    $data = $wpdb->get_results("SELECT resource_id,resource_title FROM $table_name ORDER BY resource_title ASC");
 
     return $data;
 }

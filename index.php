@@ -23,7 +23,7 @@ function i8_pc_plugin_deactivate_self()
 // چک می‌کنیم آیا کلاس قبلاً تعریف شده است
 if (!class_exists('jDateTime')) {
     // Include jalali-date external library
-   // require_once plugin_dir_path(__FILE__) . 'jdatetime.class.php';
+    require_once plugin_dir_path(__FILE__) . 'jdatetime.class.php';
 }
 
 require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -282,11 +282,14 @@ function custom_rss_parser_run()
             $resource_name = $feed->resource_title;
             $need_to_merge_guid_link = $feed->need_to_merge_guid_link;
 
+            error_log($rss_feed_url);
             // Fetch the RSS feed
             $rss_feed = fetch_rss_feed($rss_feed_url);
+            error_log($rss_feed);
 
             // exit, if rss feed not found
             if (!$rss_feed) {
+                error_log('this feed is not available');
                 return;
             }
 

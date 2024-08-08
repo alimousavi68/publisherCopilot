@@ -242,6 +242,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
             return (array('status' => false, 'message' => 'Required elements not found on the page.'));
         }
     } else {
+        error_log('Failed to load HTML from the URL.');
         return (array('status' => false, 'message' => 'Failed to load HTML from the URL.'));
     }
 }

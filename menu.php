@@ -63,6 +63,14 @@ function publisher_copoilot_callback()
 
     $current_url = add_query_arg(NULL, NULL);
 
+
+    // if (isset($_GET['source']) && $_GET['source'] == '#') {
+    //     $url = strtok($current_url, '?'); 
+    //     header("Location: $url");
+    //     exit;
+    // }
+
+
     ?>
 
     <div class="wrap">
@@ -82,6 +90,7 @@ function publisher_copoilot_callback()
                             ?>
                             <div class="d-flex">
                                 <select name="source" class="form-select rounded-pill btn-outline-secondar">
+                                    <option value="#"> همه منابع</option>
                                     <?php foreach (get_all_source_name() as $source_name): ?>
                                         <option value="<?php echo $source_name->resource_id; ?>" 
                                         <?php echo (isset($_GET['source']) && $_GET['source'] == $source_name->resource_id) ? esc_attr('selected') : ''; ?> ><?php echo $source_name->resource_title; ?>
@@ -184,11 +193,11 @@ function custom_rss_parser_display_items()
     $offset = ($paged - 1) * $items_per_page;
 
     // Fetch items from the database with pagination
-    $total_items = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+    $total_items = $wpdb->get_var("SELECT COUNT(*) FROM $table_name ORDER BY pub_date DESC");
     if (isset($_GET['source'])) {
         // اگر $source_id موجود بود، شرط WHERE را اضافه کنید
         $items = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM $table_name WHERE resource_id = %d ORDER BY id DESC LIMIT %d OFFSET %d",
+            "SELECT * FROM $table_name WHERE resource_id = %d ORDER BY pub_date DESC LIMIT %d OFFSET %d",
             $_GET['source'],
             $items_per_page,
             $offset
