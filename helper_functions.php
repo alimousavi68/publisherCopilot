@@ -346,6 +346,61 @@ function cop_update_post_priority($post_id, $new_priority)
 }
 
 
+function i8_change_post_status($priority_posts)
+{
+    // error_log('i8_change_post_status RUNNING');
+
+    global $wpdb;
+    $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
+
+    foreach ($priority_posts as $post) {
+
+        // از $post برای دسترسی به مقادیر مختلف هر ردیف استفاده می‌کنیم
+        $id = $post->id;
+        $post_id = $post->post_id;
+
+        // chack post status 
+        $post_status = get_post_status($post_id);
+
+        if ($post_status == 'draft') {
+            // error_log('npost is draf and publishe it');
+
+            date_default_timezone_set('Asia/Tehran');
+
+            $random_interval = rand(400, 900);
+            $publish_time = time() + $random_interval;
+
+            // Prepare data for creating a WordPress post
+            $post_data = array(
+                'ID' => $post_id,
+                'post_status' => 'future',
+                'post_date' => date('Y-m-d H:i:s', $publish_time), // استفاده از زمان تصادفی برای post_date
+                'post_date_gmt' => gmdate('Y-m-d H:i:s', $publish_time), // استفاده از زمان تصادفی برای post_date_gmt
+            );
+            wp_update_post($post_data);
+
+            // delete record where id=$id at $table_post_schedule
+            $action_status = $wpdb->delete($table_post_schedule, array('id' => $id));
+            if ($action_status) {
+                // error_log('i8: deleted record with id=' . $id . 'from table ' . $table_post_schedule);
+            } else {
+                // error_log('i8: failed to delete record with id=' . $id . 'from table ' . $table_post_schedule);
+            }
+
+        } else {
+            // error_log('not fund or not aa draft post and delete record');
+
+            i8_delete_item_at_scheulde_list($id, null);
+            publish_post_at_scheduling_table();
+        }
+
+    }
+}
+
+
+
+add_action('remove_all_feed_on_feeds_table', 'remove_all_feed_on_feeds_table');
+
 
 // remove all feed on feed table [custom_rss_items]
 function remove_all_feed_on_feeds_table()
@@ -377,4 +432,112 @@ function get_resource_data($resource_id, $resource_item_selector)
     } else {
         return '';
     }
+}
+
+
+// Hook to handle the scheduled event
+add_action('custom_rss_parser_event', 'custom_rss_parser_run');
+
+// Function to parse and store RSS feed data
+function custom_rss_parser_run()
+{
+    $feeds_list = get_resources_details();
+
+    if ($feeds_list):
+        foreach ($feeds_list as $feed):
+
+            // fetch data form feed item to variable 
+            $rss_feed_url = $feed->source_feed_link;
+            $source_root_link = $feed->source_root_link;
+            $resource_id = $feed->resource_id;
+            $resource_name = $feed->resource_title;
+            $need_to_merge_guid_link = $feed->need_to_merge_guid_link;
+
+            // error_log($rss_feed_url);
+            // Fetch the RSS feed
+            $rss_feed = fetch_rss_feed($rss_feed_url);
+            // error_log($rss_feed);
+
+            // exit, if rss feed not found
+            if (!$rss_feed) {
+                error_log('this feed is not available');
+                return;
+            }
+
+            // Parse and store RSS feed data
+            foreach ($rss_feed->channel->item as $item) {
+                $title = $item->title;
+                $pub_date = date('Y-m-d H:i:s', strtotime($item->pubDate));
+
+                if (isset($item->guid)) {
+                    if ($need_to_merge_guid_link == 1) {
+                        $guid = $source_root_link . $item->guid . '';
+                    } else {
+                        $guid = $item->guid . '';
+                    }
+                } elseif (isset($item->link)) {
+                    $guid = $item->link . '';
+                }
+
+                // Check if the item already exists in the database
+                if (!custom_rss_parser_item_exists($guid)) {
+                    // Insert the new item into the custom table
+                    custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $resource_name);
+                }
+            }
+        endforeach;
+    endif;
+}
+
+
+
+// Function to fetch the RSS feed
+function fetch_rss_feed($url)
+{
+    $response = wp_remote_get($url);
+
+    if (is_wp_error($response)) {
+        return false;
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    $rss_feed = simplexml_load_string($body);
+    return $rss_feed;
+}
+
+// Function to check if an item already exists in the database
+function custom_rss_parser_item_exists($guid)
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'custom_rss_items';
+
+    $result = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE guid = %s", $guid . ''));
+
+    return $result > 0;
+}
+
+// Function to insert a new item into the custom table
+function custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $resource_name)
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'custom_rss_items';
+
+    $wpdb->insert(
+        $table_name,
+        array(
+            'title' => '' . $title,
+            'resource_name' => $resource_name,
+            'resource_id' => $resource_id,
+            'pub_date' => $pub_date,
+            'guid' => '' . $guid,
+        )
+    );
+
+}
+
+
+// DEACTIVATE PLUGIN FUNCTION
+function i8_pc_plugin_deactivate_self()
+{
+    deactivate_plugins(plugin_basename(__FILE__));
 }
