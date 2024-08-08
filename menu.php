@@ -206,7 +206,7 @@ function custom_rss_parser_display_items()
     } else {
         $items = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT * FROM $table_name ORDER BY id DESC LIMIT %d OFFSET %d",
+                "SELECT * FROM $table_name ORDER BY pub_date DESC LIMIT %d OFFSET %d",
                 $items_per_page,
                 $offset
             )
