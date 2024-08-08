@@ -261,7 +261,7 @@ foreach ($items as $key => $item) {
     $resource_name = $item->resource_name ? $item->resource_name : '-';
     // fetch and set time zome feed_time and date
     $dateTime = new DateTime($item->pub_date, new DateTimeZone('GMT'));
-    $dateTime->setTimezone(new DateTimeZone('Asia/Tehran'));
+    // $dateTime->setTimezone(new DateTimeZone('Asia/Tehran'));
     $pub_date = \jDateTime::convertFormatToFormat('d / M | H:i', 'Y-m-d H:i:s', $dateTime->format('Y-m-d H:i:s'));
 
     $resource_id = esc_attr($item->resource_id);
