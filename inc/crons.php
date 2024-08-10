@@ -1,6 +1,4 @@
 <?php 
-error_log('cron page is here');
-
 // Hook into WordPress actions
 add_action('admin_init', 'custom_rss_parser_schedule_event');
 // Schedule event to run every 5 minutes

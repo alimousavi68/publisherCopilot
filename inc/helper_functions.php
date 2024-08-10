@@ -1,9 +1,9 @@
 <?php
 
-require_once (__DIR__ . '/../../../wp-load.php');
-require_once (__DIR__ . '/../../../wp-admin/includes/media.php');
-require_once (__DIR__ . '/../../../wp-admin/includes/image.php');
-require_once (__DIR__ . '/../../../wp-admin/includes/file.php');
+require_once (__DIR__ . '/../../../../wp-load.php');
+require_once (__DIR__ . '/../../../../wp-admin/includes/media.php');
+require_once (__DIR__ . '/../../../../wp-admin/includes/image.php');
+require_once (__DIR__ . '/../../../../wp-admin/includes/file.php');
 
 // Send request to server and get response
 function send_license_validation_request($secret_code)

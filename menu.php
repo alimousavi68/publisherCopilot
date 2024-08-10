@@ -261,7 +261,7 @@ foreach ($items as $key => $item) {
     $resource_name = $item->resource_name ? $item->resource_name : '-';
     // fetch and set time zome feed_time and date
     $dateTime = new DateTime($item->pub_date, new DateTimeZone('GMT'));
-    // $dateTime->setTimezone(new DateTimeZone('Asia/Tehran'));
+    $dateTime->setTimezone(new DateTimeZone('Asia/Tehran'));
     $pub_date = \jDateTime::convertFormatToFormat('d / M | H:i', 'Y-m-d H:i:s', $dateTime->format('Y-m-d H:i:s'));
 
     $resource_id = esc_attr($item->resource_id);
@@ -389,7 +389,7 @@ if ($total_pages > 1) {
 }
 ?>
 
-    <link href="<?php echo (COP_PLUGIN_URL . '/bootstrap.min.css'); ?>" rel="stylesheet">
+    <link href="<?php echo (COP_PLUGIN_URL . '/assets/css/bootstrap.min.css'); ?>" rel="stylesheet">
     <script>
         jQuery(document).ready(function ($) {
             var scrapeLinks = document.querySelectorAll(".scrape-link");
@@ -410,7 +410,7 @@ if ($total_pages > 1) {
 
                     //send ajax request to scrape the post
                     $.ajax({
-                        url: '<?php echo plugin_dir_url(__DIR__) . "rssnews/scraper.php"; ?>',
+                        url: '<?php echo plugin_dir_url(__DIR__) . "rssnews/inc/scraper.php"; ?>',
                         type: 'POST',
                         data: {
                             action: 'publish_scraper',
@@ -568,7 +568,7 @@ if ($total_pages > 1) {
     </style>
 
 
-    <script src="<?php echo plugin_dir_url(__FILE__); ?>/sweetalert2@11.js"></script>
+    <script src="<?php echo plugin_dir_url(__FILE__); ?>/assets/js/sweetalert2@11.js"></script>
     <script>
         const Toast = Swal.mixin({
             toast: true,

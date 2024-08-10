@@ -71,7 +71,7 @@ function pc_schedule_queue_page_callback()
 
 
     ?>
-    <link href="<?php echo (COP_PLUGIN_URL . '/bootstrap.min.css'); ?>" rel="stylesheet">
+    <link href="<?php echo (COP_PLUGIN_URL . '/assets/css/bootstrap.min.css'); ?>" rel="stylesheet">
 
     <style>
         .row-counter {

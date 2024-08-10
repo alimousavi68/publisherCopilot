@@ -35,10 +35,10 @@
 //     error_log('wp-load.php not found!');
 //     exit;
 // }
-require_once (__DIR__ . '/../../../wp-load.php');
-require_once (__DIR__ . '/../../../wp-admin/includes/media.php');
-require_once (__DIR__ . '/../../../wp-admin/includes/image.php');
-require_once (__DIR__ . '/../../../wp-admin/includes/file.php');
+require_once (__DIR__ . '/../../../../wp-load.php');
+require_once (__DIR__ . '/../../../../wp-admin/includes/media.php');
+require_once (__DIR__ . '/../../../../wp-admin/includes/image.php');
+require_once (__DIR__ . '/../../../../wp-admin/includes/file.php');
 
 
 
