@@ -74,7 +74,15 @@ function publisher_copoilot_callback()
     ?>
 
     <div class="wrap">
-
+        <p style="padding:0px;margin:0px;float:left;color: #757575;font-size: 12px;">
+            <span>واکشی بعدی: </span>
+            <?php 
+            if($i8_next_scrap_all_resource_feed_time = get_option( 'i8_next_scrap_all_resource_feed_time', '' )){
+                date_default_timezone_set('Asia/Tehran');
+                echo date( 'H:i', $i8_next_scrap_all_resource_feed_time );
+            }
+            ?>
+        </p>    
         <div class="wp-filter">
             <div class="d-flex p-4 justify-content-between gap-2">
                 <h5 class="wp-heading-inline">جدیدترین فیدها</h5>
@@ -101,7 +109,9 @@ function publisher_copoilot_callback()
                             </div>
                         </form>
                     </div>
-
+                    <div>
+                       
+                    </div>
                     <div class="d-flex flex-wrap gap-1 align-items-center">
                         <?php
 

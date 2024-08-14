@@ -11,107 +11,62 @@ if (file_exists($wp_load_path)) {
 }
 
 
-
-
 // ایجاد صفحه تنظیمات
 function publisher_copoilot_setting_page_callback()
 {
-    $old_secret_code = get_option('i8_secret_code');
-    $secret_code = $_POST['cop_secret_code'];
-    $response = false;
-    if ($secret_code) {
+    // اگر مقادیر تغییر کرده بودن میزان پست امروز رو محدد تغییر بده
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // دریافت مقادیر قبلی
+        $old_news_interval_start = get_option('news_interval_start');
+        $old_news_interval_end = get_option('news_interval_end');
+
+        // به‌روزرسانی مقادیر جدید
+        if (isset($_POST['news_interval_start'])) {
+            $new_news_interval_start = intval($_POST['news_interval_start']);
+            update_option('news_interval_start', $new_news_interval_start);
+        }
+        if (isset($_POST['news_interval_end'])) {
+            $new_news_interval_end = intval($_POST['news_interval_end']);
+            update_option('news_interval_end', $new_news_interval_end);
+        }
+
+        // بررسی تغییرات و فراخوانی اکشن
+        if ($old_news_interval_start != $new_news_interval_start || $old_news_interval_end != $new_news_interval_end) {
+            do_action('set_daily_post_count_for_schedule_task');
+        }
+
+        $old_start_cron_time = get_option('start_cron_time');
+        $old_end_cron_time = get_option('end_cron_time');
         
-        update_option('i8_secret_code', $secret_code);
-        $old_secret_code = get_option('i8_secret_code');
-        $response = send_license_validation_request($secret_code);
+        // به‌روزرسانی مقادیر جدید
+        if (isset($_POST['start_cron_time'])) {
+            $new_start_cron_time = $_POST['start_cron_time'];
+            update_option('start_cron_time', $new_start_cron_time);
+        }
+        if (isset($_POST['end_cron_time'])) {
+            $new_end_cron_time = $_POST['end_cron_time'];
+            update_option('end_cron_time', $new_end_cron_time);
+        }
+        // بررسی تغییرات و فراخوانی اکشن
+        if ($old_start_cron_time != $new_start_cron_time || $old_end_cron_time != $new_end_cron_time) {
+            do_action('calculate_post_publishing_schedule');
+        }
+    }
 
-    } elseif (isset($old_secret_code)) {
-
-        $response = send_license_validation_request($old_secret_code);
-
-    } 
     ?>
     <div class="wrap">
         <div class="license_section">
-            <form action="" method="post">
-                <label for="cop_secret_code">
-                    <span>کد مخفی: </span>
-                    <input type="text" value="<?php echo $old_secret_code; ?>" name="cop_secret_code"
-                        style="direction:ltr;text-align:left;">
-                    <button type="submit" name="cop_send_request_to_server">به روز رسانی وضعیت</button>
-                    <?php
-                    if ($response == true) {
-                        print_r('<p style="color:green;"> لایسنس شما معتبر است </p>');
-                    } else {
-                        print_r('<p style="color:red;"> کد شما معتبر نیست  </p>');
-                    }
-                    ?>
-                </label>
-
+            <form method="post" action="">
                 <?php
-                if ($response):
-                    $i8_plan_name = (get_option('i8_plan_name')) ? get_option('i8_plan_name') : '-';
-                    $i8_subscription_start_date = (get_option('i8_subscription_start_date')) ? get_option('i8_subscription_start_date') : '-';
-                    $i8_subscription_end_date = (get_option('i8_subscription_end_date')) ? get_option('i8_subscription_end_date') : '-';
-                    $i8_plan_duration = (get_option('i8_plan_duration')) ? get_option('i8_plan_duration') : '-';
-                    $i8_plan_cron_interval = (get_option('i8_plan_cron_interval')) ? get_option('i8_plan_cron_interval') : '-';
-                    $i8_plan_max_post_fetch = (get_option('i8_plan_max_post_fetch')) ? get_option('i8_plan_max_post_fetch') : '-';
-                    ?>
-                    <table class="form-table">
-                        <tr>
-                            <td class="">نوع اشتراک:</td>
-                            <td><?php echo $i8_plan_name; ?></td>
-                        </tr>
-                     
-                        <tr>
-                            <td>مدت اشتراک(به روز):</td>
-                            <td><?php echo $i8_plan_duration; ?></td>
-                        </tr>
-                        <tr>
-                            <td>تاریخ شروع اشتراک:</td>
-                            <td><?php echo $i8_subscription_start_date;
-                            echo ' [ ';
-                            echo @\jDateTime::convertFormatToFormat('Y/m/d - H:i', 'Y-m-d H:i:s', $i8_subscription_start_date);
-                            echo ' ]';
 
-                            ?></td>
-                        </tr>
-                        <tr>
-                            <td>تاریخ پایان اشتراک</td>
-                            <td><?php echo $i8_subscription_end_date;
-                            echo ' [ ';
-                            echo @\jDateTime::convertFormatToFormat('Y/m/d - H:i', 'Y-m-d H:i:s', $i8_subscription_end_date);
-                            echo ' ]';
-                            ?></td>
-                        </tr>
-                        <tr>
-                            <td>فواصل بروزرسانی اتوماتیک فیدها:</td>
-                            <td><?php echo $i8_plan_cron_interval; ?></td>
-                        </tr>
-                        <tr>
-                            <td>تعداد مجاز انتشار پست: </td>
-                            <td><?php echo $i8_plan_max_post_fetch; ?></td>
-                        </tr>
-
-                    </table>
-                    <?php
-                endif;
-                ?>
-
-            </form>
-
-            <form method="post" action="options.php">
-                <?php
-                // ایجاد فیلدهای تنظیمات
                 settings_fields('publisher_copoilot_settings_group');
-                ?>
 
-
-                <?php
                 do_settings_sections('publisher_copoilot_setting');
-                submit_button();
+
+                submit_button('ذخیره تنظیمات'); // دکمه ارسال برای فرم تنظیمات
                 ?>
             </form>
+
         </div>
 
 
@@ -120,7 +75,10 @@ function publisher_copoilot_setting_page_callback()
 
     </script>
     <?php
+
 }
+
+
 
 // تابع برای اضافه کردن صفحه تنظیمات
 function i8_add_seeting_page_menu()
@@ -143,11 +101,10 @@ function publisher_copoilot_register_settings()
 {
     register_setting('publisher_copoilot_settings_group', 'start_cron_time');
     register_setting('publisher_copoilot_settings_group', 'end_cron_time');
+
     register_setting('publisher_copoilot_settings_group', 'news_interval_start');
     register_setting('publisher_copoilot_settings_group', 'news_interval_end');
-    register_setting('publisher_copoilot_settings_group', 'news_interval_end');
 
-    register_setting('publisher_copoilot_settings_group', 'news_interval_end');
 
     add_settings_section(
         'publisher_copoilot_settings_section',
@@ -205,7 +162,41 @@ function news_interval_callback()
 {
     $news_interval_start = get_option('news_interval_start');
     $news_interval_end = get_option('news_interval_end');
-    echo '<input type="number" name="news_interval_start" value="' . esc_attr($news_interval_start) . '" /> - <input type="number" name="news_interval_end" value="' . esc_attr($news_interval_end) . '" />';
+    echo '<input type="number" name="news_interval_start" value="' . esc_attr($news_interval_start) . '" /> - <input type="number" name="news_interval_end" value="' . esc_attr($news_interval_end) . '" /><br>';
+    ?>
+    <div class="i8-flex-column " style="padding:10px 5px;border:1px solid #ccc; margin: 10px 0;">
+        <span>
+            <span>زمان اجرای بعدی:</span>
+            <span><?php
+            date_default_timezone_set('Asia/Tehran');
+            $i8_next_run_time = get_option('i8_next_run_time');
+            echo date('H:i:s - Y/m/d ', $i8_next_run_time);
+            ?></span>
+        </span>
+        <p>
+            <span>
+                تعداد خبرهای امروز:
+            </span>
+            <span>
+                <?php
+                echo (get_option('daily_post_count_for_schedule')) ? get_option('daily_post_count_for_schedule') : '-';
+                ?>
+            </span>
+        </p>
+        <p>
+            <span>
+                فاصله انتشار از صف:
+            </span>
+            <span>
+                <?php
+                $interval = calculate_post_publishing_schedule();
+                $interval = ($interval) ? floor($interval / 60) : 0;
+                echo 'بین ' . $interval . ' تا ' . ($interval + 5) . ' دقیقه';
+                ?>
+            </span>
+        </p>
+    </div>
+    <?php
 }
 
 // فراخوانی تابع افزودن صفحه تنظیمات

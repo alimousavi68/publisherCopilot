@@ -423,7 +423,7 @@ function get_resource_data($resource_id, $resource_item_selector)
 {
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_resource_details';
-    $sql = $wpdb->prepare("SELECT $resource_item_selector FROM $table_name WHERE resource_id = %d ",  $resource_id);
+    $sql = $wpdb->prepare("SELECT $resource_item_selector FROM $table_name WHERE resource_id = %d ", $resource_id);
 
     $selector = $wpdb->get_var($sql);
 
@@ -435,59 +435,7 @@ function get_resource_data($resource_id, $resource_item_selector)
 }
 
 
-// Hook to handle the scheduled event
-add_action('custom_rss_parser_event', 'custom_rss_parser_run');
 
-// Function to parse and store RSS feed data
-function custom_rss_parser_run()
-{
-    $feeds_list = get_resources_details();
-
-    if ($feeds_list):
-        foreach ($feeds_list as $feed):
-
-            // fetch data form feed item to variable 
-            $rss_feed_url = $feed->source_feed_link;
-            $source_root_link = $feed->source_root_link;
-            $resource_id = $feed->resource_id;
-            $resource_name = $feed->resource_title;
-            $need_to_merge_guid_link = $feed->need_to_merge_guid_link;
-
-            // error_log($rss_feed_url);
-            // Fetch the RSS feed
-            $rss_feed = fetch_rss_feed($rss_feed_url);
-            // error_log($rss_feed);
-
-            // exit, if rss feed not found
-            if (!$rss_feed) {
-                error_log('this feed is not available');
-                return;
-            }
-
-            // Parse and store RSS feed data
-            foreach ($rss_feed->channel->item as $item) {
-                $title = $item->title;
-                $pub_date = date('Y-m-d H:i:s', strtotime($item->pubDate));
-
-                if (isset($item->guid)) {
-                    if ($need_to_merge_guid_link == 1) {
-                        $guid = $source_root_link . $item->guid . '';
-                    } else {
-                        $guid = $item->guid . '';
-                    }
-                } elseif (isset($item->link)) {
-                    $guid = $item->link . '';
-                }
-
-                // Check if the item already exists in the database
-                if (!custom_rss_parser_item_exists($guid)) {
-                    // Insert the new item into the custom table
-                    custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $resource_name);
-                }
-            }
-        endforeach;
-    endif;
-}
 
 
 

@@ -225,10 +225,37 @@ function pc_schedule_queue_page_callback()
                 <p>صف انتشار پست های دستیار</p>
             </div>
             <div class="page_info">
-                <div class="i8-flex-column d-none">
-                    <span>فاصله بین هر اقدام: ۵ الی ۱۰ دقیقه</span>
-                    <span>تعداد خبر های امروز: ۵۳</span>
-                    <span>زمان بررسی بعدی: ۱۰:۴۲</span>
+                <div class="i8-flex-column " >
+                    <span>
+                        <span>اجرای بعدی:</span>
+                        <span><?php
+                        date_default_timezone_set('Asia/Tehran');
+                        $i8_next_run_time = get_option('i8_next_run_time');
+                        echo date('H:i:s - Y/m/d ', $i8_next_run_time);
+                        ?></span>
+                    </span>
+                    <p>
+                        <span>
+                            تعداد خبرهای امروز:
+                        </span>
+                        <span>
+                            <?php
+                            echo (get_option('daily_post_count_for_schedule')) ? get_option('daily_post_count_for_schedule') : '-';
+                            ?>
+                        </span>
+                    </p>
+                    <p>
+                        <span>
+                            فاصله انتشار از صف:
+                        </span>
+                        <span>
+                            <?php
+                            $interval = calculate_post_publishing_schedule();
+                            $interval = ($interval) ? floor($interval / 60) : 0;
+                            echo 'بین ' . $interval . ' تا ' . ($interval + 5) . ' دقیقه';
+                            ?>
+                        </span>
+                    </p>
                 </div>
                 <div class="i8-flex-column">
                     <?php
@@ -248,14 +275,13 @@ function pc_schedule_queue_page_callback()
         <div class="post-list">
             <div class="table table-hover px-3 ">
                 <div class="row d-none d-md-flex">
-                    <div class="th col col-1"> نوبت </div>
+                    <div class="th col col-auto"> نوبت </div>
                     <div class="col col-9 col-md-11 row ">
-                        <div class="th col col-12 col-xl-4">عنوان</div>
+                        <div class="th col col-12 col-xl-7">عنوان</div>
                         <div class="th col col-4 col-xl-1  d-none d-md-flex">اولویت</div>
-                        <div class="th col col-8 col-xl-2  d-none d-md-flex">زمان حدودی انتشار</div>
-                        <div class="th col col-8 col-xl-1  d-none d-md-flex">وضعیت پست</div>
+                        <div class="th col col-8 col-xl-1  d-none d-md-flex">وضعیت</div>
                         <div class="th col col-8 col-xl-1  d-none d-md-flex">نویسنده</div>
-                        <div class="th col col-12 col-xl-2 d-none d-md-flex">عملیات</div>
+                        <div class="th col col-12 col-xl-2 d-none d-md-flex"></div>
                     </div>
                 </div>
 
@@ -263,12 +289,11 @@ function pc_schedule_queue_page_callback()
                 <?php
                 if ($results):
                     foreach ($results as $key => $item):
-
                         ?>
                         <div class="tr row p-2" id="item-<?php echo $item->id; ?>">
                             <div class="col-auto bg-transparent row-counter"><?php echo $key + 1; ?></div>
                             <div class="col-11 row bg-transparent">
-                                <div class="col-12 col-xl-5 bg-transparent feed-item-title">
+                                <div class="col-12 col-xl-7 bg-transparent feed-item-title">
                                     <a href="<?php echo get_edit_post_link($item->post_id); ?>"
                                         target="_blank"><?php echo get_the_title($item->post_id); ?></a>
                                 </div>
@@ -280,15 +305,7 @@ function pc_schedule_queue_page_callback()
 
                                     ?></span>
                                 </div>
-                                <div class="col-8 col-xl-2 bg-transparent text-secondary item-meta-data" style="direction:left">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-clock" viewBox="0 0 16 16">
-                                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z">
-                                        </path>
-                                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"></path>
-                                    </svg>
-
-                                </div>
+                               
                                 <div class="col-8 col-xl-1 bg-transparent text-secondary item-meta-data" style="direction:left">
                                     <?php
                                     $post_status = get_post_status($item->post_id);
