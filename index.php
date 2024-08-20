@@ -24,7 +24,7 @@ if (!class_exists('jDateTime')) {
 require_once (COP_PLUGIN_DIR_PATH . '/inc/helper_functions.php');
 require_once ABSPATH . 'wp-admin/includes/file.php';
 require_once plugin_dir_path(__FILE__) . '/library/simple_html_dom.php';
-include_once (plugin_dir_path(__FILE__) . '/menu.php');
+include_once (plugin_dir_path(__FILE__) . '/feeds_list.php');
 include_once (plugin_dir_path(__FILE__) . 'setting_page.php');
 include_once (plugin_dir_path(__FILE__) . 'license_page.php');
 include_once (plugin_dir_path(__FILE__) . 'schedule-queue.php');

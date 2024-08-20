@@ -84,9 +84,9 @@ function publisher_copoilot_callback()
             ?>
         </p>    
         <div class="wp-filter">
-            <div class="d-flex p-4 justify-content-between gap-2">
+            <div class="d-flex p-4 justify-content-between gap-2 flex-wrap">
                 <h5 class="wp-heading-inline">جدیدترین فیدها</h5>
-                <div class="d-flex gap-2 btn-group ">
+                <div class="d-flex flex-wrap gap-2 btn-group ">
                     <div>
                         <form action="<?php echo esc_url($current_url); ?>" method="get">
                             <?php
@@ -105,7 +105,7 @@ function publisher_copoilot_callback()
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <button type="submit" class="btn btn-sm rounded-pill btn-outline-secondar">فیلتر</button>
+                                <button type="submit" class="btn btn-sm rounded-pill btn-outline-secondary">فیلتر</button>
                             </div>
                         </form>
                     </div>
@@ -255,9 +255,9 @@ function custom_rss_parser_display_items()
         <div class="th col col-1"> # </div>
         <div class="col col-9 col-md-11 row ">
             <div class="th col col-12 col-xl-6">عنوان</div>
-            <div class="th col col-4 col-xl-1  d-none d-md-flex">منبع</div>
+            <div class="th col col-4 col-xl-2  d-none d-md-flex">منبع</div>
             <div class="th col col-8 col-xl-2  d-none d-md-flex">تاریخ انتشار</div>
-            <div class="th col col-12 col-xl-3 d-none d-md-flex">عملیات</div>
+            <div class="th col col-12 col-xl-2 d-none d-md-flex"></div>
         </div>
     </div>
     
@@ -284,7 +284,7 @@ foreach ($items as $key => $item) {
             <div class="col-12 col-xl-5 bg-transparent feed-item-title">
                 <a href="<?php echo $item_guid; ?>" target="_blank"><?php echo $item_title; ?></a>
             </div>
-            <div class="col-4 col-xl-1 bg-transparent text-secondary item-meta-data">
+            <div class="col-4 col-xl-2 bg-transparent text-secondary item-meta-data">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hash" viewBox="0 0 16 16">
                     <path d="M8.39 12.648a1 1 0 0 0-.015.18c0 .305.21.508.5.508.266 0 .492-.172.555-.477l.554-2.703h1.204c.421 0 .617-.234.617-.547 0-.312-.188-.53-.617-.53h-.985l.516-2.524h1.265c.43 0 .618-.227.618-.547 0-.313-.188-.524-.618-.524h-1.046l.476-2.304a1 1 0 0 0 .016-.164.51.51 0 0 0-.516-.516.54.54 0 0 0-.539.43l-.523 2.554H7.617l.477-2.304c.008-.04.015-.118.015-.164a.51.51 0 0 0-.523-.516.54.54 0 0 0-.531.43L6.53 5.484H5.414c-.43 0-.617.22-.617.532s.187.539.617.539h.906l-.515 2.523H4.609c-.421 0-.609.219-.609.531s.188.547.61.547h.976l-.516 2.492c-.008.04-.015.125-.015.18 0 .305.21.508.5.508.265 0 .492-.172.554-.477l.555-2.703h2.242zm-1-6.109h2.266l-.515 2.563H6.859l.532-2.563z"/>
                 </svg>
@@ -297,7 +297,7 @@ foreach ($items as $key => $item) {
                 </svg>
                 <?php echo $pub_date; ?>
             </div>
-            <div class="col-12 col-xl-4 row gap-2 bg-transparent action-bar">
+            <div class="col-12 col-xl-3 row gap-2 bg-transparent action-bar">
                 
                 <a href="<?php echo $item_guid; ?>" target="_blank" class="col btn btn-sm rounded-pill btn-outline-secondary" title="بازدید در سایت مرجع">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
@@ -305,7 +305,7 @@ foreach ($items as $key => $item) {
                         <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
                     </svg>
                 </a>
-                <a class="scrape-link col btn btn-sm rounded-pill btn-outline-secondary" title="واکشی و پیش نویس"
+                <a class="scrape-link col btn btn-sm rounded-pill btn-outline-secondary" title="واکشی و درانتظار بررسی"
                    id="scraper-link-<?php echo $item->id; ?>"
                    data-id="<?php echo $item->id; ?>"
                    data-guid="<?php echo $item_guid; ?>"
@@ -315,7 +315,7 @@ foreach ($items as $key => $item) {
                     <svg width="16px" height="16px" stroke-width="1.7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 6.5V5C3 3.89543 3.89543 3 5 3H16.1716C16.702 3 17.2107 3.21071 17.5858 3.58579L20.4142 6.41421C20.7893 6.78929 21 7.29799 21 7.82843V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V17.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8 3H16V8.4C16 8.73137 15.7314 9 15.4 9H8.6C8.26863 9 8 8.73137 8 8.4V3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M18 21V13.6C18 13.2686 17.7314 13 17.4 13H15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6 21V17.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 12H1M1 12L4 9M1 12L4 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </a>
 
-                <a class="scrape-link col btn btn-sm rounded-pill btn-outline-secondary" title="انتشار فوری"
+                <a class="scrape-link col btn btn-sm rounded-pill btn-outline-secondary" title="انتشار با تاخیر"
                    id="scraper-link-<?php echo $item->id; ?>"
                    data-id="<?php echo $item->id; ?>"
                    data-guid="<?php echo $item_guid; ?>"
@@ -362,12 +362,7 @@ c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l
                         <path d="M6.5 1A.5.5 0 0 1 7 .5h2a.5.5 0 0 1 0 1v.57c1.36.196 2.594.78 3.584 1.64l.012-.013.354-.354-.354-.353a.5.5 0 0 1 .707-.708l1.414 1.415a.5.5 0 1 1-.707.707l-.353-.354-.354.354-.013.012A7 7 0 1 1 7 2.071V1.5a.5.5 0 0 1-.5-.5M8 3a6 6 0 1 0 .001 12A6 6 0 0 0 8 3"/>
                     </svg>
                 </a>
-                <a class="col btn btn-sm rounded-pill btn-outline-secondary" title="حذف فید">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-x" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M6.146 5.146a.5.5 0 0 1 .708 0L8 6.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 7l1.147 1.146a.5.5 0 0 1-.708.708L8 7.707 6.854 8.854a.5.5 0 1 1-.708-.708L7.293 7 6.146 5.854a.5.5 0 0 1 0-.708"/>
-                        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1z"/>
-                    </svg>
-                </a>
+            
             </div>
         </div>
     </div>
