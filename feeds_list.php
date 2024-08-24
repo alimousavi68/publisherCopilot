@@ -35,7 +35,7 @@ function publisher_copoilot_callback()
     ?>
     <!-- Include Stylesheets -->
     <link rel="stylesheet" href="<?php echo COP_PLUGIN_URL; ?>/assets/css/feed_list.css">
-    <link rel="stylesheet" href="<?php echo COP_PLUGIN_URL; ?>/assets/css/bootstrap.rtl.min">
+    <link rel="stylesheet" href="<?php echo COP_PLUGIN_URL; ?>/assets/css/bootstrap.rtl.min.css">
     <link rel="stylesheet" href="<?php echo COP_PLUGIN_URL; ?>/assets/css/select2.min.css">
     <!-- include Js scripts -->
     <script src="<?php echo COP_PLUGIN_URL; ?>/assets/js/jquery.min.js"></script>
