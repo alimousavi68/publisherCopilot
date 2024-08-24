@@ -18,7 +18,7 @@ define('COP_REST_API_SERVER_URL', 'https://copublisher.ir/wp-json/license/v1/val
 // چک می‌کنیم آیا کلاس قبلاً تعریف شده است
 if (!class_exists('jDateTime')) {
     // Include jalali-date external library
-    require_once plugin_dir_path(__FILE__) . '/library/jdatetime.class.php';
+    // require_once plugin_dir_path(__FILE__) . '/library/jdatetime.class.php';
 }
 
 require_once (COP_PLUGIN_DIR_PATH . '/inc/helper_functions.php');
