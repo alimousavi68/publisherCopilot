@@ -108,8 +108,11 @@ function publisher_copoilot_callback()
                 </div>
 
                 <div class="box2 mt-3 mt-lg-0 pe-0 pe-lg-1">
+                    <?php
 
-                    <form action="<?php echo $_SERVER["HTTP_REFERER"]; error_log('reffer site:' . print_r($_SERVER,true)); ?>" method="post">
+                    
+                    ?>
+                    <form action="<?php echo get_full_url() ; //error_log('reffer site:' . print_r($_SERVER) ); ?>" method="post">
                         <!-- serach input -->
                         <div class="input-group">
 
@@ -612,4 +615,12 @@ function get_sql_query_count($table_name, $source_ids, $search_keyword)
     $total_items_sql = "SELECT COUNT(*) FROM $table_name$where_sql";
     $total_items = $wpdb->get_var($total_items_sql);
     return $total_items;
+}
+
+
+function get_full_url() {
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+    $domainName = $_SERVER['HTTP_HOST'];
+    $requestUri = $_SERVER['REQUEST_URI'];
+    return $protocol . $domainName . $requestUri;
 }
