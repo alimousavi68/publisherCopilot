@@ -6,7 +6,7 @@ $wp_load_path = get_home_path() . 'wp-load.php';
 if (file_exists($wp_load_path)) {
     require_once($wp_load_path);
 } else {
-    // error_log('wp-load.php not found!');
+    // //error_log('wp-load.php not found!');
     exit;
 }
 
@@ -32,18 +32,43 @@ function custom_rss_parser_menu()
 // Callback function for menu page
 function publisher_copoilot_callback()
 {
+    ?>
+    <!-- Include Stylesheets -->
+    <link rel="stylesheet" href="<?php echo COP_PLUGIN_URL; ?>/assets/css/feed_list.css">
+    <link rel="stylesheet" href="<?php echo COP_PLUGIN_URL; ?>/assets/css/bootstrap.rtl.min">
+    <link rel="stylesheet" href="<?php echo COP_PLUGIN_URL; ?>/assets/css/select2.min.css">
+    <!-- include Js scripts -->
+    <script src="<?php echo COP_PLUGIN_URL; ?>/assets/js/jquery.min.js"></script>
+    <script src="<?php echo COP_PLUGIN_URL; ?>/assets/js/sweetalert2@11.js"></script>
+    <?php
 
     if (isset($_GET['success'])) {
         $action_status = $_GET['success'];
         if ($action_status == 'true') {
-            echo '<div class="notice notice-success is-dismissible">
-            <p>عملیات با موفقیت انجام شد!</p>
-        </div>';
-        } elseif ($action_status == 'false') {
-            echo '<div class="notice notice-error is-dismissible">
-            <p>مشکلی پیش آمد!</p>
-        </div>';
+            ?>
+            <script>
+                window.onload = function () {
+                    Toast.fire({
+                        icon: "success",
+                        title: 'عملیات با موفقیت انجام شد!'
+                    });
+                };
+            </script>
 
+            <?php
+
+        } elseif ($action_status == 'false') {
+            ?>
+            <script>
+                window.onload = function () {
+                    Toast.fire({
+                        icon: "error",
+                        title: 'مشکلی پیش آمد!'
+                    });
+                };
+            </script>
+            <?php
+            
         }
     }
 
@@ -67,6 +92,7 @@ function publisher_copoilot_callback()
     //     exit;
     // }
 
+
     include 'inc/icons.php';
     ?>
 
@@ -74,71 +100,79 @@ function publisher_copoilot_callback()
         <!-- filter box -->
         <div class="filter-box mb-3">
             <div class="flex-container">
+
                 <div class="box1 d-flex  align-items-end gap-2">
                     <img src="<?php echo COP_PLUGIN_URL; ?>/assets/images/fee-list-logo.svg" width="50px" height="50px"
                         alt="">
                     <span class="d-flex d-lg-none fs-4 fw-bolder"> فــیدها</span>
                 </div>
+
                 <div class="box2 mt-3 mt-lg-0 pe-0 pe-lg-1">
-                    <!-- serach input -->
-                    <div class="input-group">
 
-                        <div class="form-floating ">
-                            <input type="text" class="form-control border" id="search_keyword"
-                                placeholder="کلمه مورد نظر را وارد کنید:">
-                            <label for="search_keyword d-flex d-none">جستجو...</label>
+                    <form action="<?php echo $_SERVER["HTTP_REFERER"]; ?>" method="post">
+                        <!-- serach input -->
+                        <div class="input-group">
+
+                            <div class="form-floating ">
+                                <input type="text" class="form-control border" id="search_keyword" name="search_keyword"
+                                    value="<?php echo isset($_POST['search_keyword']) ? $_POST['search_keyword'] : '' ?>"
+                                    placeholder="کلمه مورد نظر را وارد کنید:">
+                                <label for="search_keyword d-flex d-none">جستجو...</label>
+                            </div>
+
+                            <div class="form-floating">
+                                <select class="form-control border rounded-0  form-select" id="category_list"
+                                    name="category_list" multiple="multiple" aria-label="دسته مورد نظر را انتخاب کنید:">
+
+                                    <optgroup label="سرویس ها">
+                                        <!-- <option value="1">سیاسی</option>
+                                        <option value="2">اجتماعی</option>
+                                        <option value="3">ورزشی</option>
+                                        <option value="1">سیاسی</option>
+                                        <option value="2">اجتماعی</option>
+                                        <option value="3">ورزشی</option>
+                                        <option value="1">سیاسی</option>
+                                        <option value="2">اجتماعی</option>
+                                        <option value="3">ورزشی</option>
+                                        <option value="1">سیاسی</option>
+                                        <option value="2">اجتماعی</option>
+                                        <option value="3">ورزشی</option> -->
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <div class="form-floating">
+                                <select class=" form-control border rounded-0 form-select" id="resource_list"
+                                    name="resource_list[]" multiple="multiple" aria-label="منبع مورد نظر را انتخاب کنید:">
+
+                                    <optgroup label="منابع خبری">
+                                        <?php
+                                        foreach (get_all_source_name() as $source_name): ?>
+                                            <option value="<?php echo $source_name->resource_id; ?>" <?php
+                                               echo (isset($_POST['resource_list']) && in_array($source_name->resource_id, $_POST['resource_list'])) ? esc_attr('selected') : '' ?>>
+                                                <?php echo $source_name->resource_title; ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <button type="button" id="clear_filters"
+                                class="btn btn-outline-secondary btn-large border rounded-0" data-bs-toggle="tooltip"
+                                data-bs-placement="bottom" data-bs-custom-class="custom-tooltip"
+                                data-bs-title="پاکسازی فیلترها">
+                                <?php echo $icon_eraser; ?>
+                            </button>
+
+
+                            <button type="submit" class="btn btn-primary btn-large" data-bs-toggle="tooltip"
+                                data-bs-placement="bottom" data-bs-custom-class="custom-tooltip"
+                                data-bs-title="اعمال فیلترها">
+                                <?php echo $icon_search; ?>
+                            </button>
+
                         </div>
-
-                        <div class="form-floating">
-                            <select class="form-control border rounded-0  form-select" id="category_list"
-                                multiple="multiple" aria-label="دسته مورد نظر را انتخاب کنید:">
-
-                                <optgroup label="سرویس ها">
-                                    <option value="1">سیاسی</option>
-                                    <option value="2">اجتماعی</option>
-                                    <option value="3">ورزشی</option>
-                                    <option value="1">سیاسی</option>
-                                    <option value="2">اجتماعی</option>
-                                    <option value="3">ورزشی</option>
-                                    <option value="1">سیاسی</option>
-                                    <option value="2">اجتماعی</option>
-                                    <option value="3">ورزشی</option>
-                                    <option value="1">سیاسی</option>
-                                    <option value="2">اجتماعی</option>
-                                    <option value="3">ورزشی</option>
-                                </optgroup>
-                            </select>
-                        </div>
-
-                        <div class="form-floating">
-                            <select class=" form-control border rounded-0 form-select" id="resource_list"
-                                multiple="multiple" aria-label="منبع مورد نظر را انتخاب کنید:">
-
-                                <optgroup label="منابع خبری">
-                                    <?php foreach (get_all_source_name() as $source_name): ?>
-                                        <option value="<?php echo $source_name->resource_id; ?>" <?php
-                                           echo (isset($_GET['source']) && $_GET['source'] == $source_name->resource_id) ? esc_attr('selected') : '' ?>>
-                                            <?php echo $source_name->resource_title; ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </optgroup>
-                            </select>
-                        </div>
-
-                        <button type="button" id="clear_filters"
-                            class="btn btn-outline-secondary btn-large border rounded-0" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" data-bs-custom-class="custom-tooltip"
-                            data-bs-title="پاکسازی فیلترها">
-                            <?php echo $icon_eraser; ?>
-                        </button>
-
-
-                        <button type="button" class="btn btn-primary btn-large" data-bs-toggle="tooltip"
-                            data-bs-placement="bottom" data-bs-custom-class="custom-tooltip" data-bs-title="اعمال فیلترها">
-                            <?php echo $icon_search; ?>
-                        </button>
-
-                    </div>
+                    </form>
 
                 </div>
                 <div class="box3 d-flex gap-1 justify-content-end px-0">
@@ -175,8 +209,8 @@ function publisher_copoilot_callback()
             </div>
 
         </div>
-        <div class="table table-hover px-0 px-lg-3 ">
 
+        <div class="table table-hover px-0 px-lg-3 ">
             <!-- table header -->
             <div class="table-header row d-none d-md-flex border-bottom pb-2">
                 <div class="col col-auto fw-bold justify-content-right text-right p-0"> </div>
@@ -205,8 +239,6 @@ function publisher_copoilot_callback()
 }
 
 
-//include_once plugin_dir_path(__FILE__) . 'inc/scraper.php';
-
 // Function to display the list of items
 function custom_rss_parser_display_items()
 {
@@ -220,7 +252,6 @@ function custom_rss_parser_display_items()
             add_option('pc_item_per_page', $items_per_page);
         }
     } else {
-
         if (get_option('pc_item_per_page')) {
             $items_per_page = get_option('pc_item_per_page');
         } else {
@@ -232,253 +263,235 @@ function custom_rss_parser_display_items()
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_rss_items';
 
-    // Define the number of items per page
-
     // Get the current page number
     $paged = isset($_GET['paged']) ? absint($_GET['paged']) : 1;
 
     // Calculate the offset for the query
     $offset = ($paged - 1) * $items_per_page;
 
-    // Fetch items from the database with pagination
-    $total_items = $wpdb->get_var("SELECT COUNT(*) FROM $table_name ORDER BY pub_date DESC");
-    if (isset($_GET['source'])) {
-        // اگر $source_id موجود بود، شرط WHERE را اضافه کنید
-        $items = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM $table_name WHERE resource_id = %d ORDER BY pub_date DESC LIMIT %d OFFSET %d",
-            $_GET['source'],
-            $items_per_page,
-            $offset
-        ));
+    // Check if $_POST['resource_list'] is an array
+    $source_ids = isset($_POST['resource_list']) && is_array($_POST['resource_list']) ? $_POST['resource_list'] : [];
 
-    } else {
-        $items = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT * FROM $table_name ORDER BY pub_date DESC LIMIT %d OFFSET %d",
-                $items_per_page,
-                $offset
-            )
-        );
+    $search_keyword = isset($_POST['search_keyword']) ? $_POST['search_keyword'] : '';
 
-    }
+    // Fetch items using the function
+    $result = fetch_items_from_database($table_name, $source_ids, $items_per_page, $offset, $search_keyword);
 
-    // Pagination
+    $items = $result[0];
+    $total_items = $result[1];
+
+    // // Fetch total items for pagination
+    
+    
+
+    // Calculate total pages
     $total_pages = ceil($total_items / $items_per_page);
+
     ?>
+                <?php
+                foreach ($items as $key => $item) {
+                    $item_id = esc_html($item->id);
+                    $row_counter = $offset + $key + 1;
+                    $item_guid = esc_html($item->guid);
+                    $item_title = esc_html($item->title);
+                    $resource_name = $item->resource_name ? $item->resource_name : '-';
 
-    <?php
-        foreach ($items as $key => $item) {
-            $item_id = esc_html($item->id);
-            $row_counter = $offset + $key + 1;
-            $item_guid = esc_html($item->guid);
-            $item_title = esc_html($item->title);
-            $resource_name = $item->resource_name ? $item->resource_name : '-';
-            // fetch and set time zome feed_time and date
-            $dateTime = new DateTime($item->pub_date, new DateTimeZone('GMT'));
-            $dateTime->setTimezone(new DateTimeZone('Asia/Tehran'));
-            $pub_date = \jDateTime::convertFormatToFormat('d / m', 'm-d', $dateTime->format('m-d'));
-            $pub_time = \jDateTime::convertFormatToFormat('H:i', 'H:i', $dateTime->format('H:i'));
+                    // fetch and set time zome feed_time and date
+                    $dateTime = new DateTime($item->pub_date, new DateTimeZone('GMT'));
+                    $dateTime->setTimezone(new DateTimeZone('Asia/Tehran'));
+                    $pub_date = \jDateTime::convertFormatToFormat('d / m', 'm-d', $dateTime->format('m-d'));
+                    $pub_time = \jDateTime::convertFormatToFormat('H:i', 'H:i', $dateTime->format('H:i'));
 
-            $resource_id = esc_attr($item->resource_id);
-            $admin_url = esc_url(get_admin_url() . 'images/wpspin_light-2x.gif');
-            ?>
+                    $resource_id = esc_attr($item->resource_id);
+                    $admin_url = esc_url(get_admin_url() . 'images/wpspin_light-2x.gif');
+                    ?>
 
-            <!-- items -->
-            <div id="item-<?php echo $item_id; ?>" class="row border-bottom py-2 d-flex align-items-center table-item">
+                    <!-- Table Item -->
+                    <div id="item-<?php echo $item_id; ?>" class="row border-bottom py-2 d-flex align-items-center table-item">
 
-                <div
-                    class="col col-3  col-lg-1 col-md-2 text-center d-md-flex bg-transparent feed-item-title  align-items-center d-flex">
-                    <span class="item_counter"><?php echo $row_counter; ?></span>
-                    <div class="d-flex flex-column ">
-                        <div class="fs-3 text-danger"><?php echo $pub_time; ?></div>
-                        <div class="text-secondary fs-6 pub_time"><?php echo $pub_date; ?></div>
+                        <div
+                            class="col col-3  col-lg-1 col-md-2 text-center d-md-flex bg-transparent feed-item-title  align-items-center d-flex">
+                            <span class="item_counter"><?php echo $row_counter; ?></span>
+                            <div class="d-flex flex-column ">
+                                <div class="fs-3 text-danger"><?php echo $pub_time; ?></div>
+                                <div class="text-secondary fs-6 pub_time"><?php echo $pub_date; ?></div>
+                            </div>
+                        </div>
+
+                        <div class="col col-9 col-lg-4 col-md-5 d-md-flex justify-content-start bg-transparent">
+                            <a href="<?php echo $item_guid; ?>" target="_blank"><?php echo $item_title; ?></a>
+                            <?php // echo $icon_check_all; ?>
+                        </div>
+
+                        <div
+                            class="col col-6  col-md-2 text-center justify-content-center d-md-flex align-items-center gap-1 item-meta-data bg-transparent resource_name">
+                            <?php echo $icon_geo_alt; ?>
+                            <?php echo $resource_name; ?>
+                        </div>
+
+                        <div
+                            class="col col-6 col-md-1 text-center justify-content-center d-md-flex align-items-center gap-1 item-meta-data bg-transparent resource_cat">
+                            <?php echo $icon_tag; ?>
+                            -
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div
+                            class="col col-12 col-md-4  text-center d-flex flex-wrap justify-content-center fw-bold d-md-flex gap-2 bg-transparent action-bar">
+
+                            <a href="<?php echo $item_guid; ?>" target="_blank"
+                                class="scrape-link col btn py-0 rounded-pill btn-outline-primary" data-bs-toggle="tooltip"
+                                data-bs-placement="top" data-bs-custom-class="custom-tooltip" data-bs-title="نمایش خبر در منبع"
+                                title="">
+                                <?php echo $icon_eyeglasses; ?>
+                            </a>
+
+                            <a class="scrape-link col btn py-0 rounded-pill btn-outline-primary" data-bs-toggle="tooltip"
+                                data-bs-placement="top" data-bs-custom-class="custom-tooltip"
+                                data-bs-title="واکشی / در انتظار بازبینی" id="scraper-link-<?php echo $item->id; ?>"
+                                data-id="<?php echo $item->id; ?>" data-guid="<?php echo $item_guid; ?>" data-priority="pending"
+                                data-resource-id="<?php echo $resource_id; ?>">
+                                <img src="<?php echo $admin_url; ?>"
+                                    style="display:none;position:absolute;left:50%;z-index:100;" />
+                                <?php echo $icon_cloud_arrow_down; ?>
+                            </a>
+
+                            <a class="scrape-link col btn py-0 rounded-pill btn-outline-primary" data-bs-toggle="tooltip"
+                                data-bs-placement="top" data-bs-custom-class="custom-tooltip"
+                                data-bs-title="واکشی / انتشار با تاخیر" id="scraper-link-<?php echo $item->id; ?>"
+                                data-id="<?php echo $item->id; ?>" data-guid="<?php echo $item_guid; ?>" data-priority="now"
+                                data-resource-id="<?php echo $resource_id; ?>">
+                                <img src="<?php echo $admin_url; ?>"
+                                    style="display:none;position:absolute;left:50%;z-index:100;" />
+                                <?php echo $icon_send_arrow_down; ?>
+                            </a>
+
+                            <a class="scrape-link col btn py-0 rounded-pill btn-outline-danger" data-bs-toggle="tooltip"
+                                data-bs-placement="top" data-bs-custom-class="custom-tooltip"
+                                data-bs-title=" واکشی / زمانبندی با اولویت بالا" id="scraper-link-<?php echo $item->id; ?>"
+                                data-id="<?php echo $item->id; ?>" data-guid="<?php echo $item_guid; ?>" data-priority="high"
+                                data-resource-id="<?php echo $resource_id; ?>">
+                                <?php echo $icon_hourglass_top; ?>
+                            </a>
+
+                            <a class="scrape-link col btn py-0 rounded-pill btn-outline-warning" data-bs-toggle="tooltip"
+                                data-bs-placement="top" data-bs-custom-class="custom-tooltip"
+                                data-bs-title="واکشی / زمانبندی با اولویت متوسط" id="scraper-link-<?php echo $item->id; ?>"
+                                data-id="<?php echo $item->id; ?>" data-guid="<?php echo $item_guid; ?>" data-priority="medium"
+                                data-resource-id="<?php echo $resource_id; ?>">
+                                <?php echo $icon_hourglass_top; ?>
+                            </a>
+
+                            <a class="scrape-link col btn py-0 rounded-pill btn-outline-success" data-bs-toggle="tooltip"
+                                data-bs-placement="top" data-bs-custom-class="custom-tooltip"
+                                data-bs-title="واکشی / زمانبدی با اولویت کم" id="scraper-link-<?php echo $item->id; ?>"
+                                data-id="<?php echo $item->id; ?>" data-guid="<?php echo $item_guid; ?>" data-priority="low"
+                                data-resource-id="<?php echo $resource_id; ?>">
+                                <?php echo $icon_hourglass_top; ?>
+                            </a>
+
+
+                        </div>
+
                     </div>
-                </div>
-                <div class="col col-9 col-lg-4 col-md-5 d-md-flex justify-content-start bg-transparent">
-                    <a href="<?php echo $item_guid; ?>" target="_blank"><?php echo $item_title; ?></a>
-                    <!--                             
-                    <a class="btn py-0 rounded-pill btn-outline-success ms-2  px-0 text-center" data-bs-toggle="tooltip"
-                        data-bs-placement="top" data-bs-title="منتشر شده در سایت" style="width: 30px;height: 30px;"
-                        title="" id="" data-id="" data-guid="" data-priority="high" data-resource-id="">
-                        <?php echo $icon_check_all; ?>
 
-                    </a> -->
-
-                </div>
-                <div
-                    class="col col-6  col-md-2 text-center justify-content-center d-md-flex align-items-center gap-1 item-meta-data bg-transparent resource_name">
-                    <?php echo $icon_geo_alt; ?>
-                    <?php echo $resource_name; ?>
-                </div>
-                <div
-                    class="col col-6 col-md-1 text-center justify-content-center d-md-flex align-items-center gap-1 item-meta-data bg-transparent resource_cat">
-                    <?php echo $icon_tag; ?>
-                    سیاسی
-                </div>
-                <!-- Action Buttons -->
-                <div
-                    class="col col-12 col-md-4  text-center d-flex flex-wrap justify-content-center fw-bold d-md-flex gap-2 bg-transparent action-bar">
-
-                    <a href="<?php echo $item_guid; ?>" target="_blank"
-                        class="scrape-link col btn py-0 rounded-pill btn-outline-primary" data-bs-toggle="tooltip"
-                        data-bs-placement="top" data-bs-custom-class="custom-tooltip" data-bs-title="نمایش خبر در منبع"
-                        title="">
-                        <?php echo $icon_eyeglasses; ?>
-                    </a>
-
-                    <a class="scrape-link col btn py-0 rounded-pill btn-outline-primary" data-bs-toggle="tooltip"
-                        data-bs-placement="top" data-bs-custom-class="custom-tooltip"
-                        data-bs-title="واکشی / در انتظار بازبینی" id="scraper-link-<?php echo $item->id; ?>"
-                        data-id="<?php echo $item->id; ?>" data-guid="<?php echo $item_guid; ?>" data-priority="pending"
-                        data-resource-id="<?php echo $resource_id; ?>">
-                        <img src="<?php echo $admin_url; ?>"
-                            style="display:none;position:absolute;left:50%;z-index:100;" />
-                        <?php echo $icon_cloud_arrow_down; ?>
-                    </a>
-
-                    <a class="scrape-link col btn py-0 rounded-pill btn-outline-primary" data-bs-toggle="tooltip"
-                        data-bs-placement="top" data-bs-custom-class="custom-tooltip"
-                        data-bs-title="واکشی / انتشار با تاخیر" id="scraper-link-<?php echo $item->id; ?>"
-                        data-id="<?php echo $item->id; ?>" data-guid="<?php echo $item_guid; ?>" data-priority="now"
-                        data-resource-id="<?php echo $resource_id; ?>">
-                        <img src="<?php echo $admin_url; ?>"
-                            style="display:none;position:absolute;left:50%;z-index:100;" />
-                        <?php echo $icon_send_arrow_down; ?>
-                    </a>
-
-                    <a class="scrape-link col btn py-0 rounded-pill btn-outline-danger" data-bs-toggle="tooltip"
-                        data-bs-placement="top" data-bs-custom-class="custom-tooltip"
-                        data-bs-title=" واکشی / زمانبندی با اولویت بالا" id="scraper-link-<?php echo $item->id; ?>"
-                        data-id="<?php echo $item->id; ?>" data-guid="<?php echo $item_guid; ?>" data-priority="high"
-                        data-resource-id="<?php echo $resource_id; ?>">
-                        <?php echo $icon_hourglass_top; ?>
-                    </a>
-
-                    <a class="scrape-link col btn py-0 rounded-pill btn-outline-warning" data-bs-toggle="tooltip"
-                        data-bs-placement="top" data-bs-custom-class="custom-tooltip"
-                        data-bs-title="واکشی / زمانبندی با اولویت متوسط" id="scraper-link-<?php echo $item->id; ?>"
-                        data-id="<?php echo $item->id; ?>" data-guid="<?php echo $item_guid; ?>" data-priority="medium"
-                        data-resource-id="<?php echo $resource_id; ?>">
-                        <?php echo $icon_hourglass_top; ?>
-                    </a>
-
-                    <a class="scrape-link col btn py-0 rounded-pill btn-outline-success" data-bs-toggle="tooltip"
-                        data-bs-placement="top" data-bs-custom-class="custom-tooltip"
-                        data-bs-title="واکشی / زمانبدی با اولویت کم" id="scraper-link-<?php echo $item->id; ?>"
-                        data-id="<?php echo $item->id; ?>" data-guid="<?php echo $item_guid; ?>" data-priority="low"
-                        data-resource-id="<?php echo $resource_id; ?>">
-                        <?php echo $icon_hourglass_top; ?>
-                    </a>
-
-
-                </div>
-
-            </div>
-
-            <?php
-        }
-    ?>
-
-    <!-- table footer -->
-    <div class="row mt-2">
-        <div class="col col-md-6 col-12 d-flex align-items-start justify-content-center justify-content-md-start text-secondary">
-            نتایج: <?php echo $total_items ?> مورد -
-            <?php echo 'نمایش  ' . $offset + 1 . ' تا ' . ($offset + $items_per_page); ?>
-        </div>
-        <div class="col col-md-6 col-12 d-flex flex-row gap-2 justify-content-center justify-content-md-end d-flex flex-column flex-md-row justify-content-center">
-            <?php
-
-            $total_pages = ceil($total_items / $items_per_page);
-
-            if ($total_pages > 1) {
-                $current_page = max(1, $paged);
-                echo "<nav aria-label='Page navigation' aria-label='صفحه' data-bs-toggle='tooltip'
-                        data-bs-placement='top' data-bs-custom-class='custom-tooltip' data-bs-title='صفحه'>";
-                echo paginate_links(
-                    array(
-                        'base' => add_query_arg('paged', '%#%'),
-                        'format' => '',
-                        'current' => $current_page,
-                        'total' => $total_pages,
-                        'prev_text' => __('&laquo; Previous'),
-                        'next_text' => __('Next &raquo;'),
-                        'type' => 'list',
-                    )
-                );
-                echo "</nav>";
-                echo '<span class="align-items-center d-none d-md-flex"> / </span>';
+                    <?php
+                }
                 ?>
 
-                <?php $current_url = add_query_arg(NULL, NULL); ?>
-                <!-- post per page counter -->
-                    <?php
-                    $current_item_per_page = isset($_GET['item_per_page'])? $_GET['item_per_page'] : 50 ;    
-                    ?>
-                    <ul class="page-numbers justify-content-between" aria-label="تعداد " data-bs-toggle="tooltip"
-                        data-bs-placement="top" data-bs-custom-class="custom-tooltip" data-bs-title="تعداد ">
-                        
-                        <li>
-                            <span class="text-secondary">
-                                تعداد :
-                            </span>
-                        </li>
-                        <?php for($i=25; $i<=100; $i=  $i+25 ){ 
-
-                            if($current_item_per_page != $i){
-                            ?>
-                            <li>
-                                <a href="<?php echo add_query_arg('item_per_page', $i, $current_url); ?>"
-                                    class=" page-numbers">
-                                    <?php echo $i; ?>
-                                </a>
-                            </li>
+                <!-- table footer -->
+                <div class="row mt-2">
+                    <div
+                        class="col col-md-6 col-12 d-flex align-items-start justify-content-center justify-content-md-start text-secondary">
+                        نتایج: <?php echo $total_items ?> مورد -
+                        <?php echo 'نمایش  ' . $offset + 1 . ' تا ' . ($offset + $items_per_page); ?>
+                    </div>
+                    <div
+                        class="col col-md-6 col-12 d-flex flex-row gap-2 justify-content-center justify-content-md-end d-flex flex-column flex-md-row justify-content-center">
                         <?php
-                            }
-                            else{
+
+                        $total_pages = ceil($total_items / $items_per_page);
+
+                        if ($total_pages > 1) {
+                            $current_page = max(1, $paged);
+                            echo "<nav aria-label='Page navigation' aria-label='صفحه' data-bs-toggle='tooltip'
+                        data-bs-placement='top' data-bs-custom-class='custom-tooltip' data-bs-title='صفحه'>";
+                            echo paginate_links(
+                                array(
+                                    'base' => add_query_arg('paged', '%#%'),
+                                    'format' => '',
+                                    'current' => $current_page,
+                                    'total' => $total_pages,
+                                    'prev_text' => __('&laquo; Previous'),
+                                    'next_text' => __('Next &raquo;'),
+                                    'type' => 'list',
+                                )
+                            );
+                            echo "</nav>";
+                            echo '<span class="align-items-center d-none d-md-flex"> / </span>';
                             ?>
-                            <li>
-                                <span aria-current="page" class="page-numbers current"> <?php echo $i; ?></span>
-                            </li>
-                            <?php 
-                        }
-                        }
-                        ?>
-                        
 
-                    </ul>
+                            <?php $current_url = add_query_arg(NULL, NULL); ?>
+                            <!-- post per page counter -->
+                            <?php
+                            $current_item_per_page = isset($_GET['item_per_page']) ? $_GET['item_per_page'] : 50;
+                            ?>
+                            <ul class="page-numbers justify-content-between" aria-label="تعداد " data-bs-toggle="tooltip"
+                                data-bs-placement="top" data-bs-custom-class="custom-tooltip" data-bs-title="تعداد ">
+
+                                <li>
+                                    <span class="text-secondary">
+                                        تعداد :
+                                    </span>
+                                </li>
+                                <?php for ($i = 25; $i <= 100; $i = $i + 25) {
+
+                                    if ($current_item_per_page != $i) {
+                                        ?>
+                                        <li>
+                                            <a href="<?php echo add_query_arg('item_per_page', $i, $current_url); ?>"
+                                                class=" page-numbers">
+                                                <?php echo $i; ?>
+                                            </a>
+                                        </li>
+                                        <?php
+                                    } else {
+                                        ?>
+                                        <li>
+                                            <span aria-current="page" class="page-numbers current"> <?php echo $i; ?></span>
+                                        </li>
+                                        <?php
+                                    }
+                                }
+                                ?>
+
+
+                            </ul>
 
 
 
 
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-</div>
 
-<?php
-    }
-?>
-
-    <link rel="stylesheet" href="<?php echo COP_PLUGIN_URL; ?>/assets/css/feed_list.css">
-    <link rel="stylesheet" href="<?php echo COP_PLUGIN_URL; ?>/assets/css/bootstrap.rtl.min">
-    <link rel="stylesheet" href="<?php echo COP_PLUGIN_URL; ?>/assets/css/select2.min.css">
+        <?php
+                        }
+                        ?>
 
 
-    <script src="<?php echo COP_PLUGIN_URL; ?>/assets/js/jquery.min.js"></script>
-    
+    <!-- include Js scripts -->
+
     <script src="<?php echo COP_PLUGIN_URL; ?>/assets/js/bootstrap.min.js"></script>
-
-    <script src="<?php echo COP_PLUGIN_URL; ?>/assets/js/bootstrap.bundle.min.js" ></script>
-
+    <script src="<?php echo COP_PLUGIN_URL; ?>/assets/js/bootstrap.bundle.min.js"></script>
     <script src="<?php echo COP_PLUGIN_URL; ?>/assets/js/popper.min.js"></script>
-
     <script src="<?php echo COP_PLUGIN_URL; ?>/assets/js/select2.min.js"></script>
 
-    <script src="<?php echo COP_PLUGIN_URL; ?>/assets/js/sweetalert2@11.js"></script>
-    
     <script src="<?php echo COP_PLUGIN_URL; ?>/assets/js/custom_js.js"></script>
 
+    <!-- Send Scrpe Request -->
     <script>
 
         jQuery(document).ready(function ($) {
@@ -536,5 +549,67 @@ function custom_rss_parser_display_items()
 
     </script>
 
-<?php
+    <?php
+}
+
+function fetch_items_from_database($table_name, $source_ids, $items_per_page, $offset, $search_keyword)
+{
+    global $wpdb;
+
+    // شروع ساخت پرس و جو
+    $sql = "";
+
+    // اضافه کردن فیلتر بر اساس IDها، اگر موجود باشند
+    if (!empty($source_ids)) {
+        $source_ids_str = implode(',', array_map('intval', $source_ids));
+        $sql .= $wpdb->prepare(" AND resource_id IN ($source_ids_str)");
+    }
+
+    // اضافه کردن فیلتر جستجو بر اساس کلمه کلیدی در عنوان، اگر موجود باشد
+    if (!empty($search_keyword)) {
+        $search_keyword = like_escape($search_keyword);
+        $sql .= $wpdb->prepare(" AND title LIKE %s", '%' . $wpdb->esc_like($search_keyword) . '%');
+    }
+
+    // اضافه کردن مرتب سازی و صفحه بندی
+    $sql .= $wpdb->prepare(" ORDER BY pub_date DESC LIMIT %d OFFSET %d", $items_per_page, $offset);
+
+    $final_return_data_query = "SELECT * FROM $table_name WHERE 1=1" . $sql;
+    $final_return_record_count_query = "SELECT COUNT(*) FROM $table_name WHERE 1=1" . $sql;
+
+
+    $final_return_data = $wpdb->get_results($final_return_data_query);
+    $final_return_count = $wpdb->get_var($final_return_record_count_query);
+
+    // اجرای پرس و جو و بازگرداندن نتایج
+    return array($final_return_data, $final_return_count);
+}
+
+
+function get_sql_query_count($table_name, $source_ids, $search_keyword)
+{
+    global $wpdb;
+    // تعریف شرط WHERE برای فیلتر کردن بر اساس ID و کلمه کلیدی
+    $where_conditions = [];
+
+    if (!empty($source_ids)) {
+        $source_ids = implode(',', array_map('intval', $source_ids));
+        $where_conditions[] = "resource_id IN ($source_ids)";
+    }
+
+    if (!empty($search_keyword)) {
+        $search_keyword = $wpdb->esc_like($search_keyword);
+        $search_keyword = '%' . $search_keyword . '%';
+        $where_conditions[] = "description LIKE '$search_keyword'";
+    }
+
+    $where_sql = '';
+    if (!empty($where_conditions)) {
+        $where_sql = ' WHERE ' . implode(' AND ', $where_conditions);
+    }
+
+    // شمارش کل رکوردها با شرایط فیلتر
+    $total_items_sql = "SELECT COUNT(*) FROM $table_name$where_sql";
+    $total_items = $wpdb->get_var($total_items_sql);
+    return $total_items;
 }

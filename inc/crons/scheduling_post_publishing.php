@@ -16,7 +16,7 @@ add_action('init', 'schedule_dynamic_cron_job');
 function schedule_dynamic_cron_job()
 {
     if (!wp_next_scheduled('i8_publish_post_at_schedules_event')) {
-        error_log(date('Y m d - h:i:s'));
+        //error_log(date('Y m d - h:i:s'));
 
         wp_schedule_event(
             time(),
@@ -39,16 +39,16 @@ function i8_publish_post_at_schedules_event()
 function calulate_execute_cron_job_interval()
 {
     $post_publishing_schedule_interval = Calculate_post_publishing_schedule();
-    error_log('post_publishing_schedule_interval: ' . $post_publishing_schedule_interval);
+    //error_log('post_publishing_schedule_interval: ' . $post_publishing_schedule_interval);
 
     $random_addition = rand(1, 4);
-    error_log('random addition: ' . $random_addition);
+    //error_log('random addition: ' . $random_addition);
     $total_interval = ($post_publishing_schedule_interval) + ($random_addition * 60);
-    error_log('total_interval: ' . $total_interval);
+    //error_log('total_interval: ' . $total_interval);
 
     $next_run_time = time() + $total_interval;
-    error_log('current time: ' . date('Y-m-d H:i:s', time()));
-    error_log('newx run time: ' . date('Y-m-d H:i:s', $next_run_time));
+    //error_log('current time: ' . date('Y-m-d H:i:s', time()));
+    //error_log('newx run time: ' . date('Y-m-d H:i:s', $next_run_time));
 
     // لغو رویداد قبلی اگر وجود داشته باشد
     $timestamp = wp_next_scheduled('i8_publish_post_at_schedules_event');
@@ -72,21 +72,21 @@ function calculate_post_publishing_schedule()
     $end_time_res = strtotime($end_time);
 
     $work_time_count = intval($end_time) - intval($start_time);
-    error_log('work time: ' . $work_time_count);
+    //error_log('work time: ' . $work_time_count);
     $sum_post_count = get_option('daily_post_count_for_schedule');
-    error_log('sum post count: : ' . $sum_post_count);
+    //error_log('sum post count: : ' . $sum_post_count);
 
 
     if ($work_time_count == 0) {
         $post_count_publishing_per_hours = 10;
     } else {
         $post_count_publishing_per_hours = round($sum_post_count / $work_time_count);
-        error_log('post_count_publishing_per_hours' . $post_count_publishing_per_hours);
+        //error_log('post_count_publishing_per_hours' . $post_count_publishing_per_hours);
     }
 
     $post_interval_publishing = (60 / round($post_count_publishing_per_hours)) * 60;
 
-    error_log('post_interval_publishing: ' . $post_interval_publishing);
+    //error_log('post_interval_publishing: ' . $post_interval_publishing);
 
     return ($post_interval_publishing);
 }
@@ -95,7 +95,7 @@ function calculate_post_publishing_schedule()
 // Hook to handle the scheduled event
 function publish_post_at_scheduling_table()
 {
-    // error_log('publish_post_at_scheduling_table RUNNING');
+    // //error_log('publish_post_at_scheduling_table RUNNING');
     // date_default_timezone_set('Asia/Tehran');
     $start_time = strtotime(get_option('start_cron_time'));
     $end_time = strtotime(get_option('end_cron_time'));

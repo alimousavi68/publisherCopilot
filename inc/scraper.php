@@ -11,7 +11,7 @@
 // if (file_exists($wp_load_path)) {
 //     require_once ($wp_load_path);
 // } else {
-//     error_log('wp-load.php not found!');
+//     //error_log('wp-load.php not found!');
 //     exit;
 // }
 
@@ -32,7 +32,7 @@
 // if (file_exists($wp_load_path)) {
 //     require_once ($wp_load_path);
 // } else {
-//     error_log('wp-load.php not found!');
+//     //error_log('wp-load.php not found!');
 //     exit;
 // }
 require_once (__DIR__ . '/../../../../wp-load.php');
@@ -51,7 +51,7 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
         $publish_priority = isset($_POST['publish_priority']) ? $_POST['publish_priority'] : 'now';
 
 
-        // error_log('publish_priority here:' . $publish_priority);
+        // //error_log('publish_priority here:' . $publish_priority);
 
         $response = scrape_and_publish_post($guid, $resource_id, $publish_priority);
         echo json_encode($response);
@@ -108,12 +108,12 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
         return rawurlencode($matches[0]);
     }, $url);
 
-    // error_log($encoded_url);
+    // //error_log($encoded_url);
 
     // Load the HTML from the provided URL
     $html = file_get_html($encoded_url);
 
-    // error_log($html);
+    // //error_log($html);
 
     // Check if HTML is successfully loaded
     if ($html) {
@@ -129,7 +129,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
         } else {
             // در صورت عدم وجود المان، مقدار پیشفرض یا اقدام مناسب دیگر
             $title = '';
-            error_log('i am client- title is not found' . 'عنوان پیدا نشد');
+            //error_log('i am client- title is not found' . 'عنوان پیدا نشد');
         }
 
         if ($html->find($lead_selector, 0) != null) {
@@ -137,7 +137,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
             $excerpt = trim($excerpt->plaintext);
         } else {
             $excerpt = '';
-            error_log('i am client- excerpt is not found' . 'لید پیدا نشد');
+            //error_log('i am client- excerpt is not found' . 'لید پیدا نشد');
         }
 
 
@@ -147,14 +147,14 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
             $content = clear_not_allowed_tags($content->innertext, $source_root_link);
         } else {
             $content = '';
-            error_log('i am client- content is not found' . 'بدنه پست پیدا نشد');
+            //error_log('i am client- content is not found' . 'بدنه پست پیدا نشد');
         }
 
         if ($thumbnail_url = $html->find($img_selector, 0)->src != null) {
             $thumbnail_url = $html->find($img_selector, 0)->src;
         } else {
             $thumbnail_url = '';
-            error_log('i am client- thumbnail is not found' . 'عکس پست پیدا نشد');
+            //error_log('i am client- thumbnail is not found' . 'عکس پست پیدا نشد');
         }
 
 
@@ -166,7 +166,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
 
         }
 
-        // error_log('post_status here:' . $post_status);
+        // //error_log('post_status here:' . $post_status);
 
         date_default_timezone_set('Asia/Tehran');
 
@@ -208,7 +208,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
                 }
             } elseif (!function_exists('media_sideload_image')) {
                 // return (array('status' => false, 'message' => 'media_sideload_image() function is not available.'));
-                // error_log('media_sideload_image() function is not available.');
+                // //error_log('media_sideload_image() function is not available.');
             }
 
             // Output success or failure message
@@ -219,10 +219,10 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
 
                 // add to wp_pc_post_schedule table in wordpress database a new record with $post_id and$publish_priority values
 
-                error_log('my post prority: ' . $publish_priority);
+                //error_log('my post prority: ' . $publish_priority);
 
                 if ($publish_priority != 'now' and $publish_priority != 'pending') {
-                    error_log('im here . in to if : ' . $publish_priority);
+                    //error_log('im here . in to if : ' . $publish_priority);
 
                     global $wpdb;
                     $table_name = $wpdb->prefix . 'pc_post_schedule';
@@ -231,7 +231,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
 
                 return (array('status' => true, 'message' => 'پست منتشر شد'));
             } else {
-                // error_log('Failed to create post.');
+                // //error_log('Failed to create post.');
                 // wp_safe_redirect(add_query_arg('success', 'false', wp_get_referer()));
                 // exit;
                 return (array('status' => false, 'message' => 'پست منتشر نشد'));
@@ -242,7 +242,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
             return (array('status' => false, 'message' => 'Required elements not found on the page.'));
         }
     } else {
-        error_log('Failed to load HTML from the URL.');
+        //error_log('Failed to load HTML from the URL.');
         return (array('status' => false, 'message' => 'Failed to load HTML from the URL.'));
     }
 }

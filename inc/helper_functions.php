@@ -20,15 +20,15 @@ function send_license_validation_request($secret_code)
     );
 
     if (is_wp_error($response)) {
-        error_log('Error: ' . print_r($response->get_error_message(), true));
+        //error_log('Error: ' . print_r($response->get_error_message(), true));
         return 'Error in sending request';
     }
 
     $body = wp_remote_retrieve_body($response);
     $status = wp_remote_retrieve_response_code($response);
 
-    // error_log($secret_code);
-    // error_log(print_r($body, true));
+    // //error_log($secret_code);
+    // //error_log(print_r($body, true));
 
     if ($status == 200) {
         $recived_data = json_decode($body, true);
@@ -47,9 +47,9 @@ function send_license_validation_request($secret_code)
         return true;
 
     } else {
-        error_log('error');
+        //error_log('error');
         // FOR DOING : some doing work for notif to admin for expire lisence and disable plugin 
-        error_log('i am client:' . 'License is not valid');
+        //error_log('i am client:' . 'License is not valid');
         cop_expired_subscription_actions();
         return false;
     }
@@ -123,7 +123,7 @@ function get_resources_details()
     global $wpdb;
     $table_name = $wpdb->prefix . 'custom_resource_details';
     $data = $wpdb->get_results("SELECT * FROM $table_name");
-    // error_log('i am client:' . print_r($data, true));
+    // //error_log('i am client:' . print_r($data, true));
     return $data;
 }
 
@@ -349,7 +349,7 @@ function cop_update_post_priority($post_id, $new_priority)
 
 function i8_change_post_status($priority_posts)
 {
-    // error_log('i8_change_post_status RUNNING');
+    // //error_log('i8_change_post_status RUNNING');
 
     global $wpdb;
     $table_post_schedule = $wpdb->prefix . 'pc_post_schedule';
@@ -364,7 +364,7 @@ function i8_change_post_status($priority_posts)
         $post_status = get_post_status($post_id);
 
         if ($post_status == 'draft') {
-            // error_log('npost is draf and publishe it');
+            // //error_log('npost is draf and publishe it');
 
             date_default_timezone_set('Asia/Tehran');
 
@@ -383,13 +383,13 @@ function i8_change_post_status($priority_posts)
             // delete record where id=$id at $table_post_schedule
             $action_status = $wpdb->delete($table_post_schedule, array('id' => $id));
             if ($action_status) {
-                // error_log('i8: deleted record with id=' . $id . 'from table ' . $table_post_schedule);
+                // //error_log('i8: deleted record with id=' . $id . 'from table ' . $table_post_schedule);
             } else {
-                // error_log('i8: failed to delete record with id=' . $id . 'from table ' . $table_post_schedule);
+                // //error_log('i8: failed to delete record with id=' . $id . 'from table ' . $table_post_schedule);
             }
 
         } else {
-            // error_log('not fund or not aa draft post and delete record');
+            // //error_log('not fund or not aa draft post and delete record');
 
             i8_delete_item_at_scheulde_list($id, null);
             publish_post_at_scheduling_table();

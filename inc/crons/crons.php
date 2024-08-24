@@ -38,7 +38,7 @@ function custom_rss_parser_schedule_event()
 add_action('set_daily_post_count_for_schedule_task', 'set_daily_post_count_for_schedule_task');
 function set_daily_post_count_for_schedule_task()
 {
-    error_log('im here: set_daily_post_count_for_schedule_task');
+    //error_log('im here: set_daily_post_count_for_schedule_task');
     $news_interval_start = get_option('news_interval_start') ? get_option('news_interval_start') : '20';
     $news_interval_end = get_option('news_interval_end') ? get_option('news_interval_end') : '30';
 
@@ -62,14 +62,14 @@ function custom_rss_parser_run()
             $resource_name = $feed->resource_title;
             $need_to_merge_guid_link = $feed->need_to_merge_guid_link;
 
-            // error_log($rss_feed_url);
+            // //error_log($rss_feed_url);
             // Fetch the RSS feed
             $rss_feed = fetch_rss_feed($rss_feed_url);
-            // error_log($rss_feed);
+            // //error_log($rss_feed);
 
             // exit, if rss feed not found
             if (!$rss_feed) {
-                error_log('this feed is not available');
+                //error_log('this feed is not available');
                 return;
             }
 
@@ -106,7 +106,7 @@ function custom_rss_parser_run()
     // لغو رویداد قبلی اگر وجود داشته باشد
     $timestamp = wp_next_scheduled('custom_rss_parser_event');
     if ($timestamp) {
-        error_log('im hereee');
+        //error_log('im hereee');
         wp_unschedule_event($timestamp, 'custom_rss_parser_event');
     }
     wp_schedule_event($next_run_time, 'i8_Scrap_Timing', 'custom_rss_parser_event');
