@@ -109,7 +109,7 @@ function publisher_copoilot_callback()
 
                 <div class="box2 mt-3 mt-lg-0 pe-0 pe-lg-1">
 
-                    <form action="<?php echo $_SERVER["HTTP_REFERER"]; error_log('reffer site:' . $_SERVER); ?>" method="post">
+                    <form action="<?php echo $_SERVER["HTTP_REFERER"]; error_log('reffer site:' . print_r($_SERVER,true)); ?>" method="post">
                         <!-- serach input -->
                         <div class="input-group">
 
