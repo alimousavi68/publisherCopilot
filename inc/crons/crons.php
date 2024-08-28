@@ -56,7 +56,7 @@ function custom_rss_parser_run()
     if ($feeds_list):
 
         foreach ($feeds_list as $feed):
-            error_log($feed->resource_title);
+            // error_log($feed->resource_title);
 
             // fetch data form feed item to variable 
             $rss_feed_url = $feed->source_feed_link;
