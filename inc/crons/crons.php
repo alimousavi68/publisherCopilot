@@ -51,9 +51,12 @@ add_action('custom_rss_parser_event', 'custom_rss_parser_run');
 function custom_rss_parser_run()
 {
     $feeds_list = get_resources_details();
+    // error_log(print_r($feeds_list, true));
 
     if ($feeds_list):
+
         foreach ($feeds_list as $feed):
+            error_log($feed->resource_title);
 
             // fetch data form feed item to variable 
             $rss_feed_url = $feed->source_feed_link;
@@ -62,36 +65,36 @@ function custom_rss_parser_run()
             $resource_name = $feed->resource_title;
             $need_to_merge_guid_link = $feed->need_to_merge_guid_link;
 
-            // //error_log($rss_feed_url);
+            // error_log($rss_feed_url);
             // Fetch the RSS feed
             $rss_feed = fetch_rss_feed($rss_feed_url);
-            // //error_log($rss_feed);
+            // error_log($rss_feed);
 
             // exit, if rss feed not found
-            if (!$rss_feed) {
-                //error_log('this feed is not available');
-                return;
-            }
+            if ($rss_feed) {
+                // error_log('+ this feed is available');
 
-            // Parse and store RSS feed data
-            foreach ($rss_feed->channel->item as $item) {
-                $title = $item->title;
-                $pub_date = date('Y-m-d H:i:s', strtotime($item->pubDate));
+                // Parse and store RSS feed data
+                foreach ($rss_feed->channel->item as $item) {
+                    $title = $item->title;
 
-                if (isset($item->guid)) {
-                    if ($need_to_merge_guid_link == 1) {
-                        $guid = $source_root_link . $item->guid . '';
-                    } else {
-                        $guid = $item->guid . '';
+                    $pub_date = date('Y-m-d H:i:s', strtotime($item->pubDate));
+
+                    if (isset($item->guid)) {
+                        if ($need_to_merge_guid_link == 1) {
+                            $guid = $source_root_link . $item->guid . '';
+                        } else {
+                            $guid = $item->guid . '';
+                        }
+                    } elseif (isset($item->link)) {
+                        $guid = $item->link . '';
                     }
-                } elseif (isset($item->link)) {
-                    $guid = $item->link . '';
-                }
 
-                // Check if the item already exists in the database
-                if (!custom_rss_parser_item_exists($guid)) {
-                    // Insert the new item into the custom table
-                    custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $resource_name);
+                    // Check if the item already exists in the database
+                    if (!custom_rss_parser_item_exists($guid)) {
+                        // Insert the new item into the custom table
+                        custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $resource_name);
+                    }
                 }
             }
         endforeach;
