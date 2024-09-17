@@ -41,7 +41,7 @@
  * @see        DateTime
  * @version    2.2.0
  */
-class jDateTime
+class i8_jDateTime
 {
 
     /**

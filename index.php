@@ -9,14 +9,14 @@ Author: Hasht Behesht
 // Declare Const vraibleS
 define('COP_PLUGIN_DIR_PATH', plugin_dir_path(__FILE__));
 define('COP_PLUGIN_URL', plugins_url('', __FILE__));
-define('COP_REST_API_SERVER_URL', 'https://copublisher.ir/wp-json/license/v1/validate/');
+define('COP_REST_API_SERVER_URL', 'http://localhost:8888/rssnews/wp-json/license/v1/validate/');
 
 // date_default_timezone_set('Asia/Tehran');
 
 // Include Libraries
 
 // چک می‌کنیم آیا کلاس قبلاً تعریف شده است
-if (!class_exists('jDateTime')) {
+if (!class_exists('i8_jDateTime')) {
     // Include jalali-date external library
     require_once plugin_dir_path(__FILE__) . '/library/jdatetime.class.php';
 }

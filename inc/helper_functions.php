@@ -27,7 +27,7 @@ function send_license_validation_request($secret_code)
     $body = wp_remote_retrieve_body($response);
     $status = wp_remote_retrieve_response_code($response);
 
-    // //error_log($secret_code);
+    error_log('i am client , secretcode: ' . $secret_code);
     // //error_log(print_r($body, true));
 
     if ($status == 200) {
