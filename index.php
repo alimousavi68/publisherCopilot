@@ -9,7 +9,6 @@ Author: Hasht Behesht
 // Declare Const vraibleS
 define('COP_PLUGIN_DIR_PATH', plugin_dir_path(__FILE__));
 define('COP_PLUGIN_URL', plugins_url('', __FILE__));
-define('COP_REST_API_SERVER_URL', 'http://localhost:8888/rssnews/wp-json/license/v1/validate/');
 
 // date_default_timezone_set('Asia/Tehran');
 

@@ -20,7 +20,7 @@ function custom_rss_parser_menu()
     add_menu_page(
         'آخرین فیدهای دستیار',
         'دستیار',
-        'manage_options',
+        'publish_posts',
         'publisher_copoilot',
         'publisher_copoilot_callback',
         'dashicons-image-filter',
@@ -302,8 +302,8 @@ function custom_rss_parser_display_items()
                     // fetch and set time zome feed_time and date
                     $dateTime = new DateTime($item->pub_date, new DateTimeZone('GMT'));
                     $dateTime->setTimezone(new DateTimeZone('Asia/Tehran'));
-                    $pub_date = \jDateTime::convertFormatToFormat('d / m', 'm-d', $dateTime->format('m-d'));
-                    $pub_time = \jDateTime::convertFormatToFormat('H:i', 'H:i', $dateTime->format('H:i'));
+                    $pub_date = \i8_jDateTime::convertFormatToFormat('d / m', 'm-d', $dateTime->format('m-d'));
+                    $pub_time = \i8_jDateTime::convertFormatToFormat('H:i', 'H:i', $dateTime->format('H:i'));
 
                     $resource_id = esc_attr($item->resource_id);
                     $admin_url = esc_url(get_admin_url() . 'images/wpspin_light-2x.gif');
@@ -407,7 +407,7 @@ function custom_rss_parser_display_items()
                     <div
                         class="col col-md-6 col-12 d-flex align-items-start justify-content-center justify-content-md-start text-secondary">
                         نتایج: <?php echo $total_items ?> مورد -
-                        <?php echo 'نمایش  ' . $offset + 1 . ' تا ' . ($offset + $items_per_page); ?>
+                        <?php echo 'نمایش ' . ($offset + 1) . ' تا ' . ($offset + $items_per_page); ?>
                     </div>
                     <div
                         class="col col-md-6 col-12 d-flex flex-row gap-2 justify-content-center justify-content-md-end d-flex flex-column flex-md-row justify-content-center">

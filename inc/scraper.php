@@ -35,10 +35,10 @@
 //     //error_log('wp-load.php not found!');
 //     exit;
 // }
-require_once (__DIR__ . '/../../../../wp-load.php');
-require_once (__DIR__ . '/../../../../wp-admin/includes/media.php');
-require_once (__DIR__ . '/../../../../wp-admin/includes/image.php');
-require_once (__DIR__ . '/../../../../wp-admin/includes/file.php');
+require_once(__DIR__ . '/../../../../wp-load.php');
+require_once(__DIR__ . '/../../../../wp-admin/includes/media.php');
+require_once(__DIR__ . '/../../../../wp-admin/includes/image.php');
+require_once(__DIR__ . '/../../../../wp-admin/includes/file.php');
 
 
 
@@ -90,12 +90,12 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
 
     // دریافت مقادیر از فرم
     $title_selector = get_resource_data($resource_id, 'title_selector');
-    $img_selector   = get_resource_data($resource_id, 'img_selector');
-    $lead_selector  = get_resource_data($resource_id, 'lead_selector');
-    $body_selector  = get_resource_data($resource_id, 'body_selector');
+    $img_selector = get_resource_data($resource_id, 'img_selector');
+    $lead_selector = get_resource_data($resource_id, 'lead_selector');
+    $body_selector = get_resource_data($resource_id, 'body_selector');
     $bup_date_selector = get_resource_data($resource_id, 'bup_date_selector');
     $category_selector = get_resource_data($resource_id, 'category_selector');
-    $tags_selector   = get_resource_data($resource_id, 'tags_selector');
+    $tags_selector = get_resource_data($resource_id, 'tags_selector');
     $escape_elements = get_resource_data($resource_id, 'escape_elements');
     $source_root_link = get_resource_data($resource_id, 'source_root_link');
     $source_feed_link = get_resource_data($resource_id, 'source_feed_link');
@@ -108,12 +108,14 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
         return rawurlencode($matches[0]);
     }, $url);
 
-    // //error_log($encoded_url);
+    // error_log($encoded_url);
+
 
     // Load the HTML from the provided URL
     $html = file_get_html($encoded_url);
 
-    // //error_log($html);
+    // echo($html);
+    // error_log($html);
 
     // Check if HTML is successfully loaded
     if ($html) {
@@ -129,7 +131,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
         } else {
             // در صورت عدم وجود المان، مقدار پیشفرض یا اقدام مناسب دیگر
             $title = '';
-            //error_log('i am client- title is not found' . 'عنوان پیدا نشد');
+            error_log('i am client- title is not found' . 'عنوان پیدا نشد');
         }
 
         if ($html->find($lead_selector, 0) != null) {
@@ -137,7 +139,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
             $excerpt = trim($excerpt->plaintext);
         } else {
             $excerpt = '';
-            //error_log('i am client- excerpt is not found' . 'لید پیدا نشد');
+            error_log('i am client- excerpt is not found' . 'لید پیدا نشد');
         }
 
 
@@ -147,14 +149,14 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
             $content = clear_not_allowed_tags($content->innertext, $source_root_link);
         } else {
             $content = '';
-            //error_log('i am client- content is not found' . 'بدنه پست پیدا نشد');
+            error_log('i am client- content is not found' . 'بدنه پست پیدا نشد');
         }
 
         if ($thumbnail_url = $html->find($img_selector, 0)->src != null) {
             $thumbnail_url = $html->find($img_selector, 0)->src;
         } else {
             $thumbnail_url = '';
-            //error_log('i am client- thumbnail is not found' . 'عکس پست پیدا نشد');
+            error_log('i am client- thumbnail is not found' . 'عکس پست پیدا نشد');
         }
 
 
@@ -166,7 +168,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
 
         }
 
-        // //error_log('post_status here:' . $post_status);
+        //error_log('post_status here:' . $post_status);
 
         date_default_timezone_set('Asia/Tehran');
 
@@ -185,12 +187,21 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
             );
 
             // درست کردن پست در وردپرس
+            // try {
+            //     $post_id = wp_insert_post($post_data);
+            //     ob_flush(); // تخلیه خروجی
+            // } catch (Exception $e) {
+            //     return (array('status' => false, 'message' => 'Failed to insert the post. Error: ' . $e->getMessage()));
+            //     ob_flush(); // تخلیه خروجی
+            // }
+
+            // درست کردن پست در وردپرس
             try {
+                ob_start(); // اطمینان از اینکه بافر خروجی شروع شده است
                 $post_id = wp_insert_post($post_data);
-                ob_flush(); // تخلیه خروجی
+                ob_flush(); // تخلیه خروجی (اگر نیاز به تخلیه باشد)
             } catch (Exception $e) {
-                return (array('status' => false, 'message' => 'Failed to insert the post. Error: ' . $e->getMessage()));
-                ob_flush(); // تخلیه خروجی
+                return array('status' => false, 'message' => 'Failed to insert the post. Error: ' . $e->getMessage());
             }
 
             // Upload and set the featured image

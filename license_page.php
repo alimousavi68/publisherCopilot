@@ -6,7 +6,7 @@ $wp_load_path = get_home_path() . 'wp-load.php';
 if (file_exists($wp_load_path)) {
     require_once ($wp_load_path);
 } else {
-    // //error_log('wp-load.php not found!');
+    //error_log('wp-load.php not found!');
     exit;
 }
 
@@ -71,7 +71,7 @@ function publisher_copoilot_license_page_callback()
                             <td>تاریخ شروع اشتراک:</td>
                             <td><?php echo $i8_subscription_start_date;
                             echo ' [ ';
-                            echo @\jDateTime::convertFormatToFormat('Y/m/d - H:i', 'Y-m-d H:i:s', $i8_subscription_start_date);
+                            echo @\i8_jDateTime::convertFormatToFormat('Y/m/d - H:i', 'Y-m-d H:i:s', $i8_subscription_start_date);
                             echo ' ]';
 
                             ?></td>
@@ -80,7 +80,7 @@ function publisher_copoilot_license_page_callback()
                             <td>تاریخ پایان اشتراک</td>
                             <td><?php echo $i8_subscription_end_date;
                             echo ' [ ';
-                            echo @\jDateTime::convertFormatToFormat('Y/m/d - H:i', 'Y-m-d H:i:s', $i8_subscription_end_date);
+                            echo @\i8_jDateTime::convertFormatToFormat('Y/m/d - H:i', 'Y-m-d H:i:s', $i8_subscription_end_date);
                             echo ' ]';
                             ?></td>
                         </tr>

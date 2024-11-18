@@ -33,7 +33,7 @@ function i8_add_scheduleـqueue_page_menu()
         'publisher_copoilot',
         'صف انتشار',
         'صف انتشار',
-        'manage_options',
+        'publish_posts',
         'publisher_copoilot_schedule_queue',
         'pc_schedule_queue_page_callback'
     );
@@ -61,7 +61,7 @@ function pc_schedule_queue_page_callback()
 {
     // یک کویری میخام که بره لیستی از رکوردهای جدول i8_pc_post_schedule رو برام واکشی کنه و در یک متغییر بهم بده
     global $wpdb;
-    $query = "SELECT * FROM {$wpdb->prefix}pc_post_schedule ORDER BY FIELD(publish_priority, 'high', 'medium', 'low')";
+    $query = "SELECT * FROM {$wpdb->prefix}pc_post_schedule ORDER BY FIELD(publish_priority, 'high', 'medium', 'low'), id ASC ";
     $results = $wpdb->get_results($query);
     // رکورد های result بر اساس اینکه اول اونایی که فیلد publish_priority شون high هست و بعد اونایی که medium هست و بعد اونایی که low هست بهم مرتب کن
 

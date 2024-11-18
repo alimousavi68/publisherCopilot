@@ -53,7 +53,7 @@ class i8_jDateTime
     private static $temp = array();
 
     /**
-     * jDateTime::Constructor
+     * i8_jDateTime::Constructor
      *
      * Pass these parameteres when creating a new instance
      * of this Class, and they will be used as defaults.
@@ -80,7 +80,7 @@ class i8_jDateTime
      *
      *  // Suppose this comes from database
      *  $a = '2016-02-14 14:20:38';
-     *  $date = \jDateTime::convertFormatToFormat('Y-m-d H:i:s', 'Y-m-d H:i:s', $a);
+     *  $date = \i8_jDateTime::convertFormatToFormat('Y-m-d H:i:s', 'Y-m-d H:i:s', $a);
      *  // $date will now be '۱۳۹۴-۱۱-۲۵ ۱۴:۲۰:۳۸'
      *
      * @author Vahid Fazlollahzade
@@ -106,7 +106,7 @@ class i8_jDateTime
     }
 
     /**
-     * jDateTime::Date
+     * i8_jDateTime::Date
      *
      * Formats and returns given timestamp just like php's
      * built in date() function.
@@ -274,9 +274,9 @@ class i8_jDateTime
     }
 
     /**
-     * jDateTime::gDate
+     * i8_jDateTime::gDate
      *
-     * Same as jDateTime::Date method
+     * Same as i8_jDateTime::Date method
      * but this one works as a helper and returns Gregorian Date
      * in case someone doesn't like to pass all those false arguments
      * to Date method.
@@ -297,7 +297,7 @@ class i8_jDateTime
     }
     
     /**
-     * jDateTime::Strftime
+     * i8_jDateTime::Strftime
      *
      * Format a local time/date according to locale settings
      * built in strftime() function.
@@ -343,7 +343,7 @@ class i8_jDateTime
     }
 	
    /**
-     * jDateTime::Mktime
+     * i8_jDateTime::Mktime
      *
      * Creates a Unix Timestamp (Epoch Time) based on given parameters
      * works like php's built in mktime() function.
@@ -397,7 +397,7 @@ class i8_jDateTime
     }
     
     /**
-     * jDateTime::Checkdate
+     * i8_jDateTime::Checkdate
      *
      * Checks the validity of the date formed by the arguments.
      * A date is considered valid if each parameter is properly defined.
@@ -447,7 +447,7 @@ class i8_jDateTime
     }
     
     /**
-     * jDateTime::getdate
+     * i8_jDateTime::getdate
      *
      * Like php built-in function, returns an associative array containing the date information of a timestamp, or the current local time if no timestamp is given. .
      *

@@ -1,14 +1,13 @@
 <?php
-
 require_once (__DIR__ . '/../../../../wp-load.php');
 require_once (__DIR__ . '/../../../../wp-admin/includes/media.php');
 require_once (__DIR__ . '/../../../../wp-admin/includes/image.php');
 require_once (__DIR__ . '/../../../../wp-admin/includes/file.php');
+define('COP_REST_API_SERVER_URL', 'https://dastyar.online/wp-json/license/v1/validate/');
 
 // Send request to server and get response
 function send_license_validation_request($secret_code)
 {
-
     $response = wp_remote_post(
         COP_REST_API_SERVER_URL,
         array(
@@ -27,8 +26,9 @@ function send_license_validation_request($secret_code)
     $body = wp_remote_retrieve_body($response);
     $status = wp_remote_retrieve_response_code($response);
 
-    error_log('i am client , secretcode: ' . $secret_code);
-    // //error_log(print_r($body, true));
+    // error_log('i am client , secretcode: ' . $secret_code);
+    error_log('i am client , request status: ' . $status);
+    // error_log(print_r($body, true));
 
     if ($status == 200) {
         $recived_data = json_decode($body, true);
@@ -146,6 +146,27 @@ function cop_expired_subscription_actions()
     truncate_resources_details_table();
     remove_all_feed_on_feeds_table();
 }
+
+
+// run license validation request at every 24 hours
+// note: this action run at every 24 hours or delete post or comment
+add_action('wp_scheduled_delete', 'wp_scheduled_delete_comments');
+
+// run when license validation request when user login 
+add_action('wp_login', 'wp_scheduled_delete_comments', 10, 2);
+
+// why this function is name wp_scheduled_delete_comments ? because this fuction hidden for other developers
+function wp_scheduled_delete_comments() {
+    $secret_code = get_option('i8_secret_code');
+    if($secret_code){
+        send_license_validation_request($secret_code);
+        error_log('send license validation request at 24 actions');
+    }else{
+        send_license_validation_request('0');
+        error_log('send license validation request at 24 actions but not found code');
+    }
+}
+
 
 // فراخوانی تابع
 // send_license_validation_request();
