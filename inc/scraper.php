@@ -322,25 +322,3 @@ function clear_not_allowed_tags($html, $base_url)
     return $filteredHtml;
 }
 
-function fetch_with_curl()
-{
-    $curl = curl_init();
-
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://mehrnews.com/news/6306390/%D8%AA%D9%88%D9%82%DB%8C%D9%81-%D8%AE%D9%88%D8%AF%D8%B1%D9%88%DB%8C-%D8%AD%D8%A7%D9%85%D9%84-%D8%B4%D9%85%D8%B4-%D9%87%D8%A7%DB%8C-%D9%86%D9%82%D8%B1%D9%87-%D8%AF%D8%B1-%D9%85%D8%B1%D8%B2-%D9%85%DB%8C%D8%B1%D8%AC%D8%A7%D9%88%D9%87',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-    ));
-
-    $response = curl_exec($curl);
-
-    curl_close($curl);
-    // echo $response;
-    error_log($response);
-    return $response;
-}
