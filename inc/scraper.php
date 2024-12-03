@@ -102,19 +102,29 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
     $need_to_merge_guid_link = get_resource_data($resource_id, 'need_to_merge_guid_link');
 
 
+    // $guid = $guid . '';
+    // $url = $guid;
+    // $encoded_url = preg_replace_callback('/[^\x20-\x7f]/', function ($matches) {
+    //     return rawurlencode($matches[0]);
+    // }, $url);
+
+
     $guid = $guid . '';
     $url = $guid;
+
+    // Remove "www." only if it comes after "http://" or "https://"
+    $url = preg_replace('/^(https?:\/\/)www\./', '$1', $url);
+
+    // Encode the URL
     $encoded_url = preg_replace_callback('/[^\x20-\x7f]/', function ($matches) {
         return rawurlencode($matches[0]);
     }, $url);
 
-    // error_log($encoded_url);
+    // error_log('#1 : ' . $encoded_url);
 
 
-    // Load the HTML from the provided URL
     $html = file_get_html($encoded_url);
 
-    // echo($html);
     // error_log($html);
 
     // Check if HTML is successfully loaded
@@ -253,7 +263,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
             return (array('status' => false, 'message' => 'Required elements not found on the page.'));
         }
     } else {
-        //error_log('Failed to load HTML from the URL.');
+        error_log('Failed to load HTML from the URL.');
         return (array('status' => false, 'message' => 'Failed to load HTML from the URL.'));
     }
 }
@@ -310,4 +320,27 @@ function clear_not_allowed_tags($html, $base_url)
 
     // بازگرداندن HTML نهایی
     return $filteredHtml;
+}
+
+function fetch_with_curl()
+{
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://mehrnews.com/news/6306390/%D8%AA%D9%88%D9%82%DB%8C%D9%81-%D8%AE%D9%88%D8%AF%D8%B1%D9%88%DB%8C-%D8%AD%D8%A7%D9%85%D9%84-%D8%B4%D9%85%D8%B4-%D9%87%D8%A7%DB%8C-%D9%86%D9%82%D8%B1%D9%87-%D8%AF%D8%B1-%D9%85%D8%B1%D8%B2-%D9%85%DB%8C%D8%B1%D8%AC%D8%A7%D9%88%D9%87',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+    ));
+
+    $response = curl_exec($curl);
+
+    curl_close($curl);
+    // echo $response;
+    error_log($response);
+    return $response;
 }

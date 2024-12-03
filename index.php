@@ -2,7 +2,7 @@
 /*
 Plugin Name: Publisher Copilot
 Description: اافزونه دستیار هوشمند (کلاینت)
-Version: 1.5
+Version: 1.8
 Author: Hasht Behesht
 */
 
