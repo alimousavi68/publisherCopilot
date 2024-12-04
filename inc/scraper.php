@@ -134,7 +134,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
         error_log('#2 : ' . $encoded_url);
         $html = file_get_html($encoded_url);
     }
-    error_log($html);
+    // error_log($html);
 
     // Check if HTML is successfully loaded
     if ($html) {
