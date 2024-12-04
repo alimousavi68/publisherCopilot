@@ -112,20 +112,30 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
     $guid = $guid . '';
     $url = $guid;
 
-    // Remove "www." only if it comes after "http://" or "https://"
-    $url = preg_replace('/^(https?:\/\/)www\./', '$1', $url);
-
     // Encode the URL
     $encoded_url = preg_replace_callback('/[^\x20-\x7f]/', function ($matches) {
         return rawurlencode($matches[0]);
     }, $url);
 
-    // error_log('#1 : ' . $encoded_url);
-
+    error_log('#1 : ' . $encoded_url);
 
     $html = file_get_html($encoded_url);
 
-    // error_log($html);
+    if ($html == '') {
+        error_log('HTML is empty');
+        // Remove "www." only if it comes after "http://" or "https://"
+        $url = $guid;
+
+        $url = preg_replace('/^(https?:\/\/)www\./', '$1', $url);
+
+        // Encode the URL
+        $encoded_url = preg_replace_callback('/[^\x20-\x7f]/', function ($matches) {
+            return rawurlencode($matches[0]);
+        }, $url);
+        error_log('#2 : ' . $encoded_url);
+        $html = file_get_html($encoded_url);
+    }
+    error_log($html);
 
     // Check if HTML is successfully loaded
     if ($html) {
