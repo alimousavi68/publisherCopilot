@@ -125,7 +125,6 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
         error_log('HTML is empty');
         // Remove "www." only if it comes after "http://" or "https://"
         $url = $guid;
-
         $url = preg_replace('/^(https?:\/\/)www\./', '$1', $url);
 
         // Encode the URL
@@ -161,8 +160,6 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
             $excerpt = '';
             error_log('i am client- excerpt is not found' . 'لید پیدا نشد');
         }
-
-
 
         if ($html->find($body_selector, 0) != null) {
             $content = $html->find($body_selector, 0);
