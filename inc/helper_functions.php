@@ -1,8 +1,8 @@
 <?php
-require_once (__DIR__ . '/../../../../wp-load.php');
-require_once (__DIR__ . '/../../../../wp-admin/includes/media.php');
-require_once (__DIR__ . '/../../../../wp-admin/includes/image.php');
-require_once (__DIR__ . '/../../../../wp-admin/includes/file.php');
+require_once(__DIR__ . '/../../../../wp-load.php');
+require_once(__DIR__ . '/../../../../wp-admin/includes/media.php');
+require_once(__DIR__ . '/../../../../wp-admin/includes/image.php');
+require_once(__DIR__ . '/../../../../wp-admin/includes/file.php');
 define('COP_REST_API_SERVER_URL', 'https://dastyar.online/wp-json/license/v1/validate/');
 
 // Send request to server and get response
@@ -45,7 +45,6 @@ function send_license_validation_request($secret_code)
         i8_save_response_license_data($response_data);
 
         return true;
-
     } else {
         //error_log('error');
         // FOR DOING : some doing work for notif to admin for expire lisence and disable plugin 
@@ -156,12 +155,13 @@ add_action('wp_scheduled_delete', 'wp_scheduled_delete_comments');
 add_action('wp_login', 'wp_scheduled_delete_comments', 10, 2);
 
 // why this function is name wp_scheduled_delete_comments ? because this fuction hidden for other developers
-function wp_scheduled_delete_comments() {
+function wp_scheduled_delete_comments()
+{
     $secret_code = get_option('i8_secret_code');
-    if($secret_code){
+    if ($secret_code) {
         send_license_validation_request($secret_code);
         error_log('send license validation request at 24 actions');
-    }else{
+    } else {
         send_license_validation_request('0');
         error_log('send license validation request at 24 actions but not found code');
     }
@@ -203,7 +203,6 @@ function i8_delete_item_at_scheulde_list($id = '', $post_id = '')
     } else {
         return array('status' => 'error', 'message' => 'هیچ ردیفی حذف نشد. امکان دارد شناسه مورد نظر وجود نداشته باشد.');
     }
-
 }
 
 // add custom meta box to post publish
@@ -226,7 +225,7 @@ function render_cop_manager_meta_box()
     global $post;
     $old_priority = cop_get_post_priority($post->ID);
 
-    ?>
+?>
     <div class="">
         <label for="cop_post_priority">
             ⏰ زمانبندی هوشمند:
@@ -239,7 +238,7 @@ function render_cop_manager_meta_box()
             </select>
         </label>
     </div>
-    <?php
+<?php
 }
 
 add_action('save_post', 'cop_set_post_priority_in_manager_meta_box', 10, 3);
@@ -292,7 +291,6 @@ function cop_set_post_priority_in_manager_meta_box($post_id, $post, $update)
         );
         wp_update_post($post_data);
         $updating_post = false;
-
     } elseif ($priority_value == 'now') {
 
         $updating_post = true;
@@ -315,7 +313,6 @@ function cop_set_post_priority_in_manager_meta_box($post_id, $post, $update)
 
         wp_update_post($post_data);
         $updating_post = false;
-
     }
 }
 
@@ -408,14 +405,12 @@ function i8_change_post_status($priority_posts)
             } else {
                 // //error_log('i8: failed to delete record with id=' . $id . 'from table ' . $table_post_schedule);
             }
-
         } else {
             // //error_log('not fund or not aa draft post and delete record');
 
             i8_delete_item_at_scheulde_list($id, null);
             publish_post_at_scheduling_table();
         }
-
     }
 }
 
@@ -465,13 +460,26 @@ function get_resource_data($resource_id, $resource_item_selector)
 function fetch_rss_feed($url)
 {
     $response = wp_remote_get($url);
-
+    
     if (is_wp_error($response)) {
+        // $report_id = insert_rss_report(
+        //     'درخواست واکشی فید های یک منبع',
+        //     $url,
+        //     123,
+        //     '0',
+        //     $response->get_error_message()
+        // );
         return false;
     }
 
     $body = wp_remote_retrieve_body($response);
     $rss_feed = simplexml_load_string($body);
+    // $report_id = insert_rss_report(
+    //     'درخواست واکشی فید های یک منبع',
+    //     $url,
+    //     123,
+    //     'موفق',
+    // );
     return $rss_feed;
 }
 
@@ -502,7 +510,6 @@ function custom_rss_parser_insert_item($title, $pub_date, $guid, $resource_id, $
             'guid' => '' . $guid,
         )
     );
-
 }
 
 
@@ -513,13 +520,14 @@ function i8_pc_plugin_deactivate_self()
 }
 
 // تابع سفارشی برای تغییر کلاس‌های paginate_links
-function custom_paginate_links($output) {
+function custom_paginate_links($output)
+{
     // تغییر کلاس‌های <ul>
     $output = str_replace('<ul class="page-numbers">', '<ul class="pagination justify-content-center">', $output);
-    
+
     // تغییر کلاس‌های <li>
     $output = str_replace('<li', '<li class="page-item"', $output);
-    
+
     return $output;
 }
 

@@ -516,7 +516,7 @@ function custom_rss_parser_display_items()
 
                     //send ajax request to scrape the post
                     $.ajax({
-                        url: '<?php echo plugin_dir_url(__DIR__) . "rssnews/inc/scraper.php"; ?>',
+                        url: '<?php echo plugin_dir_url(__DIR__) . "rssnews/inc/scraper/index.php"; ?>',
                         type: 'POST',
                         data: {
                             action: 'publish_scraper',

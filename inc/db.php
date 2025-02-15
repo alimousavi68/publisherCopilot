@@ -67,3 +67,102 @@ function custom_rss_parser_create_tables()
         dbDelta($sql_3);
     }
 }
+
+
+// function create a table if not exists with i8_rss_reports table name and id, action_titile , resource_name, resource_id, pub_date, status , error_msg columns
+
+function create_rss_reports_table() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'pc_reports';
+    
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            action_title text NOT NULL,
+            resource_name text NOT NULL,
+            resource_id mediumint(9) NOT NULL,
+            pub_date datetime  NOT NULL,
+            status tinyint(50) NOT NULL,
+            error_msg text,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta($sql);
+    }
+}
+
+// Add this to WordPress init hook
+add_action('admin_init', 'create_rss_reports_table');
+
+
+
+function insert_rss_report($action_title, $resource_name, $resource_id, $status, $error_msg = '') {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'pc_reports';
+    // set tehran timezone and fetch current time 
+    date_default_timezone_set('Asia/Tehran');
+    $now = date('Y-m-d H:i:s');
+
+    $data = array(
+        'action_title' => $action_title,
+        'resource_name' => $resource_name,
+        'resource_id' => $resource_id,
+        'pub_date' => $now,
+        'status' => $status,
+        'error_msg' => $error_msg
+    );
+    
+    $format = array(
+        '%s', // action_title
+        '%s', // resource_name
+        '%d', // resource_id
+        '%s', // pub_date
+        '%d', // status
+        '%s'  // error_msg
+    );
+    
+    $result = $wpdb->insert($table_name, $data, $format);
+    
+    return $result ? $wpdb->insert_id : false;
+}
+
+
+// add function to display reports in admin panel
+function display_rss_reports() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'pc_reports';
+    // write select query to get all reports from pc_reports table descending order by id
+    $reports = $wpdb->get_results("SELECT * FROM $table_name  ORDER BY id DESC", ARRAY_A);
+    return $reports;
+}
+
+// add fucnion to delete report all reports from pc_reports table
+function delete_all_reports() {
+    // امنیت: بررسی nonce
+    if (!isset($_POST['_wpnonce']) || !wp_verify_nonce($_POST['_wpnonce'], 'delete_all_reports')) {
+        wp_die(__('Invalid request.', 'textdomain'));
+    }
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'pc_reports';
+
+    // اجرای دستور حذف
+    $result = $wpdb->query("DELETE FROM $table_name");
+
+    // ریدایرکت به صفحه قبلی یا نمایش پیغام
+    $redirect_url = admin_url('admin.php?page=publisher-copilot-report');
+    if ($result !== false) {
+        $redirect_url = add_query_arg('status', 'success', $redirect_url);
+    } else {
+        $redirect_url = add_query_arg('status', 'error', $redirect_url);
+    }
+
+    wp_redirect($redirect_url);
+    exit;
+}
+
+
+add_action('admin_post_delete_all_reports', 'delete_all_reports');

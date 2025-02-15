@@ -27,7 +27,8 @@ include_once (plugin_dir_path(__FILE__) . '/feeds_list.php');
 include_once (plugin_dir_path(__FILE__) . 'setting_page.php');
 include_once (plugin_dir_path(__FILE__) . 'license_page.php');
 include_once (plugin_dir_path(__FILE__) . 'schedule-queue.php');
-include_once (plugin_dir_path(__FILE__) . '/inc/scraper.php');
+include_once (plugin_dir_path(__FILE__) . '/inc/scraper/index.php');
+include_once (plugin_dir_path(__FILE__) . '/inc/report/index.php');
 
 include_once (plugin_dir_path(__FILE__) . '/inc/db.php');
 include_once (plugin_dir_path(__FILE__) . '/inc/crons/crons.php');

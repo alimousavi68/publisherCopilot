@@ -11,8 +11,6 @@ function i8_register_daily_cron_schedule($schedules)
     return $schedules;
 }
 
-
-
 // Declare Schedules 
 add_action('admin_init', 'custom_rss_parser_schedule_event');
 function custom_rss_parser_schedule_event()
