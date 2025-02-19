@@ -111,35 +111,102 @@ function check_post_link_status($encoded_url)
 }
 
 
-// Function to fetch HTML content using cURL
+
+// تابع کمکی برای کدگذاری URL (به ویژه بخش path) به صورت percent-encoded
+function encodeUrl($url)
+{
+    $parts = parse_url($url);
+    $scheme   = isset($parts['scheme']) ? $parts['scheme'] . '://' : '';
+    $host     = isset($parts['host']) ? $parts['host'] : '';
+    $port     = isset($parts['port']) ? ':' . $parts['port'] : '';
+    $user     = isset($parts['user']) ? $parts['user'] : '';
+    $pass     = isset($parts['pass']) ? ':' . $parts['pass']  : '';
+    $pass     = ($user || $pass) ? "$pass@" : '';
+    // کدگذاری هر بخش از مسیر
+    $path     = isset($parts['path']) ? implode('/', array_map('rawurlencode', explode('/', $parts['path']))) : '';
+    $query    = isset($parts['query']) ? '?' . $parts['query'] : '';
+    $fragment = isset($parts['fragment']) ? '#' . $parts['fragment'] : '';
+    return "$scheme$user$pass$host$port$path$query$fragment";
+}
+
+// تابع جامع برای دریافت محتوای HTML با استفاده از cURL (بدون گزارشات اضافی)
 function fetch_html_with_curl($url)
 {
+    // ابتدا URL را به صورت صحیح کدگذاری می‌کنیم
+    $encodedUrl = encodeUrl(trim($url));
+    
+    // استخراج اطلاعات URL برای تعیین Host و Referer
+    $parsedUrl = parse_url($encodedUrl);
+    $host = isset($parsedUrl['host']) ? $parsedUrl['host'] : '';
+    $scheme = isset($parsedUrl['scheme']) ? $parsedUrl['scheme'] : 'http';
+    $referer = $host ? $scheme . '://' . $host . '/' : '';
+
+    // تعریف چند مجموعه هدر برای تنوع در درخواست
+    $headerSets = [
+        [
+            "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Accept: */*",
+            "Accept-Encoding: deflate, gzip",
+            "Accept-Language: en-US,en;q=0.5",
+            "Connection: keep-alive",
+            "Referer: $referer",
+            "Host: $host"
+        ],
+        [
+            "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+            "Accept: */*",
+            "Accept-Encoding: deflate, gzip",
+            "Accept-Language: fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Connection: keep-alive",
+            "Referer: $referer",
+            "Host: $host"
+        ],
+        [
+            "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36",
+            "Accept: */*",
+            "Accept-Encoding: deflate, gzip",
+            "Accept-Language: en-GB,en;q=0.9",
+            "Connection: keep-alive",
+            "Referer: $referer",
+            "Host: $host"
+        ]
+    ];
+
+    // انتخاب تصادفی یکی از مجموعه‌های هدر
+    $selectedHeaders = $headerSets[array_rand($headerSets)];
+    // error_log("Selected Request Headers: " . print_r($selectedHeaders, true)); // لاگ حذف شده
+
     // مقداردهی اولیه cURL
     $ch = curl_init();
 
     // تنظیمات cURL
-    curl_setopt($ch, CURLOPT_URL, $url); // آدرس URL
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // بازگشت پاسخ به‌جای نمایش مستقیم
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // دنبال کردن ریدایرکت‌ها
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'); // تنظیم User-Agent مشابه مرورگر
-    curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt'); // ذخیره کوکی‌ها
-    curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookie.txt'); // استفاده از کوکی‌ها
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10); // محدودیت زمانی درخواست
+    curl_setopt($ch, CURLOPT_URL, $encodedUrl);                     // استفاده از URL کدگذاری شده
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);                 // برگرداندن خروجی به جای چاپ مستقیم
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);                 // دنبال کردن ریدایرکت‌ها
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $selectedHeaders);           // ارسال هدرهای انتخاب شده
+    curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt');                // ذخیره کوکی‌ها
+    curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookie.txt');               // استفاده از کوکی‌ها
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);                          // محدودیت زمانی
+    curl_setopt($ch, CURLOPT_HEADER, true);                         // دریافت هدرهای پاسخ همراه با بدنه
+    curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);    // استفاده از HTTP/1.1
+    curl_setopt($ch, CURLOPT_ENCODING, "");                         // اجازه به cURL برای مدیریت فشرده‌سازی
 
-    // اجرای درخواست و دریافت محتوا
-    $content = curl_exec($ch);
+    // تنظیمات مربوط به SSL (در محیط‌های تستی)
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
-    // بررسی خطاهای cURL
-    if (curl_errno($ch)) {
-        echo 'Error: ' . curl_error($ch);
-        return false;
-    }
+    // اجرای درخواست
+    $response = curl_exec($ch);
 
-    // بستن cURL
+    // بستن ارتباط cURL
     curl_close($ch);
 
-    return $content; // بازگشت محتوای HTML
+    return $response;
 }
+
+
+
+
 
 
 // Encode the URL

@@ -80,7 +80,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
     }
 
 
-    // Check if HTML is successfully loaded
+    // Check if HTML is successfu   lly loaded
     if ($html) {
 
         // Find and extract the required elements
@@ -90,7 +90,7 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
 
         // بررسی وجود المان قبل از استفاده از تابع find()
         if ($title_element) {
-            // دریافت متن موجود در المان
+            // دریافت  متن موجود در المان
             $title = $title_element->plaintext;
             
         } else {
