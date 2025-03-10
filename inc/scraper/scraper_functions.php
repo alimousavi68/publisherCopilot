@@ -122,12 +122,39 @@ function encodeUrl($url)
     $user     = isset($parts['user']) ? $parts['user'] : '';
     $pass     = isset($parts['pass']) ? ':' . $parts['pass']  : '';
     $pass     = ($user || $pass) ? "$pass@" : '';
-    // کدگذاری هر بخش از مسیر
-    $path     = isset($parts['path']) ? implode('/', array_map('rawurlencode', explode('/', $parts['path']))) : '';
+    
+    // بررسی و کدگذاری مسیر فقط اگر قبلاً کدگذاری نشده باشد
+    $path = '';
+    if (isset($parts['path'])) {
+        // حفظ اسلش ابتدایی
+        $startsWithSlash = substr($parts['path'], 0, 1) === '/';
+        
+        // جداسازی بخش‌های مسیر
+        $pathParts = explode('/', ltrim($parts['path'], '/'));
+        $encodedParts = [];
+        
+        foreach ($pathParts as $part) {
+            // بررسی اینکه آیا بخش قبلاً کدگذاری شده است یا نه
+            if (preg_match('/%[0-9A-F]{2}/i', $part)) {
+                // اگر کاراکترهای درصد در مسیر وجود دارد، احتمالا قبلاً کدگذاری شده
+                $encodedParts[] = $part;
+            } else {
+                // در غیر این صورت، کدگذاری کن
+                $encodedParts[] = rawurlencode($part);
+            }
+        }
+        
+        // بازسازی مسیر
+        $path = ($startsWithSlash ? '/' : '') . implode('/', $encodedParts);
+    }
+    
     $query    = isset($parts['query']) ? '?' . $parts['query'] : '';
     $fragment = isset($parts['fragment']) ? '#' . $parts['fragment'] : '';
+    
     return "$scheme$user$pass$host$port$path$query$fragment";
 }
+
+
 
 // تابع جامع برای دریافت محتوای HTML با استفاده از cURL (بدون گزارشات اضافی)
 function fetch_html_with_curl($url)
