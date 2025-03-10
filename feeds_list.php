@@ -20,7 +20,7 @@ function custom_rss_parser_menu()
     add_menu_page(
         'آخرین فیدهای دستیار',
         'دستیار',
-        'publish_posts',
+        'edit_posts',
         'publisher_copoilot',
         'publisher_copoilot_callback',
         'dashicons-image-filter',
