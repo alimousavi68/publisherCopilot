@@ -47,9 +47,17 @@ function scrape_and_publish_post($guid, $resource_id, $publish_priority)
     $result = check_post_link_status($encoded_url);
 
     if ($result['code'] == 301 || $result['code'] == 302 || $result['code'] == '301-like' || $result['code'] == '301-in-html') {
-        return array('code' => '301', 'new_location' => $headers['Location']);
         insert_rss_report('درخواست واکشی یک پست', $encoded_url, 123, '0', 'خطای ریدایرکت ۳۰۱ صادر شد');
         $encoded_url = $status_code['new_location'];
+
+        $html_content = fetch_html_with_curl($encoded_url);
+        if ($html_content == '') {
+            insert_rss_report('درخواست واکشی یک پست', $encoded_url, 123, '0', 'خطایی با این کد صادر شد: فایل html خالی است');
+        } else {
+            $html = str_get_html($html_content);
+        }
+
+        // return array('code' => '301', 'new_location' => $headers['Location']);
     } else if ($result['code'] != '200') {
         insert_rss_report('درخواست واکشی یک پست', $encoded_url, 123, '0', ' خطایی با این کد صادر شده: ' . $status_code['code']);
     } else {
